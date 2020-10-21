@@ -9509,16 +9509,17 @@ minInterval 15
    static int xpRamPlan = -1;   
    static int gAbstractArtilleryUnitPlan = -1;   
    
-   if (kbGetAge() < cAge5)
+   //if (kbGetAge() < cAge5)
+   if (kbGetAge() > cAge3)
    {
    if ((kbGetCiv() != cCivIndians) && (cMyCiv != cCivXPAztec) && (cMyCiv != cCivXPSioux))
    {     
       if (gAbstractArtilleryUnitPlan < 0)
-      {  gAbstractArtilleryUnitPlan = createSimpleMaintainPlan(gAbstractArtilleryUnit, 2, true, kbBaseGetMainID(cMyID));  }
+      {  gAbstractArtilleryUnitPlan = createSimpleMaintainPlan(gAbstractArtilleryUnit, 2, true, kbBaseGetMainID(cMyID), 2);  }
       else
-      {  aiPlanSetVariableInt(gAbstractArtilleryUnitPlan, cTrainPlanNumberToMaintain, 0); }
+      {  aiPlanSetVariableInt(gAbstractArtilleryUnitPlan, cTrainPlanNumberToMaintain, 0, 2); }
    }
-   }
+   }/*
    if (kbGetAge() > cAge4)
    {
    if ((kbGetCiv() != cCivIndians) && (cMyCiv != cCivXPAztec) && (cMyCiv != cCivXPSioux))
@@ -9616,7 +9617,7 @@ minInterval 15
          else
          {  aiPlanSetVariableInt(ypSiegeElephantPlan, cTrainPlanNumberToMaintain, 0); }   
       }           
-   }   
+   }  */ 
 }
 
 
