@@ -207,7 +207,7 @@ extern int  gAttackMissionInterval = 60000; // 1 minutes.  Suppresses attack sco
 extern int  gDefendMissionInterval = 120000;  // 2 minutes.   Makes the AI less likely to do another defend right after doing one.
 extern bool gDelayAttacks = false;     // Can be used on low difficulty levels to prevent attacks before the AI is attacked.  (AI is defend-only until this variable is
                                        // set false.
-
+									   
 extern int gInitialStrategy = -1;
 extern int gBarracksUnit = cUnitTypeBarracks;
 extern int gStableUnit = cUnitTypeStable;
@@ -279,7 +279,7 @@ mutable void postInit(void) {}
 
 mutable void econMaster(int mode = -1, int value = -1) {}
 mutable void shipGrantedHandler(int parm = -1) {}
-mutable int initUnitPicker(string name = "BUG", int numberTypes = 1, int minUnits = 10, int maxUnits = 20, int minPop = -1, int maxPop = -1, int numberBuildings = 1, bool guessEnemyUnitType = false) { return(-1); }
+mutable int initUnitPicker(string name = "BUG", int numberTypes = 1, int minUnits = 1, int maxUnits = 100, int minPop = -1, int maxPop = -1, int numberBuildings = 1, bool guessEnemyUnitType = false) { return(-1); }
 mutable void setUnitPickerPreference(int upID = -1) {}
 mutable void endDefenseReflex(void) {}
 mutable void selectTowerBuildPlanPosition(int buildPlan = -1) {}
@@ -6240,12 +6240,12 @@ minInterval 5
 	  if (xsGetTime() > 10*60*1000)
       {
 	 kbUnitPickSetMinimumNumberUnits(gLandUnitPicker, 1);
-	 kbUnitPickSetMaximumNumberUnits(gLandUnitPicker, 25); // gGoodArmyPop);
+	 kbUnitPickSetMaximumNumberUnits(gLandUnitPicker, 100); // gGoodArmyPop);
       }
 	  else
       {
 	 kbUnitPickSetMinimumNumberUnits(gLandUnitPicker, 1);
-	 kbUnitPickSetMaximumNumberUnits(gLandUnitPicker, 25);
+	 kbUnitPickSetMaximumNumberUnits(gLandUnitPicker, 100);
       }
 	  }
 	  
@@ -6254,12 +6254,12 @@ minInterval 5
 	  if (xsGetTime() > 16*60*1000)
       {
 	 kbUnitPickSetMinimumNumberUnits(gLandUnitPicker, 1);
-	 kbUnitPickSetMaximumNumberUnits(gLandUnitPicker, 25); // gGoodArmyPop);
+	 kbUnitPickSetMaximumNumberUnits(gLandUnitPicker, 100);
       }
 	  else
       {
 	 kbUnitPickSetMinimumNumberUnits(gLandUnitPicker, 1);
-	 kbUnitPickSetMaximumNumberUnits(gLandUnitPicker, 25); // gGoodArmyPop);
+	 kbUnitPickSetMaximumNumberUnits(gLandUnitPicker, 100);
       }
 	  }
 	  
@@ -6268,19 +6268,19 @@ minInterval 5
 	  if (xsGetTime() > 24*60*1000)
       {
 	 kbUnitPickSetMinimumNumberUnits(gLandUnitPicker, 1);
-	 kbUnitPickSetMaximumNumberUnits(gLandUnitPicker, 25); // gGoodArmyPop);
+	 kbUnitPickSetMaximumNumberUnits(gLandUnitPicker, 150);
       }
 	  else
       {
 	 kbUnitPickSetMinimumNumberUnits(gLandUnitPicker, 1);
-	 kbUnitPickSetMaximumNumberUnits(gLandUnitPicker, 25); // gGoodArmyPop);
+	 kbUnitPickSetMaximumNumberUnits(gLandUnitPicker, 150);
       }
 	  }
 	  
       if (kbGetAge() == cAge5)
       {
 	 kbUnitPickSetMinimumNumberUnits(gLandUnitPicker, 1);
-	 kbUnitPickSetMaximumNumberUnits(gLandUnitPicker, 25); // gGoodArmyPop);
+	 kbUnitPickSetMaximumNumberUnits(gLandUnitPicker, 600);
       }
    }
    
@@ -6302,12 +6302,12 @@ minInterval 5
       }
       case cAge4:
       {
-         aiSetMinArmySize(100);
+         aiSetMinArmySize(150);
          break;
       }
       case cAge5:
       {
-         aiSetMinArmySize(100);
+         aiSetMinArmySize(600);
          break;
       }
    }   
@@ -8899,7 +8899,7 @@ void setUnitPickerPreference(int upID = -1)
       float heavyInfantryFactor = heavyInfantryCount * 2 / totalEnemyCount;
       float lightCavalryFactor = lightCavalryCount * 2 / totalEnemyCount;
       float heavyCavalryFactor = heavyCavalryCount * 1 / totalEnemyCount;
-      float artilleryFactor = artilleryCount * 0.5 / totalEnemyCount;
+      float artilleryFactor = artilleryCount * 0.1 / totalEnemyCount;
       float coreUnitFactor = coreUnitCount * 2 / totalEnemyCount;
       float MahoutFactor = MahoutCount * 1 / totalEnemyCount;
       float HowdahFactor = HowdahCount * 1 / totalEnemyCount;
@@ -8945,13 +8945,14 @@ void setUnitPickerPreference(int upID = -1)
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypexpMusketWarrior, lightInfantryFactor); 
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypexpMusketRider, lightCavalryFactor); 
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypexpMantlet, artilleryFactor);   
-             //kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypexpHorseman, heavyCavalryFactor);   
-			 //if (kbGetAge() > cAge4) 
-			 //{
-             //kbUnitPickSetPreferenceFactor(gLandUnitPicker, gAbstractArtilleryUnit, artilleryFactor);  
-			 //}
+             //kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypexpHorseman, heavyCavalryFactor);
 			 }
 			 
+			 
+			 if (kbGetAge() > cAge3) 
+			 {
+             kbUnitPickSetPreferenceFactor(gLandUnitPicker, gAbstractArtilleryUnit, artilleryFactor); 
+			 }  
 			 
              break;
           }
@@ -9057,10 +9058,11 @@ void setUnitPickerPreference(int upID = -1)
              //kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeypYabusame, lightCavalryFactor); 
              //kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeAbstractDaimyo, coreUnitFactor); 
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeAbstractNativeWarrior, 0.5);
-			 //if (kbGetAge() > cAge4) 
-			 //{
-             //kbUnitPickSetPreferenceFactor(gLandUnitPicker, gAbstractArtilleryUnit, artilleryFactor); 
-			 //}
+			 }
+			 
+			 if (kbGetAge() > cAge3) 
+			 {
+             kbUnitPickSetPreferenceFactor(gLandUnitPicker, gAbstractArtilleryUnit, artilleryFactor); 
 			 }
 
 			if (kbGetAge() == 4)
@@ -9109,10 +9111,10 @@ void setUnitPickerPreference(int upID = -1)
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeAbstractNativeWarrior, 0.5);
 			 }
 			 
-			  /*if (kbGetAge() > cAge4) 
+			 if (kbGetAge() > cAge3) 
 			 {
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, gAbstractArtilleryUnit, artilleryFactor); 
-			 }*/
+			 }   
 			       
 			if (kbGetAge() == 4)
 			{
@@ -9146,11 +9148,12 @@ void setUnitPickerPreference(int upID = -1)
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeCuirassier, CuirassierFactor);   
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeSkirmisher, lightInfantryFactor);
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeAbstractNativeWarrior, 0.5);
-			 /*if (kbGetAge() > cAge4) 
+			 }
+			 
+			 if (kbGetAge() > cAge3) 
 			 {
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, gAbstractArtilleryUnit, artilleryFactor); 
-			 }*/
-			 }
+			 }  
 			 
 			if (kbGetAge() == 4)
 			{
@@ -9176,11 +9179,12 @@ void setUnitPickerPreference(int upID = -1)
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeAbstractNativeWarrior, 0.5);   
              //kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeFalconet, artilleryFactor);  
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeRuyter, lightCavalryFactor);
-			 /*if (kbGetAge() > cAge4) 
+			 }
+			 
+			 if (kbGetAge() > cAge3) 
 			 {
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, gAbstractArtilleryUnit, artilleryFactor); 
-			 }*/
-			 }
+			 }  
 			 
 			if (kbGetAge() == 4)
 			{
@@ -9221,11 +9225,12 @@ void setUnitPickerPreference(int upID = -1)
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeAbstractNativeWarrior, 0.5);
 			 kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeLancer, LancerFactor);
              //kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeDragoon, lightCavalryFactor);  
-			 /*if (kbGetAge() > cAge4) 
+			 }
+			 
+			 if (kbGetAge() > cAge3) 
 			 {
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, gAbstractArtilleryUnit, artilleryFactor); 
-			 }*/
-			 }
+			 }  
 			 
 			if (kbGetAge() == 4)
 			{
@@ -9254,11 +9259,12 @@ void setUnitPickerPreference(int upID = -1)
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeSkirmisher, lightInfantryFactor); 
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeAbstractNativeWarrior, 0.5);
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeWarWagon, lightCavalryFactor); 
-			 /*if (kbGetAge() > cAge4) 
+			}
+			
+			 if (kbGetAge() > cAge3) 
 			 {
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, gAbstractArtilleryUnit, artilleryFactor); 
-			 }*/
-			 }
+			 }  
 			 
 			if (kbGetAge() == 4)
 			{
@@ -9278,11 +9284,12 @@ void setUnitPickerPreference(int upID = -1)
 			 {  
              //kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeCossack, OttoHussarFactor); 
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeAbstractNativeWarrior, 0.5);
-			 /*if (kbGetAge() > cAge4) 
+			 }
+			 
+			 if (kbGetAge() > cAge3) 
 			 {
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, gAbstractArtilleryUnit, artilleryFactor); 
-			 }*/
-			 }
+			 }  
 			 
 			if (kbGetAge() == 4)
 			{
@@ -9308,11 +9315,7 @@ void setUnitPickerPreference(int upID = -1)
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeAbstractNativeWarrior, 0.5);
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeCacadore, lightInfantryFactor);          
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeDragoon, lightCavalryFactor);        
-             //kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeOrganGun, artilleryFactor); 
-			  /*if (kbGetAge() > cAge4) 
-			 {
-             kbUnitPickSetPreferenceFactor(gLandUnitPicker, gAbstractArtilleryUnit, artilleryFactor); 
-			 }*/
+             kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeOrganGun, artilleryFactor);
 			 }
 			 
 			if (kbGetAge() == 4)
@@ -9338,7 +9341,12 @@ void setUnitPickerPreference(int upID = -1)
 			 {  
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeAbusGun, AbusGunFactor);   
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeAbstractNativeWarrior, 0.5);
-			 }    
+			 }  
+			 
+			 if (kbGetAge() > cAge3) 
+			 {
+             kbUnitPickSetPreferenceFactor(gLandUnitPicker, gAbstractArtilleryUnit, artilleryFactor); 
+			 }  
 			 
 			if (kbGetAge() == 4)
 			{
@@ -9411,8 +9419,8 @@ void setUnitPickerPreference(int upID = -1)
 //==============================================================================
 // initUnitPicker
 //==============================================================================
-int initUnitPicker(string name="BUG", int numberTypes=1, int minUnits=10,
-   int maxUnits=20, int minPop=-1, int maxPop=-1, int numberBuildings=1,
+int initUnitPicker(string name="BUG", int numberTypes=1, int minUnits=1,
+   int maxUnits=100, int minPop=-1, int maxPop=-1, int numberBuildings=1,
    bool guessEnemyUnitType=false)
 {   
    //Create it.
@@ -9492,6 +9500,7 @@ int getMatchTarget()    // Find an enemy player buildingID to attack.
 
 */
 //==============================================================================
+/*
 rule siegeWeaponMonitor
 inactive
 minInterval 15
@@ -9519,7 +9528,7 @@ minInterval 15
       else
       {  aiPlanSetVariableInt(gAbstractArtilleryUnitPlan, cTrainPlanNumberToMaintain, 0, 2); }
    }
-   }/*
+   }
    if (kbGetAge() > cAge4)
    {
    if ((kbGetCiv() != cCivIndians) && (cMyCiv != cCivXPAztec) && (cMyCiv != cCivXPSioux))
@@ -9617,9 +9626,9 @@ minInterval 15
          else
          {  aiPlanSetVariableInt(ypSiegeElephantPlan, cTrainPlanNumberToMaintain, 0); }   
       }           
-   }  */ 
+   }  
 }
-
+*/
 
 rule siegeWeaponManager
 active
@@ -10926,6 +10935,8 @@ minInterval 5
          if ( (aiGetEconomyPop() > cvMaxCivPop) && (cvMaxCivPop >= 0) )
             aiSetEconomyPop(cvMaxCivPop); maxMil = gMaxPop;        
 	     gAttackMissionInterval = 1*60*1000;
+		 gClaimMissionInterval = 1*60*1000;
+		 gDefendMissionInterval = 2*60*1000;
               setMilPopLimit(0, maxMil, maxMil, maxMil, maxMil);
 			    
 	 break;
@@ -10953,8 +10964,10 @@ minInterval 5
            aiSetEconomyPop(100);
        
          if ( (aiGetEconomyPop() > cvMaxCivPop) && (cvMaxCivPop >= 0) )
-            aiSetEconomyPop(cvMaxCivPop); maxMil = gMaxPop;        
+            aiSetEconomyPop(cvMaxCivPop); maxMil = gMaxPop;      
 	     gAttackMissionInterval = 1*60*1000;
+		 gClaimMissionInterval = 1*60*1000;
+		 gDefendMissionInterval = 2*60*1000;
               setMilPopLimit(0, maxMil, maxMil, maxMil, maxMil);
 			  
 	 break;
@@ -10982,8 +10995,10 @@ minInterval 5
            aiSetEconomyPop(100);
        
          if ( (aiGetEconomyPop() > cvMaxCivPop) && (cvMaxCivPop >= 0) )
-            aiSetEconomyPop(cvMaxCivPop); maxMil = gMaxPop;        
+            aiSetEconomyPop(cvMaxCivPop); maxMil = gMaxPop;    
 	     gAttackMissionInterval = 1*60*1000;
+		 gClaimMissionInterval = 1*60*1000;
+		 gDefendMissionInterval = 2*60*1000;
               setMilPopLimit(0, maxMil, maxMil, maxMil, maxMil);
 			    
 	 break;
@@ -11012,8 +11027,10 @@ minInterval 5
        
 	   
          if ( (aiGetEconomyPop() > cvMaxCivPop) && (cvMaxCivPop >= 0) )
-            aiSetEconomyPop(cvMaxCivPop); maxMil = gMaxPop;        
+            aiSetEconomyPop(cvMaxCivPop); maxMil = gMaxPop;    
 	     gAttackMissionInterval = 1*60*1000;
+		 gClaimMissionInterval = 1*60*1000;
+		 gDefendMissionInterval = 2*60*1000;
               setMilPopLimit(0, maxMil, maxMil, maxMil, maxMil);
 			     
 	 break;
@@ -11041,8 +11058,10 @@ minInterval 5
            aiSetEconomyPop(100);
        
          if ( (aiGetEconomyPop() > cvMaxCivPop) && (cvMaxCivPop >= 0) )
-            aiSetEconomyPop(cvMaxCivPop); maxMil = gMaxPop;        
+            aiSetEconomyPop(cvMaxCivPop); maxMil = gMaxPop;      
 	     gAttackMissionInterval = 1*60*1000;
+		 gClaimMissionInterval = 1*60*1000;
+		 gDefendMissionInterval = 2*60*1000;
               setMilPopLimit(0, maxMil, maxMil, maxMil, maxMil);
 			  
 			  
@@ -11071,8 +11090,10 @@ minInterval 5
            aiSetEconomyPop(100);
        
          if ( (aiGetEconomyPop() > cvMaxCivPop) && (cvMaxCivPop >= 0) )
-            aiSetEconomyPop(cvMaxCivPop); maxMil = gMaxPop;        
+            aiSetEconomyPop(cvMaxCivPop); maxMil = gMaxPop;      
 	     gAttackMissionInterval = 1*60*1000;
+		 gClaimMissionInterval = 1*60*1000;
+		 gDefendMissionInterval = 2*60*1000;
               setMilPopLimit(0, maxMil, maxMil, maxMil, maxMil);
 			  
 	 break;
@@ -26336,6 +26357,56 @@ minInterval 10
    {
       int resourceExplorePlan = aiPlanCreate("resourceExplorePlan", cPlanExplore);
       aiPlanSetDesiredPriority(resourceExplorePlan, 75); 
+	   if ((cMyCiv == cCivFrench) || (cMyCiv == cCivRussians) || (cMyCiv == cCivBritish) || (cMyCiv == cCivPortuguese) || (cMyCiv == cCivSpanish))
+				{
+				aiPlanAddUnitType(resourceExplorePlan, cUnitTypeMusketeer, 1, 1, 1);
+				}
+				else
+				if (cMyCiv == cCivDutch)
+				{
+				aiPlanAddUnitType(resourceExplorePlan, cUnitTypeSkirmisher, 1, 1, 1);
+				}
+				else
+				if (cMyCiv == cCivOttomans)
+				{
+				aiPlanAddUnitType(resourceExplorePlan, cUnitTypeJanissary, 1, 1, 1);
+				}
+				else
+				if (cMyCiv == cCivGermans)
+				{
+				aiPlanAddUnitType(resourceExplorePlan, cUnitTypeCrossbowman, 1, 1, 1);
+				}
+				else
+				if (cMyCiv == cCivXPIroquois)
+				{
+				aiPlanAddUnitType(resourceExplorePlan, cUnitTypexpAenna, 1, 1, 1);
+				}
+				else
+				if (cMyCiv == cCivXPAztec)
+				{
+				aiPlanAddUnitType(resourceExplorePlan, cUnitTypexpMacehualtin, 1, 1, 1);
+				}
+				else
+				if (cMyCiv == cCivXPSioux)
+				{
+				aiPlanAddUnitType(resourceExplorePlan, cUnitTypexpAxeRider, 1, 1, 1);
+				}
+				else
+				if (cMyCiv == cCivChinese)
+				{
+				aiPlanAddUnitType(resourceExplorePlan, cUnitTypeypChuKoNu, 1, 1, 1);
+				}
+				else
+				if (cMyCiv == cCivIndians)
+				{
+				aiPlanAddUnitType(resourceExplorePlan, cUnitTypeypSepoy, 1, 1, 1);
+				}
+				else
+				if (cMyCiv == cCivJapanese)
+				{
+				aiPlanAddUnitType(resourceExplorePlan, cUnitTypeypAshigaru, 1, 1, 1);
+				}
+				else
       aiPlanAddUnitType(resourceExplorePlan, cUnitTypeAbstractRangedInfantry, 1, 1, 1);           
       ////aiPlanSetUnitStance(resourceExplorePlan, cUnitStanceAggressive);
       aiPlanAddWaypoint(resourceExplorePlan, resourceLocation);
@@ -31017,7 +31088,7 @@ minInterval 1
        baseAttackIsOK = true;
     else if ((averageScoreAlly > averageScoreEnemy*1.1)&&(totalScoreAlly > totalScoreEnemy*1.1)&&(gMaxPop - kbGetPop() < 5))
        baseAttackIsOK = true;
-    else if (militaryEquivalence >= gGoodArmyPop * 0.8)
+    else if (militaryEquivalence >= gGoodArmyPop * 0.5)
        baseAttackIsOK = true;
 
     int totalMilitary = kbUnitCount(cMyID, cUnitTypeLogicalTypeLandMilitary, cUnitStateAlive)-kbUnitCount(cMyID, cUnitTypexpMedicineManAztec, cUnitStateAlive)-kbUnitCount(cMyID, gSiegeWeaponUnit, cUnitStateAlive);
