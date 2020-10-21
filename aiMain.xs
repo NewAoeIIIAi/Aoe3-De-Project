@@ -9539,12 +9539,45 @@ minInterval 15
       {  aiPlanSetVariableInt(gAbstractArtilleryUnitPlan, cTrainPlanNumberToMaintain, 0, 10); }
    }
    }
+   if (kbGetAge() == cAge2)
+   {
+   if (cMyCiv == cCivDESwedish)
+   {     
+      if (gAbstractArtilleryUnitPlan < 0)
+      {  gAbstractArtilleryUnitPlan = createSimpleMaintainPlan(gAbstractArtilleryUnit, 2, true, kbBaseGetMainID(cMyID), 2);  }
+      else
+      {  aiPlanSetVariableInt(gAbstractArtilleryUnitPlan, cTrainPlanNumberToMaintain, 0, 2); }
+   }
+   }
+   if (kbGetAge() == cAge3)
+   {
+   if (cMyCiv == cCivDESwedish)
+   {     
+      if (gAbstractArtilleryUnitPlan < 0)
+      {  gAbstractArtilleryUnitPlan = createSimpleMaintainPlan(gAbstractArtilleryUnit, 4, true, kbBaseGetMainID(cMyID), 4);  }
+      else
+      {  aiPlanSetVariableInt(gAbstractArtilleryUnitPlan, cTrainPlanNumberToMaintain, 0, 4); }
+   }
+   }
+   if (kbGetAge() == cAge4)
+   {
+   if (cMyCiv == cCivDESwedish)
+   {     
+      if (gAbstractArtilleryUnitPlan < 0)
+      {  gAbstractArtilleryUnitPlan = createSimpleMaintainPlan(gAbstractArtilleryUnit, 6, true, kbBaseGetMainID(cMyID), 6);  }
+      else
+      {  aiPlanSetVariableInt(gAbstractArtilleryUnitPlan, cTrainPlanNumberToMaintain, 0, 6); }
+   }
+   }
+   if (kbGetAge() >= cAge5)
+   {
    if (cMyCiv == cCivDESwedish)
    {     
       if (gAbstractArtilleryUnitPlan < 0)
       {  gAbstractArtilleryUnitPlan = createSimpleMaintainPlan(gAbstractArtilleryUnit, 10, true, kbBaseGetMainID(cMyID), 10);  }
       else
       {  aiPlanSetVariableInt(gAbstractArtilleryUnitPlan, cTrainPlanNumberToMaintain, 0, 10); }
+   }
    }
    if (civIsNative() == true)
    {     
