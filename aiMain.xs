@@ -9509,8 +9509,8 @@ minInterval 15
    static int xpRamPlan = -1;   
    static int gAbstractArtilleryUnitPlan = -1;   
    
-   //if (kbGetAge() < cAge5)
-   //{
+   if (kbGetAge() < cAge5)
+   {
    if ((kbGetCiv() != cCivIndians) && (cMyCiv != cCivXPAztec) && (cMyCiv != cCivXPSioux))
    {     
       if (gAbstractArtilleryUnitPlan < 0)
@@ -9518,7 +9518,7 @@ minInterval 15
       else
       {  aiPlanSetVariableInt(gAbstractArtilleryUnitPlan, cTrainPlanNumberToMaintain, 0); }
    }
-  /* }
+   }
    if (kbGetAge() > cAge4)
    {
    if ((kbGetCiv() != cCivIndians) && (cMyCiv != cCivXPAztec) && (cMyCiv != cCivXPSioux))
@@ -9578,7 +9578,7 @@ minInterval 15
       else
       {  aiPlanSetVariableInt(gAbstractArtilleryUnitPlan, cTrainPlanNumberToMaintain, 0); }
    }
-   }*/
+   }
    if (civIsNative() == true)
    {     
       if (xpRamPlan < 0)
@@ -10711,17 +10711,17 @@ void initMil(void)
    
    if (kbGetCiv() == cCivDESwedish)
    {
-      gLandPrimaryArmyUnit = cUnitTypedeJungleBowman;
-      gLandSecondaryArmyUnit = cUnitTypedeJungleBowman;
-      gLandTertiaryArmyUnit =  cUnitTypedeJungleBowman;
+      gLandPrimaryArmyUnit = cUnitTypedeCarolean;
+      gLandSecondaryArmyUnit = cUnitTypedeCarolean;
+      gLandTertiaryArmyUnit =  cUnitTypedeCarolean;
 	  gAbstractArtilleryUnit = cUnitTypedeLeatherCannon;
    }
    
    if (kbGetCiv() == cCivDEInca)
    {
-      gLandPrimaryArmyUnit = cUnitTypedeCarolean;
-      gLandSecondaryArmyUnit = cUnitTypedeCarolean;
-      gLandTertiaryArmyUnit = cUnitTypedeCarolean;
+      gLandPrimaryArmyUnit = cUnitTypedeJungleBowman;
+      gLandSecondaryArmyUnit = cUnitTypedeJungleBowman;
+      gLandTertiaryArmyUnit = cUnitTypedeJungleBowman;
 	  gAbstractArtilleryUnit = cUnitTypedeSlinger;
       gBarracksUnit = cUnitTypeWarHut;
       gTowerUnit = cUnitTypeWarHut;
