@@ -11987,7 +11987,7 @@ minInterval 5
 {
       createSimpleBuildPlan(cUnitTypeTownCenter, 1, 95, true, cEconomyEscrowID, gTCBuildPlanID, 1);
       aiEcho("Starting a new house build plan.");
-      aiPlanSetDesiredResourcePriority(gTCBuildPlanID, 90);
+      aiPlanSetDesiredResourcePriority(gTCBuildPlanID, 65);
 	  int planID = -1;
    int numberBanks = 0;
    if (cvOkToBuild == false)
