@@ -9509,24 +9509,24 @@ minInterval 15
    static int xpRamPlan = -1;   
    static int gAbstractArtilleryUnitPlan = -1;   
    
-   if (kbGetAge() < cAge5)
-   {
+   //if (kbGetAge() < cAge5)
+   //{
    if ((kbGetCiv() != cCivIndians) && (cMyCiv != cCivXPAztec) && (cMyCiv != cCivXPSioux))
    {     
       if (gAbstractArtilleryUnitPlan < 0)
-      {  gAbstractArtilleryUnitPlan = createSimpleMaintainPlan(gAbstractArtilleryUnit, 2, true, kbBaseGetMainID(cMyID), 2);  }
+      {  gAbstractArtilleryUnitPlan = createSimpleMaintainPlan(gAbstractArtilleryUnit, 2, true, kbBaseGetMainID(cMyID));  }
       else
-      {  aiPlanSetVariableInt(gAbstractArtilleryUnitPlan, cTrainPlanNumberToMaintain, 0, 2); }
+      {  aiPlanSetVariableInt(gAbstractArtilleryUnitPlan, cTrainPlanNumberToMaintain, 0); }
    }
-   }
+  /* }
    if (kbGetAge() > cAge4)
    {
    if ((kbGetCiv() != cCivIndians) && (cMyCiv != cCivXPAztec) && (cMyCiv != cCivXPSioux))
    {     
       if (gAbstractArtilleryUnitPlan < 0)
-      {  gAbstractArtilleryUnitPlan = createSimpleMaintainPlan(gAbstractArtilleryUnit, 5, true, kbBaseGetMainID(cMyID), 5);  }
+      {  gAbstractArtilleryUnitPlan = createSimpleMaintainPlan(gAbstractArtilleryUnit, 5, true, kbBaseGetMainID(cMyID));  }
       else
-      {  aiPlanSetVariableInt(gAbstractArtilleryUnitPlan, cTrainPlanNumberToMaintain, 0, 5); }
+      {  aiPlanSetVariableInt(gAbstractArtilleryUnitPlan, cTrainPlanNumberToMaintain, 0); }
    }
    }
    if (kbGetAge() > cAge3)
@@ -9534,9 +9534,9 @@ minInterval 15
    if (cMyCiv == cCivDutch)
    {     
       if (gAbstractArtilleryUnitPlan < 0)
-      {  gAbstractArtilleryUnitPlan = createSimpleMaintainPlan(gAbstractArtilleryUnit, 10, true, kbBaseGetMainID(cMyID), 10);  }
+      {  gAbstractArtilleryUnitPlan = createSimpleMaintainPlan(gAbstractArtilleryUnit, 10, true, kbBaseGetMainID(cMyID));  }
       else
-      {  aiPlanSetVariableInt(gAbstractArtilleryUnitPlan, cTrainPlanNumberToMaintain, 0, 10); }
+      {  aiPlanSetVariableInt(gAbstractArtilleryUnitPlan, cTrainPlanNumberToMaintain, 0); }
    }
    }
    if (kbGetAge() == cAge2)
@@ -9544,9 +9544,9 @@ minInterval 15
    if (cMyCiv == cCivDESwedish)
    {     
       if (gAbstractArtilleryUnitPlan < 0)
-      {  gAbstractArtilleryUnitPlan = createSimpleMaintainPlan(gAbstractArtilleryUnit, 2, true, kbBaseGetMainID(cMyID), 2);  }
+      {  gAbstractArtilleryUnitPlan = createSimpleMaintainPlan(gAbstractArtilleryUnit, 2, true, kbBaseGetMainID(cMyID));  }
       else
-      {  aiPlanSetVariableInt(gAbstractArtilleryUnitPlan, cTrainPlanNumberToMaintain, 0, 2); }
+      {  aiPlanSetVariableInt(gAbstractArtilleryUnitPlan, cTrainPlanNumberToMaintain, 0); }
    }
    }
    if (kbGetAge() == cAge3)
@@ -9554,9 +9554,9 @@ minInterval 15
    if (cMyCiv == cCivDESwedish)
    {     
       if (gAbstractArtilleryUnitPlan < 0)
-      {  gAbstractArtilleryUnitPlan = createSimpleMaintainPlan(gAbstractArtilleryUnit, 4, true, kbBaseGetMainID(cMyID), 4);  }
+      {  gAbstractArtilleryUnitPlan = createSimpleMaintainPlan(gAbstractArtilleryUnit, 4, true, kbBaseGetMainID(cMyID));  }
       else
-      {  aiPlanSetVariableInt(gAbstractArtilleryUnitPlan, cTrainPlanNumberToMaintain, 0, 4); }
+      {  aiPlanSetVariableInt(gAbstractArtilleryUnitPlan, cTrainPlanNumberToMaintain, 0); }
    }
    }
    if (kbGetAge() == cAge4)
@@ -9564,9 +9564,9 @@ minInterval 15
    if (cMyCiv == cCivDESwedish)
    {     
       if (gAbstractArtilleryUnitPlan < 0)
-      {  gAbstractArtilleryUnitPlan = createSimpleMaintainPlan(gAbstractArtilleryUnit, 6, true, kbBaseGetMainID(cMyID), 6);  }
+      {  gAbstractArtilleryUnitPlan = createSimpleMaintainPlan(gAbstractArtilleryUnit, 6, true, kbBaseGetMainID(cMyID));  }
       else
-      {  aiPlanSetVariableInt(gAbstractArtilleryUnitPlan, cTrainPlanNumberToMaintain, 0, 6); }
+      {  aiPlanSetVariableInt(gAbstractArtilleryUnitPlan, cTrainPlanNumberToMaintain, 0); }
    }
    }
    if (kbGetAge() >= cAge5)
@@ -9574,47 +9574,47 @@ minInterval 15
    if (cMyCiv == cCivDESwedish)
    {     
       if (gAbstractArtilleryUnitPlan < 0)
-      {  gAbstractArtilleryUnitPlan = createSimpleMaintainPlan(gAbstractArtilleryUnit, 10, true, kbBaseGetMainID(cMyID), 10);  }
+      {  gAbstractArtilleryUnitPlan = createSimpleMaintainPlan(gAbstractArtilleryUnit, 10, true, kbBaseGetMainID(cMyID));  }
       else
-      {  aiPlanSetVariableInt(gAbstractArtilleryUnitPlan, cTrainPlanNumberToMaintain, 0, 10); }
+      {  aiPlanSetVariableInt(gAbstractArtilleryUnitPlan, cTrainPlanNumberToMaintain, 0); }
    }
-   }
+   }*/
    if (civIsNative() == true)
    {     
       if (xpRamPlan < 0)
-      {  xpRamPlan = createSimpleMaintainPlan(cUnitTypexpRam, 2, true, kbBaseGetMainID(cMyID), 2);  }
+      {  xpRamPlan = createSimpleMaintainPlan(cUnitTypexpRam, 2, true, kbBaseGetMainID(cMyID));  }
       else
-      {  aiPlanSetVariableInt(xpRamPlan, cTrainPlanNumberToMaintain, 0, 2); }
+      {  aiPlanSetVariableInt(xpRamPlan, cTrainPlanNumberToMaintain, 0); }
    }
    if (civIsEuropean() == true)
    {
       if (mortarPlan < 0)
-      {  mortarPlan = createSimpleMaintainPlan(cUnitTypeMortar, 2, true, kbBaseGetMainID(cMyID), 2);  }
+      {  mortarPlan = createSimpleMaintainPlan(cUnitTypeMortar, 2, true, kbBaseGetMainID(cMyID));  }
       else
-      {  aiPlanSetVariableInt(mortarPlan, cTrainPlanNumberToMaintain, 0, 2); }
+      {  aiPlanSetVariableInt(mortarPlan, cTrainPlanNumberToMaintain, 0); }
    }
    if (civIsAsian() == true)
    {
       if ( (kbGetCiv() == cCivChinese) || (kbGetCiv() == cCivSPCChinese) )
       {
          if (ypHandMortarPlan < 0)
-         {  ypHandMortarPlan = createSimpleMaintainPlan(cUnitTypeypHandMortar, 5, true, kbBaseGetMainID(cMyID), 5);  }
+         {  ypHandMortarPlan = createSimpleMaintainPlan(cUnitTypeypHandMortar, 5, true, kbBaseGetMainID(cMyID));  }
          else
-         {  aiPlanSetVariableInt(ypHandMortarPlan, cTrainPlanNumberToMaintain, 0, 5); }
+         {  aiPlanSetVariableInt(ypHandMortarPlan, cTrainPlanNumberToMaintain, 0); }
       }
       if (((kbGetCiv() == cCivSPCJapanese)||(kbGetCiv() == cCivJapanese)||(kbGetCiv() == cCivSPCJapaneseEnemy)))
       {  
          if (ypMorutaruPlan < 0)
-         {  ypMorutaruPlan = createSimpleMaintainPlan(cUnitTypeypMorutaru, 2, true, kbBaseGetMainID(cMyID), 2);  }
+         {  ypMorutaruPlan = createSimpleMaintainPlan(cUnitTypeypMorutaru, 2, true, kbBaseGetMainID(cMyID));  }
          else
-         {  aiPlanSetVariableInt(ypMorutaruPlan, cTrainPlanNumberToMaintain, 0, 2); }
+         {  aiPlanSetVariableInt(ypMorutaruPlan, cTrainPlanNumberToMaintain, 0); }
       }
       if ( (kbGetCiv() == cCivIndians) || (kbGetCiv() == cCivSPCIndians) )
       {
          if (ypSiegeElephantPlan < 0)
-         {  ypSiegeElephantPlan = createSimpleMaintainPlan(cUnitTypeypSiegeElephant, 2, true, kbBaseGetMainID(cMyID), 2);  }
+         {  ypSiegeElephantPlan = createSimpleMaintainPlan(cUnitTypeypSiegeElephant, 2, true, kbBaseGetMainID(cMyID));  }
          else
-         {  aiPlanSetVariableInt(ypSiegeElephantPlan, cTrainPlanNumberToMaintain, 0, 2); }   
+         {  aiPlanSetVariableInt(ypSiegeElephantPlan, cTrainPlanNumberToMaintain, 0); }   
       }           
    }   
 }
@@ -11987,7 +11987,7 @@ minInterval 5
 {
       createSimpleBuildPlan(cUnitTypeTownCenter, 1, 95, true, cEconomyEscrowID, gTCBuildPlanID, 1);
       aiEcho("Starting a new house build plan.");
-      aiPlanSetDesiredResourcePriority(gTCBuildPlanID, 65);
+      aiPlanSetDesiredResourcePriority(gTCBuildPlanID, 55);
 	  int planID = -1;
    int numberBanks = 0;
    if (cvOkToBuild == false)
@@ -12087,8 +12087,8 @@ minInterval 5
             }
             
             //Priority.
-            aiPlanSetDesiredPriority(planID, 97);
-            aiPlanSetDesiredResourcePriority(planID, 65);
+            aiPlanSetDesiredPriority(planID, 0);
+            aiPlanSetDesiredResourcePriority(planID, 0);
             
             //Mil vs. Econ.
             aiPlanSetMilitary(planID, false);
@@ -12655,7 +12655,7 @@ minInterval 5
    if ((planID < 0) && (kbUnitCount(cMyID, cUnitTypeTownCenter, cUnitStateAlive) < 1))
    {     // Start a new one
       planID = createSimpleBuildPlan(cUnitTypeTownCenter, 1, 99, false, cEconomyEscrowID, kbBaseGetMainID(cMyID), 1);
-      aiPlanSetDesiredResourcePriority(planID, 10);
+      aiPlanSetDesiredResourcePriority(planID, 50);
       aiEcho("Starting a new town center build plan.");
    }   
    
@@ -31418,8 +31418,8 @@ minInterval 30
             }
             
             //Priority.
-            aiPlanSetDesiredPriority(planID, 97);
-            aiPlanSetDesiredResourcePriority(planID, 90);
+            aiPlanSetDesiredPriority(planID, 0);
+            aiPlanSetDesiredResourcePriority(planID, 0);
             
             //Mil vs. Econ.
             aiPlanSetMilitary(planID, false);
@@ -31508,8 +31508,8 @@ minInterval 30
 			return;
 		}
 		//Priority.
-            aiPlanSetDesiredPriority(planID, 97);
-            aiPlanSetDesiredResourcePriority(planID, 90);
+            aiPlanSetDesiredPriority(planID, 0);
+            aiPlanSetDesiredResourcePriority(planID, 0);
             
             //Mil vs. Econ.
             aiPlanSetMilitary(planID, false);
