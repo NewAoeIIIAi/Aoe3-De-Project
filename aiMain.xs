@@ -12811,50 +12811,50 @@ minInterval 5
 	  
       if ((fVil >= 60.0) && (fVil < 80.0) && (kbGetAge() > cAge3))
       {
-         numBarracks = 12;
+         numBarracks = 4;
          if (kbGetCiv() == cCivChinese)
-           numBarracks = 12;
-         numStable = 12;            
+           numBarracks = 4;
+         numStable = 4;            
          if ( (civIsNative() == true) || (civIsAsian() == true) )
-           numStable = 12;
+           numStable = 4;
          numArtilleryDepot = 1;
          if (kbGetCiv() == cCivOttomans)
-           numArtilleryDepot = 4;
+           numArtilleryDepot = 2;
 	  }
 		   
       if ((fVil >= 80.0) && (kbGetAge() >= cAge5))
       {
-         numBarracks = 16;
+         numBarracks = 6;
          if (kbGetCiv() == cCivChinese)
-           numBarracks = 16;
-         numStable = 16;            
+           numBarracks = 6;
+         numStable = 6;            
          if ( (civIsNative() == true) || (civIsAsian() == true) )
-           numStable = 16;
+           numStable = 6;
          numArtilleryDepot = 1;
          if (kbGetCiv() == cCivOttomans)
-           numArtilleryDepot = 4;
+           numArtilleryDepot = 2;
 	  }
 		   
       if ((fVil >= 80.0) && (kbGetAge() >= cAge5) && (xsGetTime() >= 30*60*1000))
       {
-         numBarracks = 100;
+         numBarracks = 8;
          if (kbGetCiv() == cCivChinese)
-           numBarracks = 100;
-         numStable = 100;            
+           numBarracks = 8;
+         numStable = 8;            
          if ( (civIsNative() == true) || (civIsAsian() == true) )
-           numStable = 100;
-         numArtilleryDepot = 20;
+           numStable = 8;
+         numArtilleryDepot = 2;
          if (kbGetCiv() == cCivOttomans)
-           numArtilleryDepot = 100;
+           numArtilleryDepot = 4;
       }
 	  
       if (aiGetGameMode() == cGameModeDeathmatch)
       {
-	 numBarracks = 100;
+	 numBarracks = 12;
          if (kbGetCiv() == cCivChinese)
-           numBarracks = 100;
-	 numStable = 100;
-	 numArtilleryDepot = 20;	 
+           numBarracks = 12;
+	 numStable = 12;
+	 numArtilleryDepot = 4;	 
    if ((kbGetCiv() == cCivDutch) && (kbUnitCount(cMyID, cUnitTypeBank, cUnitStateAlive) < kbGetBuildLimit(cMyID, cUnitTypeBank)))
          return;
       }
@@ -23270,13 +23270,13 @@ minInterval 10
 		      {
 			         ageUpPriority = 70;
 		      }
-		      if ((xsGetTime() > 20 * 60 * 1000) && (kbGetAge() == cAge3))
+		      if ((xsGetTime() > 18 * 60 * 1000) && (kbGetAge() == cAge3))
 		      {
 			         ageUpPriority = 55;
 		      }
-		      if ((xsGetTime() > 30 * 60 * 1000) && (kbGetAge() == cAge4))
+		      if ((xsGetTime() > 26 * 60 * 1000) && (kbGetAge() == cAge4))
 		      {
-			         ageUpPriority = 50;
+			         ageUpPriority = 55;
 		      }
 		   }
        
