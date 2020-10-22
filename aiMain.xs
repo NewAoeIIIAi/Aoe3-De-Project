@@ -204,7 +204,7 @@ extern int  gLastAttackMissionTime = -1;
 extern int  gLastDefendMissionTime = -1;
 extern int  gClaimMissionInterval = 60000;  // 1 minutes.  This variable indicates how long it takes for claim opportunities to score their maximum.  Typically, a new one will launch before this time.
 extern int  gAttackMissionInterval = 60000; // 1 minutes.  Suppresses attack scores (linearly) for 1 minutes after one launches.  Attacks will usually happen before this period is over.
-extern int  gDefendMissionInterval = 120000;  // 2 minutes.   Makes the AI less likely to do another defend right after doing one.
+extern int  gDefendMissionInterval = 180000;  // 2 minutes.   Makes the AI less likely to do another defend right after doing one.
 extern bool gDelayAttacks = false;     // Can be used on low difficulty levels to prevent attacks before the AI is attacked.  (AI is defend-only until this variable is
                                        // set false.
 									   
@@ -5299,7 +5299,7 @@ minInterval 30
 
 //   if ((kbGetAge() < cAge3) && (gInitialStrategy == 0)||(gInitialStrategy == 2)||(gInitialStrategy == 3))
 //      return;   
-   static int lastPlanTime = 0;
+   static int lastgForwardBaseBuildPlanTime = 0;
    switch(gForwardBaseState)
    {
       case cForwardBaseStateNone:
@@ -5312,10 +5312,10 @@ minInterval 30
             {  // Start a new forward base build plan               
                gForwardBaseLocation = selectForwardBaseLocation();
                gForwardBaseBuildPlan = aiPlanCreate("Forward Base plan ", cPlanBuild);
+			   lastgForwardBaseBuildPlanTime = xsGetTime();
               
 			
 		    aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanBuildingTypeID, 0, gTowerUnit);
-			lastPlanTime = xsGetTime();
             aiPlanSetMilitary(gForwardBaseBuildPlan, true);
             aiPlanSetEscrowID(gForwardBaseBuildPlan, cMilitaryEscrowID);  
             aiPlanAddUnitType(gForwardBaseBuildPlan, gTowerWagonUnit, 1, 1, 1);
@@ -5332,7 +5332,11 @@ minInterval 30
             aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluencePositionValue, 0, 100.0);        // 100 points for center
             aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluencePositionFalloff, 0, cBPIFalloffLinear);  // Linear slope falloff
 			
-	    
+	     if ((gForwardBaseBuildPlan >= 0) && (xsGetTime() - lastgForwardBaseBuildPlanTime > 120000) && (gForwardBaseBuildPlan > 0))
+    {
+       aiPlanDestroy(gForwardBaseBuildPlan);
+       gForwardBaseBuildPlan = -1;
+    }   
                     
             // Add position influence for nearby towers 
 	    if (kbGetCiv() == cCivRussians)          
@@ -5513,6 +5517,8 @@ group tcComplete
 minInterval 30
 {
    
+   static int lastgForwardBaseBuildPlanTime = 0;
+   
    if ( (cvOkToBuild == false) || (cvOkToBuildForts == false) || (aiTreatyActive() == true) || (kbGetAge() < cAge3))
       return;
 
@@ -5530,7 +5536,8 @@ minInterval 30
 	 if (kbGetAge() > cAge2)
             {  // Start a new forward base build plan               
                gForwardBaseLocation = selectForwardBaseLocation();
-               gForwardBaseBuildPlan = aiPlanCreate("Forward Base plan ", cPlanBuild);
+               gForwardBaseBuildPlan = aiPlanCreate("Forward Base plan ", cPlanBuild);				
+	        lastgForwardBaseBuildPlanTime = xsGetTime();
                
 			if  (kbGetCiv() == cCivOttomans)
 			{
@@ -5719,7 +5726,13 @@ minInterval 30
             aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluencePositionDistance, 0,  50.0);     // 100m range.
             aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluencePositionValue, 0, 100.0);        // 100 points for center
             aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluencePositionFalloff, 0, cBPIFalloffLinear);  // Linear slope falloff
-                    
+                   
+				   if ((gForwardBaseBuildPlan >= 0) && (xsGetTime() - lastgForwardBaseBuildPlanTime > 120000) && (gForwardBaseBuildPlan > 0))
+    {
+       aiPlanDestroy(gForwardBaseBuildPlan);
+       gForwardBaseBuildPlan = -1;
+    }   
+	
             // Add position influence for nearby towers   
 	    if (kbGetCiv() == cCivRussians)          
             {
@@ -7067,7 +7080,7 @@ minInterval 5
       gTSFactorPoint = 10.0;
       gTSFactorTimeToDone = 0.0;
       gTSFactorBase = 100.0;
-      gTSFactorDanger = -40.0;
+      gTSFactorDanger = -10.0;
       kbSetTargetSelectorFactor(cTSFactorDistance, gTSFactorDistance);
       kbSetTargetSelectorFactor(cTSFactorPoint, gTSFactorPoint);
       kbSetTargetSelectorFactor(cTSFactorTimeToDone, gTSFactorTimeToDone);
@@ -9707,7 +9720,7 @@ void moveDefenseReflex(vector location = cInvalidVector, float radius = -1.0, in
       gDefenseReflex = true;
       gDefenseReflexBaseID = baseID;
       gDefenseReflexLocation = location;
-      gDefenseReflexTimeout = xsGetTime() + aiRandInt(300) * 1000;
+      gDefenseReflexTimeout = 2*60*1000; // xsGetTime() + aiRandInt(300) * 1000;
       gDefenseReflexPaused = false;
    }
    aiEcho("******** Defense reflex moved to base " + baseID + " with radius " + radius + " and location " + location);
@@ -10936,7 +10949,7 @@ minInterval 5
             aiSetEconomyPop(cvMaxCivPop); maxMil = gMaxPop;        
 	     gAttackMissionInterval = 1*60*1000;
 		 gClaimMissionInterval = 1*60*1000;
-		 gDefendMissionInterval = 2*60*1000;
+		 gDefendMissionInterval = 3*60*1000;
               setMilPopLimit(0, maxMil, maxMil, maxMil, maxMil);
 			    
 	 break;
@@ -10967,7 +10980,7 @@ minInterval 5
             aiSetEconomyPop(cvMaxCivPop); maxMil = gMaxPop;      
 	     gAttackMissionInterval = 1*60*1000;
 		 gClaimMissionInterval = 1*60*1000;
-		 gDefendMissionInterval = 2*60*1000;
+		 gDefendMissionInterval = 3*60*1000;
               setMilPopLimit(0, maxMil, maxMil, maxMil, maxMil);
 			  
 	 break;
@@ -10998,7 +11011,7 @@ minInterval 5
             aiSetEconomyPop(cvMaxCivPop); maxMil = gMaxPop;    
 	     gAttackMissionInterval = 1*60*1000;
 		 gClaimMissionInterval = 1*60*1000;
-		 gDefendMissionInterval = 2*60*1000;
+		 gDefendMissionInterval = 3*60*1000;
               setMilPopLimit(0, maxMil, maxMil, maxMil, maxMil);
 			    
 	 break;
@@ -11030,7 +11043,7 @@ minInterval 5
             aiSetEconomyPop(cvMaxCivPop); maxMil = gMaxPop;    
 	     gAttackMissionInterval = 1*60*1000;
 		 gClaimMissionInterval = 1*60*1000;
-		 gDefendMissionInterval = 2*60*1000;
+		 gDefendMissionInterval = 3*60*1000;
               setMilPopLimit(0, maxMil, maxMil, maxMil, maxMil);
 			     
 	 break;
@@ -11061,7 +11074,7 @@ minInterval 5
             aiSetEconomyPop(cvMaxCivPop); maxMil = gMaxPop;      
 	     gAttackMissionInterval = 1*60*1000;
 		 gClaimMissionInterval = 1*60*1000;
-		 gDefendMissionInterval = 2*60*1000;
+		 gDefendMissionInterval = 3*60*1000;
               setMilPopLimit(0, maxMil, maxMil, maxMil, maxMil);
 			  
 			  
@@ -11093,7 +11106,7 @@ minInterval 5
             aiSetEconomyPop(cvMaxCivPop); maxMil = gMaxPop;      
 	     gAttackMissionInterval = 1*60*1000;
 		 gClaimMissionInterval = 1*60*1000;
-		 gDefendMissionInterval = 2*60*1000;
+		 gDefendMissionInterval = 3*60*1000;
               setMilPopLimit(0, maxMil, maxMil, maxMil, maxMil);
 			  
 	 break;
@@ -11222,9 +11235,9 @@ minInterval 5
    gGoodArmyPop = 24 * kbGetAge() -24;
          else
    gGoodArmyPop = 20 * kbGetAge() -20;
-   
-   //gGoodArmyPop = aiGetMilitaryPop() / 3;
-   */
+   /*
+   gGoodArmyPop = aiGetMilitaryPop() / 2;
+   /*
    if (kbGetAge() > cAge2)
    {
    gGoodArmyPop = aiGetMilitaryPop();
@@ -11243,6 +11256,7 @@ minInterval 5
          //if (civIsNative() == true)
    gGoodArmyPop =  10 * kbGetAge() +50;
    }
+   */
    /*
    //if ( (kbGetAge() == cAge2) && ((xsGetTime() - gAgeUpTime) < 300000) )   // In the first five minutes of age 2, go with tiny armies.
    //   gGoodArmyPop = gGoodArmyPop / 2;
@@ -14317,9 +14331,9 @@ group startup
             }
             // Consider a call for help
             panic = true;
-            if (((xsGetTime() - lastHelpTime) < 300000) && (lastHelpBaseID == gDefenseReflexBaseID))  // We called for help in the last five minutes, and it was this base
+            if (((xsGetTime() - lastHelpTime) < 3*60*1000) && (lastHelpBaseID == gDefenseReflexBaseID))  // We called for help in the last five minutes, and it was this base
                panic = false;
-            if (((xsGetTime() - lastHelpTime) < 60000) && (lastHelpBaseID != gDefenseReflexBaseID))  // We called for help anywhere in the last minute
+            if (((xsGetTime() - lastHelpTime) < 3*60*1000) && (lastHelpBaseID != gDefenseReflexBaseID))  // We called for help anywhere in the last minute
                panic = false;
 
             if (panic == true)
@@ -14399,7 +14413,7 @@ group startup
             aiEcho("    " + unitID + " " + kbGetProtoUnitName(protoUnitID) + " " + kbUnitGetPosition(unitID));
       }
 
-      if (enemyArmySize < 2)
+      if (enemyArmySize < 4)
       {  // Abort, no enemies, or just one scouting unit
          if (xsGetTime() >= gDefenseReflexTimeout)
          {  // Wait for a random period before moving to the forward base.
@@ -14456,9 +14470,9 @@ group startup
       if (shouldPause == true)
       {  // Consider a call for help
          panic = true;
-         if (((xsGetTime() - lastHelpTime) < 300000) && (lastHelpBaseID == gDefenseReflexBaseID))  // We called for help in the last five minutes, and it was this base
+         if (((xsGetTime() - lastHelpTime) < 3*60*1000) && (lastHelpBaseID == gDefenseReflexBaseID))  // We called for help in the last five minutes, and it was this base
             panic = false;
-         if (((xsGetTime() - lastHelpTime) < 60000) && (lastHelpBaseID != gDefenseReflexBaseID))  // We called for help anywhere in the last minute
+         if (((xsGetTime() - lastHelpTime) < 3*60*1000) && (lastHelpBaseID != gDefenseReflexBaseID))  // We called for help anywhere in the last minute
             panic = false;
 
          if (panic == true)
@@ -14512,9 +14526,9 @@ group startup
             if ((enemyArmySize > (armySize * 2.0)) && (enemyArmySize > 6))   // Double my size, get help...
             {
                panic = true;
-               if (((xsGetTime() - lastHelpTime) < 300000) && (lastHelpBaseID == baseID))  // We called for help in the last five minutes, and it was this base
+               if (((xsGetTime() - lastHelpTime) < 3*60*1000) && (lastHelpBaseID == baseID))  // We called for help in the last five minutes, and it was this base
                   panic = false;
-               if (((xsGetTime() - lastHelpTime) < 60000) && (lastHelpBaseID != baseID))  // We called for help anywhere in the last minute
+               if (((xsGetTime() - lastHelpTime) < 3*60*1000) && (lastHelpBaseID != baseID))  // We called for help anywhere in the last minute
                   panic = false;
 
                if (panic == true)
@@ -26512,7 +26526,7 @@ float getClassRating(int oppType = -1, int target = -1)
       case cOpportunityTypeDefend:
       {
          timeElapsed = xsGetTime() - gLastDefendMissionTime;
-         retVal = 1.0 * (timeElapsed / gDefendMissionInterval);
+         retVal = 3.0 * (timeElapsed / gDefendMissionInterval);
          break;
       }
       case cOpportunityTypeClaim:
