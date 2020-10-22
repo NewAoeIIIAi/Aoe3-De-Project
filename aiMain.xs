@@ -8875,7 +8875,7 @@ void setUnitPickerPreference(int upID = -1)
 							  kbUnitCount(enemyToCounter, cUnitTypeAbstractVillager, cUnitStateAlive) +
 							  kbUnitCount(enemyToCounter, cUnitTypeBuilding, cUnitStateAlive); */
 							  
-   float BolasCount = 	  	  kbUnitCount(enemyToCounter, cUnitTypeAbstractLightCavalry, cUnitStateAlive);
+   float BolasCount = 	  	  kbUnitCount(enemyToCounter, cUnitTypeAbstractCavalry, cUnitStateAlive);
    
    float ArrowKnightCount =   kbUnitCount(enemyToCounter, cUnitTypeAbstractArtillery, cUnitStateAlive); //  + kbUnitCount(enemyToCounter, cUnitTypeBuilding, cUnitStateAlive);
    
@@ -8915,7 +8915,7 @@ void setUnitPickerPreference(int upID = -1)
       float JaguarKnightFactor = JaguarKnightCount * 2 / totalEnemyCount;
       float EspadaFactor = EspadaCount * 2 / totalEnemyCount;
       float CuirassierFactor = CuirassierCount * 2 / totalEnemyCount;
-      float BolasFactor = BolasCount * 1 / totalEnemyCount;
+      float BolasFactor = BolasCount * 2 / totalEnemyCount;
           
       if ( ((lightInfantryFactor > 0.0) || (heavyInfantryFactor > 0.0)) && (kbUnitCount(cMyID, cUnitTypeAbstractInfantry, cUnitStateAlive) > 2) )
          sendStatement(cPlayerRelationAlly, cAICommPromptToAllyConfirmInf);
