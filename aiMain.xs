@@ -7121,7 +7121,7 @@ minInterval 15
          aiPlanSetVariableInt(attackPlan, cAttackPlanTargetTypeID, 0, cUnitTypeUnit);
          aiPlanSetVariableInt(attackPlan, cAttackPlanTargetTypeID, 1, gDockUnit);
          aiPlanSetVariableVector(attackPlan, cAttackPlanGatherPoint, 0, gNavyVec);
-         aiPlanSetVariableFloat(attackPlan, cAttackPlanGatherDistance, 0, 30.0);
+         aiPlanSetVariableFloat(attackPlan, cAttackPlanGatherDistance, 0, 50.0);
          aiPlanSetVariableInt(attackPlan, cAttackPlanRefreshFrequency, 0, 1); // 5);
          aiPlanSetDesiredPriority(attackPlan, 48); // Above defend, fishing.  Below explore.
          aiPlanAddUnitType(attackPlan, cUnitTypeAbstractWarShip, 1, 10, 200);
@@ -10682,7 +10682,7 @@ minInterval 15
          aiPlanSetVariableInt(attackPlan, cAttackPlanTargetTypeID, 1, cUnitTypeMilitaryBuilding);
          aiPlanSetVariableInt(attackPlan, cAttackPlanTargetTypeID, 2, cUnitTypeBuilding);
          aiPlanSetVariableVector(attackPlan, cAttackPlanGatherPoint, 0, siegeWeaponVec);
-         aiPlanSetVariableFloat(attackPlan, cAttackPlanGatherDistance, 0, 16.0);
+         aiPlanSetVariableFloat(attackPlan, cAttackPlanGatherDistance, 0, 100.0);
          aiPlanSetVariableInt(attackPlan, cAttackPlanRefreshFrequency, 0, 1); // 1);
          aiPlanSetDesiredPriority(attackPlan, 58);          
          aiPlanAddUnitType(attackPlan, gSiegeWeaponUnit, numUnit, numUnit, numUnit);
@@ -16463,7 +16463,7 @@ group startup
 
    int armySize = aiPlanGetNumberUnits(gLandDefendPlan0, cUnitTypeLogicalTypeLandMilitary) + aiPlanGetNumberUnits(gLandReservePlan, cUnitTypeLogicalTypeLandMilitary);
    int enemyArmySize = -1;
-   static int lastHelpTime = -120000;
+   static int lastHelpTime = -60000;
    static int lastHelpBaseID = -1;
    int i = 0;
    int unitID = -1;
@@ -16701,7 +16701,7 @@ group startup
             if ((enemyArmySize > (armySize * 2.0)) && (enemyArmySize > 6))   // Double my size, get help...
             {
                panic = true;
-               if (((xsGetTime() - lastHelpTime) < 210000) && (lastHelpBaseID == baseID))  // We called for help in the last five minutes, and it was this base
+               if (((xsGetTime() - lastHelpTime) < 240000) && (lastHelpBaseID == baseID))  // We called for help in the last five minutes, and it was this base
                   panic = false;
                if (((xsGetTime() - lastHelpTime) < 120000) && (lastHelpBaseID != baseID))  // We called for help anywhere in the last minute
                   panic = false;
@@ -29697,7 +29697,7 @@ void commHandler(int chatID = -1)
 		     aiPlanSetVariableInt(gBaseAttackPlan, cAttackPlanTargetTypeID, 0, cUnitTypeLogicalTypeLandMilitary);
 		     aiPlanSetVariableInt(gBaseAttackPlan, cAttackPlanTargetTypeID, 1, cUnitTypeAbstractVillager);
 		     aiPlanSetVariableVector(gBaseAttackPlan, cAttackPlanGatherPoint, 0, gBaseAttackLocation);
-		     aiPlanSetVariableFloat(gBaseAttackPlan, cAttackPlanGatherDistance, 0, 16.0);
+		     aiPlanSetVariableFloat(gBaseAttackPlan, cAttackPlanGatherDistance, 0, 50.0);
 		     aiPlanSetVariableInt(gBaseAttackPlan, cAttackPlanRefreshFrequency, 0, 1); // 1);
 		     aiPlanSetDesiredPriority(gBaseAttackPlan, 90);
 		     //aiPlanSetInitialPosition(gBaseAttackPlan, kbBaseGetMilitaryGatherPoint(cMyID, kbBaseGetMainID(cMyID)));
@@ -30754,20 +30754,20 @@ float getBaseEnemyStrength(int baseID = -1)
    
    if (kbIsPlayerEnemy(owner) == true)  
    {  // Enemy base, add up military factors normally
-      retVal = retVal + (20.0 * kbBaseGetNumberUnits(owner, baseID, cPlayerRelationEnemyNotGaia, cUnitTypeTownCenter));  // 5 points per TC
-      retVal = retVal + (30.0 * kbBaseGetNumberUnits(owner, baseID, cPlayerRelationEnemy, cUnitTypeFortFrontier));  // 10 points per fort
+      retVal = retVal + (10.0 * kbBaseGetNumberUnits(owner, baseID, cPlayerRelationEnemyNotGaia, cUnitTypeTownCenter));  // 5 points per TC
+      retVal = retVal + (20.0 * kbBaseGetNumberUnits(owner, baseID, cPlayerRelationEnemy, cUnitTypeFortFrontier));  // 10 points per fort
       retVal = retVal + (1.0 * kbBaseGetNumberUnits(owner, baseID, cPlayerRelationEnemyNotGaia, cUnitTypeLogicalTypeLandMilitary)); // 1 point per soldier
-      retVal = retVal + (10.0 * kbBaseGetNumberUnits(owner, baseID, cPlayerRelationEnemyNotGaia, cUnitTypeOutpost));  // 3 points per outpost
-      retVal = retVal + (10.0 * kbBaseGetNumberUnits(owner, baseID, cPlayerRelationEnemyNotGaia, cUnitTypeBlockhouse));  // 3 points per blockhouse
-      retVal = retVal + (10.0 * kbBaseGetNumberUnits(owner, baseID, cPlayerRelationEnemyNotGaia, cUnitTypeWarHut));  // 3 points per war hut
-      retVal = retVal + (10.0 * kbBaseGetNumberUnits(owner, baseID, cPlayerRelationEnemyNotGaia, cUnitTypeNoblesHut));  // 5 points per nobles hut
-      retVal = retVal + (10.0 * kbBaseGetNumberUnits(owner, baseID, cPlayerRelationEnemyNotGaia, cUnitTypeypWIAgraFort2));  // 5 points per agra fort
-      retVal = retVal + (15.0 * kbBaseGetNumberUnits(owner, baseID, cPlayerRelationEnemyNotGaia, cUnitTypeypWIAgraFort3));
-      retVal = retVal + (20.0 * kbBaseGetNumberUnits(owner, baseID, cPlayerRelationEnemyNotGaia, cUnitTypeypWIAgraFort4));
-      retVal = retVal + (25.0 * kbBaseGetNumberUnits(owner, baseID, cPlayerRelationEnemyNotGaia, cUnitTypeypWIAgraFort5));
-      retVal = retVal + (10.0 * kbBaseGetNumberUnits(owner, baseID, cPlayerRelationEnemyNotGaia, cUnitTypeypCastle));  // 5 points per castle
-      retVal = retVal + (2.0 * kbBaseGetNumberUnits(owner, baseID, cPlayerRelationEnemyNotGaia, cUnitTypeYPOutpostAsian));  // 3 points per Asian outpost
-      retVal = retVal + (2.0 * kbBaseGetNumberUnits(owner, baseID, cPlayerRelationEnemyNotGaia, cUnitTypeTradingPost));  // 5 points per trading post (Advanced TP suspected!)
+      retVal = retVal + (5.0 * kbBaseGetNumberUnits(owner, baseID, cPlayerRelationEnemyNotGaia, cUnitTypeOutpost));  // 3 points per outpost
+      retVal = retVal + (5.0 * kbBaseGetNumberUnits(owner, baseID, cPlayerRelationEnemyNotGaia, cUnitTypeBlockhouse));  // 3 points per blockhouse
+      retVal = retVal + (5.0 * kbBaseGetNumberUnits(owner, baseID, cPlayerRelationEnemyNotGaia, cUnitTypeWarHut));  // 3 points per war hut
+      retVal = retVal + (8.0 * kbBaseGetNumberUnits(owner, baseID, cPlayerRelationEnemyNotGaia, cUnitTypeNoblesHut));  // 5 points per nobles hut
+      retVal = retVal + (5.0 * kbBaseGetNumberUnits(owner, baseID, cPlayerRelationEnemyNotGaia, cUnitTypeypWIAgraFort2));  // 5 points per agra fort
+      retVal = retVal + (14.0 * kbBaseGetNumberUnits(owner, baseID, cPlayerRelationEnemyNotGaia, cUnitTypeypWIAgraFort3));
+      retVal = retVal + (16.0 * kbBaseGetNumberUnits(owner, baseID, cPlayerRelationEnemyNotGaia, cUnitTypeypWIAgraFort4));
+      retVal = retVal + (18.0 * kbBaseGetNumberUnits(owner, baseID, cPlayerRelationEnemyNotGaia, cUnitTypeypWIAgraFort5));
+      retVal = retVal + (14.0 * kbBaseGetNumberUnits(owner, baseID, cPlayerRelationEnemyNotGaia, cUnitTypeypCastle));  // 5 points per castle
+      retVal = retVal + (5.0 * kbBaseGetNumberUnits(owner, baseID, cPlayerRelationEnemyNotGaia, cUnitTypeYPOutpostAsian));  // 3 points per Asian outpost
+      retVal = retVal + (5.0 * kbBaseGetNumberUnits(owner, baseID, cPlayerRelationEnemyNotGaia, cUnitTypeTradingPost));  // 5 points per trading post (Advanced TP suspected!)
    }
    else 
    {  // Ally base, we're considering defending.  Count enemy units present
@@ -30803,58 +30803,58 @@ float getPointEnemyStrength(vector loc = cInvalidVector)
    kbUnitQuerySetMaximumDistance(enemyPointQuery, 60.0);
    kbUnitQueryResetResults(enemyPointQuery);
    retVal = kbUnitQueryExecute(enemyPointQuery);
-
-   kbUnitQuerySetUnitType(enemyPointQuery, cUnitTypeFortFrontier);
-   kbUnitQueryResetResults(enemyPointQuery);
-   retVal = retVal + 30.0 * kbUnitQueryExecute(enemyPointQuery);  // Each fort counts as 10 units
    
    kbUnitQuerySetUnitType(enemyPointQuery, cUnitTypeTownCenter);
    kbUnitQueryResetResults(enemyPointQuery);
-   retVal = retVal + 20.0 * kbUnitQueryExecute(enemyPointQuery);  // Each TC counts as 5 units
+   retVal = retVal + 10.0 * kbUnitQueryExecute(enemyPointQuery);  // Each TC counts as 5 units
+   
+   kbUnitQuerySetUnitType(enemyPointQuery, cUnitTypeFortFrontier);
+   kbUnitQueryResetResults(enemyPointQuery);
+   retVal = retVal + 20.0 * kbUnitQueryExecute(enemyPointQuery);  // Each fort counts as 10 units
    
    kbUnitQuerySetUnitType(enemyPointQuery, cUnitTypeOutpost);
    kbUnitQueryResetResults(enemyPointQuery);
-   retVal = retVal + 10.0 * kbUnitQueryExecute(enemyPointQuery);  // Each tower counts as 3 units
+   retVal = retVal + 5.0 * kbUnitQueryExecute(enemyPointQuery);  // Each tower counts as 3 units
    
    kbUnitQuerySetUnitType(enemyPointQuery, cUnitTypeBlockhouse);
    kbUnitQueryResetResults(enemyPointQuery);
-   retVal = retVal + 10.0 * kbUnitQueryExecute(enemyPointQuery);  // Each blockhouse counts as 3 units 
+   retVal = retVal + 5.0 * kbUnitQueryExecute(enemyPointQuery);  // Each blockhouse counts as 3 units 
    
    kbUnitQuerySetUnitType(enemyPointQuery, cUnitTypeWarHut);
    kbUnitQueryResetResults(enemyPointQuery);
-   retVal = retVal + 10.0 * kbUnitQueryExecute(enemyPointQuery);  // Each war hut counts as 3 units 
+   retVal = retVal + 5.0 * kbUnitQueryExecute(enemyPointQuery);  // Each war hut counts as 3 units 
    
    kbUnitQuerySetUnitType(enemyPointQuery, cUnitTypeNoblesHut);
    kbUnitQueryResetResults(enemyPointQuery);
-   retVal = retVal + 10.0 * kbUnitQueryExecute(enemyPointQuery);  // Each nobles hut counts as 5 units 
+   retVal = retVal + 8.0 * kbUnitQueryExecute(enemyPointQuery);  // Each nobles hut counts as 5 units 
    
    kbUnitQuerySetUnitType(enemyPointQuery, cUnitTypeypWIAgraFort2);
    kbUnitQueryResetResults(enemyPointQuery);
-   retVal = retVal + 10.0 * kbUnitQueryExecute(enemyPointQuery);  // An agra fort counts as 5 units 
+   retVal = retVal + 14.0 * kbUnitQueryExecute(enemyPointQuery);  // An agra fort counts as 5 units 
    
    kbUnitQuerySetUnitType(enemyPointQuery, cUnitTypeypWIAgraFort3);
    kbUnitQueryResetResults(enemyPointQuery);
-   retVal = retVal + 15.0 * kbUnitQueryExecute(enemyPointQuery);  // An agra fort counts as 5 units 
+   retVal = retVal + 16.0 * kbUnitQueryExecute(enemyPointQuery);  // An agra fort counts as 5 units 
    
    kbUnitQuerySetUnitType(enemyPointQuery, cUnitTypeypWIAgraFort4);
    kbUnitQueryResetResults(enemyPointQuery);
-   retVal = retVal + 20.0 * kbUnitQueryExecute(enemyPointQuery);  // An agra fort counts as 5 units 
+   retVal = retVal + 18.0 * kbUnitQueryExecute(enemyPointQuery);  // An agra fort counts as 5 units 
    
    kbUnitQuerySetUnitType(enemyPointQuery, cUnitTypeypWIAgraFort5);
    kbUnitQueryResetResults(enemyPointQuery);
-   retVal = retVal + 25.0 * kbUnitQueryExecute(enemyPointQuery);  // An agra fort counts as 5 units 
+   retVal = retVal + 20.0 * kbUnitQueryExecute(enemyPointQuery);  // An agra fort counts as 5 units 
    
    kbUnitQuerySetUnitType(enemyPointQuery, cUnitTypeypCastle);
    kbUnitQueryResetResults(enemyPointQuery);
-   retVal = retVal + 10.0 * kbUnitQueryExecute(enemyPointQuery);  // Each castle counts as 5 units 
+   retVal = retVal + 14.0 * kbUnitQueryExecute(enemyPointQuery);  // Each castle counts as 5 units 
    
    kbUnitQuerySetUnitType(enemyPointQuery, cUnitTypeYPOutpostAsian);
    kbUnitQueryResetResults(enemyPointQuery);
-   retVal = retVal + 2.0 * kbUnitQueryExecute(enemyPointQuery);  // Each Asian outpost counts as 3 units
+   retVal = retVal + 5.0 * kbUnitQueryExecute(enemyPointQuery);  // Each Asian outpost counts as 3 units
    
    kbUnitQuerySetUnitType(enemyPointQuery, cUnitTypeTradingPost);
    kbUnitQueryResetResults(enemyPointQuery);
-   retVal = retVal + 2.0 * kbUnitQueryExecute(enemyPointQuery);  // Each trading post counts as 5 units (Advanced TP suspected!)
+   retVal = retVal + 5.0 * kbUnitQueryExecute(enemyPointQuery);  // Each trading post counts as 5 units (Advanced TP suspected!)
      
    if (retVal < 1.0)
       retVal = 1.0;  // Return at least 1.
@@ -30892,47 +30892,47 @@ float getPointAllyStrength(vector loc = cInvalidVector)
    
    kbUnitQuerySetUnitType(allyPointQuery, cUnitTypeOutpost);
    kbUnitQueryResetResults(allyPointQuery);
-   retVal = retVal + 3.0 * kbUnitQueryExecute(allyPointQuery);  // Each tower counts as 3 units 
+   retVal = retVal + 5.0 * kbUnitQueryExecute(allyPointQuery);  // Each tower counts as 3 units 
    
    kbUnitQuerySetUnitType(allyPointQuery, cUnitTypeBlockhouse);
    kbUnitQueryResetResults(allyPointQuery);
-   retVal = retVal + 3.0 * kbUnitQueryExecute(allyPointQuery);  // Each blockhouse counts as 3 units 
+   retVal = retVal + 5.0 * kbUnitQueryExecute(allyPointQuery);  // Each blockhouse counts as 3 units 
 
    kbUnitQuerySetUnitType(allyPointQuery, cUnitTypeWarHut);
    kbUnitQueryResetResults(allyPointQuery);
-   retVal = retVal + 3.0 * kbUnitQueryExecute(allyPointQuery);  // Each war hut counts as 3 units 
+   retVal = retVal + 5.0 * kbUnitQueryExecute(allyPointQuery);  // Each war hut counts as 3 units 
 
    kbUnitQuerySetUnitType(allyPointQuery, cUnitTypeNoblesHut);
    kbUnitQueryResetResults(allyPointQuery);
-   retVal = retVal + 5.0 * kbUnitQueryExecute(allyPointQuery);  // Each nobles hut counts as 5 units 
+   retVal = retVal + 8.0 * kbUnitQueryExecute(allyPointQuery);  // Each nobles hut counts as 5 units 
 
    kbUnitQuerySetUnitType(allyPointQuery, cUnitTypeypWIAgraFort2);
    kbUnitQueryResetResults(allyPointQuery);
-   retVal = retVal + 5.0 * kbUnitQueryExecute(allyPointQuery);  // An agra fort counts as 5 units 
+   retVal = retVal + 14.0 * kbUnitQueryExecute(allyPointQuery);  // An agra fort counts as 5 units 
    
    kbUnitQuerySetUnitType(allyPointQuery, cUnitTypeypWIAgraFort3);
    kbUnitQueryResetResults(allyPointQuery);
-   retVal = retVal + 5.0 * kbUnitQueryExecute(allyPointQuery);  // An agra fort counts as 5 units 
+   retVal = retVal + 16.0 * kbUnitQueryExecute(allyPointQuery);  // An agra fort counts as 5 units 
    
    kbUnitQuerySetUnitType(allyPointQuery, cUnitTypeypWIAgraFort4);
    kbUnitQueryResetResults(allyPointQuery);
-   retVal = retVal + 5.0 * kbUnitQueryExecute(allyPointQuery);  // An agra fort counts as 5 units 
+   retVal = retVal + 18.0 * kbUnitQueryExecute(allyPointQuery);  // An agra fort counts as 5 units 
    
    kbUnitQuerySetUnitType(allyPointQuery, cUnitTypeypWIAgraFort5);
    kbUnitQueryResetResults(allyPointQuery);
-   retVal = retVal + 5.0 * kbUnitQueryExecute(allyPointQuery);  // An agra fort counts as 5 units 
+   retVal = retVal + 20.0 * kbUnitQueryExecute(allyPointQuery);  // An agra fort counts as 5 units 
    
    kbUnitQuerySetUnitType(allyPointQuery, cUnitTypeypCastle);
    kbUnitQueryResetResults(allyPointQuery);
-   retVal = retVal + 5.0 * kbUnitQueryExecute(allyPointQuery);  // Each castle counts as 5 units 
+   retVal = retVal + 14.0 * kbUnitQueryExecute(allyPointQuery);  // Each castle counts as 5 units 
    
    kbUnitQuerySetUnitType(allyPointQuery, cUnitTypeYPOutpostAsian);
    kbUnitQueryResetResults(allyPointQuery);
-   retVal = retVal + 1.0 * kbUnitQueryExecute(allyPointQuery);  // Each Asian outpost counts as 3 units
+   retVal = retVal + 5.0 * kbUnitQueryExecute(allyPointQuery);  // Each Asian outpost counts as 3 units
 
    kbUnitQuerySetUnitType(allyPointQuery, cUnitTypeTradingPost);
    kbUnitQueryResetResults(allyPointQuery);
-   retVal = retVal + 1.0 * kbUnitQueryExecute(allyPointQuery);  // Each trading post counts as 5 units (Advanced TP suspected!)
+   retVal = retVal + 5.0 * kbUnitQueryExecute(allyPointQuery);  // Each trading post counts as 5 units (Advanced TP suspected!)
    
    if (retVal < 1.0)
       retVal = 1.0;  // Return at least 1.
@@ -30960,7 +30960,7 @@ float getBaseValue(int baseID = -1)
       relation = cPlayerRelationEnemyNotGaia;
    
    retVal = retVal + (1.0 * kbBaseGetNumberUnits(owner, baseID, relation, cUnitTypeLogicalTypeBuildingsNotWalls));
-   retVal = retVal + (600.0 * kbBaseGetNumberUnits(owner, baseID, relation, cUnitTypeTownCenter));  // 1000 points extra per TC
+   retVal = retVal + (2000.0 * kbBaseGetNumberUnits(owner, baseID, relation, cUnitTypeTownCenter));  // 1000 points extra per TC
    retVal = retVal + (400.0 * kbBaseGetNumberUnits(owner, baseID, relation, cUnitTypePlantation));  // 600 points extra per plantation
    retVal = retVal + (10.0 * kbBaseGetNumberUnits(owner, baseID, relation, cUnitTypeFortFrontier));  // 2000 points extra per fort
    retVal = retVal + (10.0 * kbBaseGetNumberUnits(owner, baseID, relation, cUnitTypeLogicalTypeLandMilitary)); // 150 points per soldier
@@ -31029,11 +31029,11 @@ float getPointValue(vector loc = cInvalidVector, int relation = cPlayerRelationE
    
    kbUnitQuerySetUnitType(queryID, cUnitTypeTownCenter);
    kbUnitQueryResetResults(queryID);
-   retVal = retVal + 600.0 * kbUnitQueryExecute(queryID);  // Extra 1000 per TC
+   retVal = retVal + 2000.0 * kbUnitQueryExecute(queryID);  // Extra 1000 per TC
    
    kbUnitQuerySetUnitType(queryID, cUnitTypeTradingPost);
    kbUnitQueryResetResults(queryID);
-   retVal = retVal + 1200.0 * kbUnitQueryExecute(queryID);  // Extra 1000 per trading post
+   retVal = retVal + 2000.0 * kbUnitQueryExecute(queryID);  // Extra 1000 per trading post
    
    kbUnitQuerySetUnitType(queryID, cUnitTypeFactory);
    kbUnitQueryResetResults(queryID);
@@ -35303,11 +35303,11 @@ minInterval 1
     else if (militaryEquivalence >= (5  * kbGetAge()))
        baseAttackIsOK = true;*/
 	   
-	if (kbGetAge() >= cAge1)
+	//if (kbGetAge() >= cAge1)
 	    baseAttackIsOK = true;
 
     int totalMilitary = kbUnitCount(cMyID, cUnitTypeLogicalTypeLandMilitary, cUnitStateAlive)-kbUnitCount(cMyID, cUnitTypexpMedicineManAztec, cUnitStateAlive)-kbUnitCount(cMyID, gSiegeWeaponUnit, cUnitStateAlive);
-    if ((baseAttackIsOK == true) && (getUnitCountByLocation(cUnitTypeBuilding, cPlayerRelationEnemyNotGaia, cUnitStateAlive, targetLocation, 50.0) >= 5) || (getUnitCountByLocation(cUnitTypeTownCenter, cPlayerRelationEnemyNotGaia, cUnitStateAlive, targetLocation, 10.0) >= 1))
+    if ((baseAttackIsOK == true)) // && (getUnitCountByLocation(cUnitTypeBuilding, cPlayerRelationEnemyNotGaia, cUnitStateAlive, targetLocation, 50.0) >= 5) || (getUnitCountByLocation(cUnitTypeTownCenter, cPlayerRelationEnemyNotGaia, cUnitStateAlive, targetLocation, 10.0) >= 1))
     {		
        if (gBaseAttackPlan < 0)
        {
@@ -35318,8 +35318,8 @@ minInterval 1
 	  aiPlanSetVariableInt(gBaseAttackPlan, cAttackPlanTargetTypeID, 0, cUnitTypeLogicalTypeLandMilitary);
 	  aiPlanSetVariableInt(gBaseAttackPlan, cAttackPlanTargetTypeID, 1, cUnitTypeAbstractVillager);
 	  aiPlanSetVariableVector(gBaseAttackPlan, cAttackPlanGatherPoint, 0, gBaseAttackLocation);
-	  aiPlanSetVariableFloat(gBaseAttackPlan, cAttackPlanGatherDistance, 0, 16.0);
-	  aiPlanSetVariableInt(gBaseAttackPlan, cAttackPlanRefreshFrequency, 0, 1); // 1);
+	  aiPlanSetVariableFloat(gBaseAttackPlan, cAttackPlanGatherDistance, 0, 50.0);
+	  aiPlanSetVariableInt(gBaseAttackPlan, cAttackPlanRefreshFrequency, 0, 1);
 	  aiPlanSetDesiredPriority(gBaseAttackPlan, 90);
 	  //aiPlanSetInitialPosition(gBaseAttackPlan, kbBaseGetMilitaryGatherPoint(cMyID, kbBaseGetMainID(cMyID)));
 	  aiPlanAddUnitType(gBaseAttackPlan, cUnitTypeLogicalTypeLandMilitary, totalMilitary, totalMilitary, totalMilitary);
@@ -35366,8 +35366,8 @@ minInterval 1
 	     aiPlanSetVariableInt(harassPlan, cAttackPlanTargetTypeID, 1, cUnitTypeAbstractVillager);             
 	     aiPlanSetVariableVector(harassPlan, cAttackPlanGatherPoint, 0, targetLocation);
              //aiPlanSetUnitStance(harassPlan, cUnitStanceAggressive);
-	     aiPlanSetVariableFloat(harassPlan, cAttackPlanGatherDistance, 0, 16.0);
-	     aiPlanSetVariableInt(harassPlan, cAttackPlanRefreshFrequency, 0, 1); // 1);
+	     aiPlanSetVariableFloat(harassPlan, cAttackPlanGatherDistance, 0, 30.0);
+	     aiPlanSetVariableInt(harassPlan, cAttackPlanRefreshFrequency, 0, 1);
 	     aiPlanSetDesiredPriority(harassPlan, 90);
 	     //aiPlanSetInitialPosition(harassPlan, kbBaseGetMilitaryGatherPoint(cMyID, kbBaseGetMainID(cMyID)));             
 	     if (kbUnitCount(cMyID, cUnitTypeAbstractCavalry, cUnitStateAlive) > 2)
@@ -35423,7 +35423,7 @@ minInterval 1
 				aiPlanSetVariableInt(offlyingAttack, cAttackPlanTargetTypeID, 1, cUnitTypeAbstractVillager);
 				//aiPlanSetVariableInt(offlyingAttack, cAttackPlanTargetTypeID, 2, cUnitTypeBuilding);
 				aiPlanSetVariableVector(offlyingAttack, cAttackPlanGatherPoint, 0, targetLocation);
-				aiPlanSetVariableFloat(offlyingAttack, cAttackPlanGatherDistance, 0, 16.0);
+				aiPlanSetVariableFloat(offlyingAttack, cAttackPlanGatherDistance, 0, 30.0);
 				aiPlanSetVariableInt(offlyingAttack, cAttackPlanRefreshFrequency, 0, 1); // 1);
 				aiPlanSetDesiredPriority(offlyingAttack, 95);
 				//aiPlanSetInitialPosition(offlyingAttack, kbBaseGetMilitaryGatherPoint(cMyID, kbBaseGetMainID(cMyID)));
@@ -35546,7 +35546,7 @@ minInterval 1
 			{
 				aiPlanAddUnitType(offlyingAttack, cUnitTypeLogicalTypeLandMilitary, totalMilitary, totalMilitary, totalMilitary);	
 				aiPlanSetVariableVector(offlyingAttack, cAttackPlanGatherPoint, 0, targetLocation);
-				aiPlanSetVariableFloat(offlyingAttack, cAttackPlanGatherDistance, 0, 16.0);
+				aiPlanSetVariableFloat(offlyingAttack, cAttackPlanGatherDistance, 0, 50.0);
 				aiPlanSetInitialPosition(offlyingAttack, kbBaseGetMilitaryGatherPoint(cMyID, kbBaseGetMainID(cMyID)));
 				sendStatement(cPlayerRelationAlly, cAICommPromptToAllyConfirm, targetLocation);
 				aiPlanSetActive(offlyingAttack);
