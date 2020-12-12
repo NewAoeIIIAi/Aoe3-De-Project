@@ -198,9 +198,9 @@ extern int  gMostRecentTriggerOpportunityID = -1;  // Which opportunity (if any)
 extern int  gLastClaimMissionTime = -1;
 extern int  gLastAttackMissionTime = -1;
 extern int  gLastDefendMissionTime = -1;
-extern int  gClaimMissionInterval = 60000;  // 10 minutes.  This variable indicates how long it takes for claim opportunities to score their maximum.  Typically, a new one will launch before this time.
-extern int  gAttackMissionInterval = 60000; // 2-3 minutes depending on difficulty level.  Suppresses attack scores (linearly) for 2-3 minutes after one launches.  Attacks will usually happen before this period is over.
-extern int  gDefendMissionInterval = 60000;  // 5 minutes.   Makes the AI less likely to do another defend right after doing one.
+extern int  gClaimMissionInterval = 30000;  // 10 minutes.  This variable indicates how long it takes for claim opportunities to score their maximum.  Typically, a new one will launch before this time.
+extern int  gAttackMissionInterval = 30000; // 2-3 minutes depending on difficulty level.  Suppresses attack scores (linearly) for 2-3 minutes after one launches.  Attacks will usually happen before this period is over.
+extern int  gDefendMissionInterval = 30000;  // 5 minutes.   Makes the AI less likely to do another defend right after doing one.
 extern bool gDelayAttacks = false;     // Can be used on low difficulty levels to prevent attacks before the AI is attacked.  (AI is defend-only until this variable is
 									   // set false.
 
@@ -6826,7 +6826,7 @@ minInterval 120
 //==============================================================================
 rule militaryManager
 inactive
-minInterval 5
+minInterval 1
 {
 	static bool init = false;   // Flag to indicate vars, plans are initialized
 	int i = 0;
@@ -11202,71 +11202,72 @@ minInterval 30
 // Determine who we should attack, checking control variables
 //==============================================================================
 rule mostHatedEnemy
-minInterval 60
+minInterval 15
 active
 {
-   if ( (cvPlayerToAttack > 0)) // && (kbHasPlayerLost(cvPlayerToAttack) == false) )
+   if ((cvPlayerToAttack > 0) && (kbHasPlayerLost(cvPlayerToAttack) == false))
    {
-      aiEcho("****  Changing most hated enemy from "+aiGetMostHatedPlayerID()+" to "+cvPlayerToAttack);
-      aiSetMostHatedPlayerID(cvPlayerToAttack);
-      return;
+	  aiEcho("****  Changing most hated enemy from " + aiGetMostHatedPlayerID() + " to " + cvPlayerToAttack);
+	  aiSetMostHatedPlayerID(cvPlayerToAttack);
+	  return;
    }
-   
-   // For now, find your position in your team (i.e. 2nd of 3) and
-   // target the corresponding player on the other team.  If the other
-   // team is smaller, count through again.  (I.e. in a 5v2, player 5 on
-   // one team will attack the 1st player on the other.)
 
-   int ourTeamSize = 0;
-   int theirTeamSize = 0;
-   int myPosition = 0;
-   int i=0;
-   
-   for (i=1; <cNumberPlayers)
+// For now, find your position in your team (i.e. 2nd of 3) and
+// target the corresponding player on the other team.  If the other
+// team is smaller, count through again.  (I.e. in a 5v2, player 5 on
+// one team will attack the 1st player on the other.)
+
+int ourTeamSize = 0;
+int theirTeamSize = 0;
+int myPosition = 0;
+int i = 0;
+
+for (i = 1; < cNumberPlayers)
+{
+   if (kbHasPlayerLost(i) == false)
    {
-      //if (kbHasPlayerLost(i) == false)
-      //{
-         if ( kbGetPlayerTeam(i) == kbGetPlayerTeam(cMyID) )
-         {  // Self or ally 
-            ourTeamSize = ourTeamSize + 1;
-            if ( i == cMyID )
-               myPosition = ourTeamSize;   
-         }
-         else
-         {
-            theirTeamSize = theirTeamSize + 1;
-         }
-      //}
-   }
-   int targetPlayerPosition = 0;
-   
-   if (myPosition > theirTeamSize)
-   {
-      targetPlayerPosition = myPosition - (theirTeamSize * (myPosition/theirTeamSize));      // myPosition modulo theirTeamSize
-      if (targetPlayerPosition == 0)
-         targetPlayerPosition = theirTeamSize;  // Need to be in range 1...teamsize, not 0...(teamSize-1).
-   }
-   else
-      targetPlayerPosition = myPosition;
-   
-   int playerCount = 0;
-   // Find the corresponding enemy player
-   for (i=1; <cNumberPlayers)
-   {
-      if ( /*(kbHasPlayerLost(i) == false) &&*/ (kbGetPlayerTeam(i) != kbGetPlayerTeam(cMyID) ) )
-      {
-         playerCount = playerCount + 1;
-         if (playerCount == targetPlayerPosition)
-         { 
-            if (aiGetMostHatedPlayerID() != i)
-               aiEcho("****  Changing most hated enemy from "+aiGetMostHatedPlayerID()+" to "+i);
-            aiSetMostHatedPlayerID(i);
-            if (gLandUnitPicker >= 0)
-               kbUnitPickSetEnemyPlayerID(gLandUnitPicker, i); // Update the unit picker
-         }
-      }
+	  if (kbGetPlayerTeam(i) == kbGetPlayerTeam(cMyID))
+	  {  // Self or ally 
+		 ourTeamSize = ourTeamSize + 1;
+		 if (i == cMyID)
+			myPosition = ourTeamSize;
+	  }
+	  else
+	  {
+		 theirTeamSize = theirTeamSize + 1;
+	  }
    }
 }
+int targetPlayerPosition = 0;
+
+if (myPosition > theirTeamSize)
+{
+   targetPlayerPosition = myPosition - (theirTeamSize * (myPosition / theirTeamSize));      // myPosition modulo theirTeamSize
+   if (targetPlayerPosition == 0)
+	  targetPlayerPosition = theirTeamSize;  // Need to be in range 1...teamsize, not 0...(teamSize-1).
+}
+else
+   targetPlayerPosition = myPosition;
+
+int playerCount = 0;
+// Find the corresponding enemy player
+for (i = 1; < cNumberPlayers)
+{
+   if ((kbHasPlayerLost(i) == false) && (kbGetPlayerTeam(i) != kbGetPlayerTeam(cMyID)))
+   {
+	  playerCount = playerCount + 1;
+	  if (playerCount == targetPlayerPosition)
+	  {
+		 if (aiGetMostHatedPlayerID() != i)
+			aiEcho("****  Changing most hated enemy from " + aiGetMostHatedPlayerID() + " to " + i);
+		 aiSetMostHatedPlayerID(i);
+		 if (gLandUnitPicker >= 0)
+			kbUnitPickSetEnemyPlayerID(gLandUnitPicker, i); // Update the unit picker
+	  }
+   }
+}
+}
+
 
 
 //==============================================================================
@@ -11870,7 +11871,7 @@ void setMilPopLimit(int age1 = 200, int age2 = 200, int age3 = 200, int age4 = 2
 //==============================================================================
 rule popManager
 active
-minInterval 30
+minInterval 1
 {
    float difficulty = aiGetWorldDifficulty();
    int intDifficulty = difficulty;
@@ -11907,9 +11908,9 @@ minInterval 30
        
          if ( (aiGetEconomyPop() > cvMaxCivPop) && (cvMaxCivPop >= 0) )
             aiSetEconomyPop(cvMaxCivPop); maxMil = gMaxPop;        
-	     gAttackMissionInterval = 1.0*60*1000;
-		 gClaimMissionInterval = 1.0*60*1000;
-		 gDefendMissionInterval = 1.0*60*1000;
+	     gAttackMissionInterval = 0.5*60*1000;
+		 gClaimMissionInterval = 0.5*60*1000;
+		 gDefendMissionInterval = 0.5*60*1000;
               setMilPopLimit(0, 50, 100, 150, 200);
 			    
 	 break;
@@ -11938,9 +11939,9 @@ minInterval 30
        
          if ( (aiGetEconomyPop() > cvMaxCivPop) && (cvMaxCivPop >= 0) )
             aiSetEconomyPop(cvMaxCivPop); maxMil = gMaxPop;      
-	     gAttackMissionInterval = 1.0*60*1000;
-		 gClaimMissionInterval = 1.0*60*1000;
-		 gDefendMissionInterval = 1.0*60*1000;
+	     gAttackMissionInterval = 0.5*60*1000;
+		 gClaimMissionInterval = 0.5*60*1000;
+		 gDefendMissionInterval = 0.5*60*1000;
               setMilPopLimit(0, 50, 100, 150, 200);
 			  
 	 break;
@@ -11969,9 +11970,9 @@ minInterval 30
        
          if ( (aiGetEconomyPop() > cvMaxCivPop) && (cvMaxCivPop >= 0) )
             aiSetEconomyPop(cvMaxCivPop); maxMil = gMaxPop;  
-	     gAttackMissionInterval = 1.0*60*1000;
-		 gClaimMissionInterval = 1.0*60*1000;
-		 gDefendMissionInterval = 1.0*60*1000;
+	     gAttackMissionInterval = 0.5*60*1000;
+		 gClaimMissionInterval = 0.5*60*1000;
+		 gDefendMissionInterval = 0.5*60*1000;
               setMilPopLimit(0, 50, 100, 150, 200);
 			    
 	 break;
@@ -12001,9 +12002,9 @@ minInterval 30
 	   
          if ( (aiGetEconomyPop() > cvMaxCivPop) && (cvMaxCivPop >= 0) )
             aiSetEconomyPop(cvMaxCivPop); maxMil = gMaxPop;   
-	     gAttackMissionInterval = 1.0*60*1000;
-		 gClaimMissionInterval = 1.0*60*1000;
-		 gDefendMissionInterval = 1.0*60*1000;
+	     gAttackMissionInterval = 0.5*60*1000;
+		 gClaimMissionInterval = 0.5*60*1000;
+		 gDefendMissionInterval = 0.5*60*1000;
               setMilPopLimit(0, 50, 100, 150, 200);
 			     
 	 break;
@@ -12032,9 +12033,9 @@ minInterval 30
        
          if ( (aiGetEconomyPop() > cvMaxCivPop) && (cvMaxCivPop >= 0) )
             aiSetEconomyPop(cvMaxCivPop); maxMil = gMaxPop;      
-	     gAttackMissionInterval = 1.0*60*1000;
-		 gClaimMissionInterval = 1.0*60*1000;
-		 gDefendMissionInterval = 1.0*60*1000;
+	     gAttackMissionInterval = 0.5*60*1000;
+		 gClaimMissionInterval = 0.5*60*1000;
+		 gDefendMissionInterval = 0.5*60*1000;
               setMilPopLimit(0, 50, 100, 150, 200);
 			  
 			  
@@ -12064,9 +12065,9 @@ minInterval 30
        
          if ( (aiGetEconomyPop() > cvMaxCivPop) && (cvMaxCivPop >= 0) )
             aiSetEconomyPop(cvMaxCivPop); maxMil = gMaxPop;      
-	     gAttackMissionInterval = 1.0*60*1000;
-		 gClaimMissionInterval = 1.0*60*1000;
-		 gDefendMissionInterval = 1.0*60*1000;
+	     gAttackMissionInterval = 0.5*60*1000;
+		 gClaimMissionInterval = 0.5*60*1000;
+		 gDefendMissionInterval = 0.5*60*1000;
               setMilPopLimit(0, 50, 100, 150, 200);
 			  
 	 break;
@@ -27184,7 +27185,7 @@ void commHandler(int chatID = -1)
 rule delayAttackMonitor
 inactive
 group tcComplete
-minInterval 60
+minInterval 10
 {
 	// If this rule is active, it means that gDelayAttacks has been set true,
 	// and we're on a diffuclty level where we can't attack until AFTER someone
@@ -28157,7 +28158,7 @@ float getBaseValue(int baseID = -1)
 
 	retVal = retVal + (200.0 * kbBaseGetNumberUnits(owner, baseID, relation, cUnitTypeLogicalTypeBuildingsNotWalls));
 	retVal = retVal + (2000.0 * kbBaseGetNumberUnits(owner, baseID, relation, cUnitTypeTownCenter));  // 1000 points extra per TC
-	retVal = retVal + (8000.0 * kbBaseGetNumberUnits(owner, baseID, relation, cUnitTypeFortFrontier));  // 2000 points extra per fort
+	retVal = retVal + (2000.0 * kbBaseGetNumberUnits(owner, baseID, relation, cUnitTypeFortFrontier));  // 2000 points extra per fort
 	retVal = retVal + (400.0 * kbBaseGetNumberUnits(owner, baseID, relation, cUnitTypeLogicalTypeLandMilitary)); // 150 points per soldier
 	retVal = retVal + (400.0 * kbBaseGetNumberUnits(owner, baseID, relation, cUnitTypeSettler));  // 200 points per settler
 	retVal = retVal + (500.0 * kbBaseGetNumberUnits(owner, baseID, relation, cUnitTypeCoureur));  // 200 points per coureur
@@ -32742,7 +32743,7 @@ minInterval 60
 rule attackMonitor
 inactive
 group tcComplete
-minInterval 30
+minInterval 1
 {  
    int reserveAvail = aiPlanGetNumberUnits(gLandDefendPlan0, cUnitTypeLogicalTypeLandMilitary) + aiPlanGetNumberUnits(gLandReservePlan, cUnitTypeLogicalTypeLandMilitary);
    bool homeBaseUnderAttack = false;
@@ -32802,7 +32803,7 @@ minInterval 30
        int militaryBaseAttackAlly = 0;
        int jointAttackTarget = -1;
        int player = 0;
-       if (xsGetTime() - lastUpdateTime > 1.0*60*1000)  //every 3 minutes.
+       if (xsGetTime() - lastUpdateTime > .25*60*1000)  //every 3 minutes.
        {
 	  lastUpdateTime = xsGetTime();
 	  for (player=1; < cNumberPlayers)
