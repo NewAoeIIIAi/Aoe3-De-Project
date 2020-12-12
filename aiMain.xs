@@ -5344,10 +5344,10 @@ minInterval 30
 	  
       if ((fVil >= 30.0) && (fVil < 60.0) && (kbGetAge() > cAge2))
       {
-	 numBarracks = 2;
+	 numBarracks = 3;
          if (kbGetCiv() == cCivChinese)
            numBarracks = 4;
-	 numStable = 2;
+	 numStable = 3;
 	 numArtilleryDepot = 0;
          if ((kbGetCiv() == cCivOttomans) || (kbGetCiv() == cCivDESwedish))
            numArtilleryDepot = 1;
@@ -5355,12 +5355,12 @@ minInterval 30
 	  
       if ((fVil >= 60.0) && (fVil < 80.0) && (kbGetAge() > cAge3))
       {
-         numBarracks = 3;
+         numBarracks = 4;
          if (kbGetCiv() == cCivChinese)
            numBarracks = 5;
-         numStable = 3;            
+         numStable = 4;            
          if ( (civIsNative() == true) || (civIsAsian() == true) )
-           numStable = 3;
+           numStable = 4;
          numArtilleryDepot = 1;
          if ((kbGetCiv() == cCivOttomans) || (kbGetCiv() == cCivDESwedish))
            numArtilleryDepot = 2;
@@ -5368,12 +5368,12 @@ minInterval 30
 	  
       if ((fVil >= 80.0) && (kbGetAge() == cAge4))
       {
-         numBarracks = 4;
+         numBarracks = 5;
          if (kbGetCiv() == cCivChinese)
            numBarracks = 6;
-         numStable = 4;            
+         numStable = 5;            
          if ( (civIsNative() == true) || (civIsAsian() == true) )
-           numStable = 4;
+           numStable = 5;
          numArtilleryDepot = 1;
          if ((kbGetCiv() == cCivOttomans) || (kbGetCiv() == cCivDESwedish))
            numArtilleryDepot = 3;
@@ -5433,7 +5433,7 @@ minInterval 30
 		 aiPlanAddUnitType(planID, cUnitTypeYPMilitaryRickshaw, 1, 1, 1);			 
                else
 		 aiPlanAddUnitType(planID, gEconUnit, 1, 1, 2);
-		 if ((kbGetAge() >= cAge2) && (kbUnitCount(cMyID, gBarracksUnit, cUnitStateAlive) < kbGetAge()))
+		 if ((kbGetAge() >= cAge2) && (kbUnitCount(cMyID, gBarracksUnit, cUnitStateAlive) <= kbGetAge()))
 		 {
 		aiPlanSetDesiredResourcePriority(planID, 55);
 		 }
@@ -5468,7 +5468,7 @@ minInterval 30
 		// aiPlanAddUnitType(planID, cUnitTypexpBuilder, 1, 1, 1);			 
           //     else
 		 aiPlanAddUnitType(planID, gEconUnit, 1, 1, 2);
-		 if ((kbGetAge() >= cAge2) && (kbUnitCount(cMyID, gStableUnit, cUnitStateAlive) < kbGetAge()))
+		 if ((kbGetAge() >= cAge2) && (kbUnitCount(cMyID, gStableUnit, cUnitStateAlive) <= kbGetAge()))
 		 {
 		aiPlanSetDesiredResourcePriority(planID, 55);
 		 }
@@ -5504,7 +5504,7 @@ minInterval 30
           //     else
 		 aiPlanAddUnitType(planID, gEconUnit, 1, 1, 2);
 		 aiEcho("Starting a new artillery depot build plan.");
-		 if ((kbGetAge() >= cAge2) && (kbUnitCount(cMyID, gArtilleryDepotUnit, cUnitStateAlive) < kbGetAge()))
+		 if ((kbGetAge() >= cAge2) && (kbUnitCount(cMyID, gArtilleryDepotUnit, cUnitStateAlive) <= kbGetAge()))
 		 {
 		aiPlanSetDesiredResourcePriority(planID, 55);
 		 }
@@ -7563,6 +7563,7 @@ minInterval 5
 	  setUnitPickerPreference(gLandUnitPicker);
 	  xsEnableRule("attackMonitorscout");
 	  
+		xsEnableRule("BuildingMil");	 
 		xsEnableRule("healerMonitor");
 		xsEnableRule("tamboMonitor");
 		xsEnableRule("maintainCreeCoureurs");
@@ -11881,6 +11882,7 @@ minInterval 1
 
    int maxMil = cvPopLimit;  // The full age-5 max military size...to be reduced in earlier ages to control runaway spending.
 
+	  
    switch(intDifficulty)
    {
       case cDifficultySandbox: // Sandbox
@@ -12072,7 +12074,7 @@ minInterval 1
       }
    }
 
-	if (aiTreatyGetEnd() > xsGetTime() + 10 * 60 * 1000)
+	if (aiTreatyGetEnd() > xsGetTime() + 3 * 60 * 1000)
 		aiSetMilitaryPop(0);
 
 	gGoodArmyPop = 20; //aiGetMilitaryPop() / 4;
@@ -15881,7 +15883,7 @@ void initPersonality(void)
    }
 
    if ((aiTreatyActive() == true) && (btRushBoom > 0.0))
-      btRushBoom = 0.9; // 0.0; // Don't attempt to rush in treaty games.
+      btRushBoom = -1.0; // 0.0; // Don't attempt to rush in treaty games.
 
    if (btRushBoom > 1.0)
       btRushBoom = 0.9; // 1.0;
@@ -24413,26 +24415,57 @@ minInterval 10
    {
       if (aiPlanGetState(gAgeUpResearchPlan) >= 0)
       {
-		      if ((xsGetTime() > 10 * 60 * 1000) && (kbGetAge() == cAge2))
+   if (aiTreatyActive() == true)
+   {
+   
+		      if ((xsGetTime() > 6 * 60 * 1000) && (kbGetAge() == cAge2))
 		      {
 			         ageUpPriority = 70;
+		      }
+		      if ((xsGetTime() > 10 * 60 * 1000) && (kbGetAge() == cAge3))
+		      {
+			         ageUpPriority = 60;
+		      }
+		      if ((xsGetTime() > 12 * 60 * 1000) && (kbGetAge() == cAge3))
+		      {
+			         ageUpPriority = 70;
+		      }
+		      if ((xsGetTime() > 16 * 60 * 1000) && (kbGetAge() == cAge4))
+		      {
+			         ageUpPriority = 60;
+		      }
+		      if ((xsGetTime() > 18 * 60 * 1000) && (kbGetAge() == cAge4))
+		      {
+			         ageUpPriority = 70;
+		      }
+	}
+	else
+	{
+		      if ((xsGetTime() > 8 * 60 * 1000) && (kbGetAge() == cAge2))
+		      {
+			         ageUpPriority = 55;
+		      }
+		      if ((xsGetTime() > 10 * 60 * 1000) && (kbGetAge() == cAge2))
+		      {
+			         ageUpPriority = 60;
+		      }
+		      if ((xsGetTime() > 14 * 60 * 1000) && (kbGetAge() == cAge3))
+		      {
+			         ageUpPriority = 55;
 		      }
 		      if ((xsGetTime() > 16 * 60 * 1000) && (kbGetAge() == cAge3))
 		      {
 			         ageUpPriority = 60;
 		      }
-		      if ((xsGetTime() > 18 * 60 * 1000) && (kbGetAge() == cAge3))
+		      if ((xsGetTime() > 20 * 60 * 1000) && (kbGetAge() == cAge4))
 		      {
-			         ageUpPriority = 70;
+			         ageUpPriority = 55;
 		      }
 		      if ((xsGetTime() > 22 * 60 * 1000) && (kbGetAge() == cAge4))
 		      {
 			         ageUpPriority = 60;
 		      }
-		      if ((xsGetTime() > 24 * 60 * 1000) && (kbGetAge() == cAge4))
-		      {
-			         ageUpPriority = 70;
-		      }
+	}
 		   
 
 			// update age up choices
@@ -27813,62 +27846,62 @@ float getBaseEnemyStrength(int baseID = -1)
 			{
 			case cUnitTypeFortFrontier:
 			{
-				retVal = retVal + 20.0;
+				retVal = retVal + 10.0;
 				break;
 			}
 			case cUnitTypeTownCenter:
 			{
-				retVal = retVal + 10.0;
+				retVal = retVal + 5.0;
 				break;
 			}
 			case cUnitTypeOutpost:
 			{
-				retVal = retVal + 5.0;
+				retVal = retVal + 3.0;
 				break;
 			}
 			case cUnitTypeBlockhouse:
 			{
-				retVal = retVal + 5.0;
+				retVal = retVal + 3.0;
 				break;
 			}
 			case cUnitTypeNoblesHut:
 			{
-				retVal = retVal + 5.0;
+				retVal = retVal + 3.0;
 				break;
 			}
 			case cUnitTypeypWIAgraFort2:
 			{
-				retVal = retVal + 10.0;
+				retVal = retVal + 5.0;
 				break;
 			}
 			case cUnitTypeypWIAgraFort3:
 			{
-				retVal = retVal + 10.0;
+				retVal = retVal + 5.0;
 				break;
 			}
 			case cUnitTypeypWIAgraFort4:
 			{
-				retVal = retVal + 10.0;
+				retVal = retVal + 5.0;
 				break;
 			}
 			case cUnitTypeypWIAgraFort5:
 			{
-				retVal = retVal + 10.0;
+				retVal = retVal + 5.0;
 				break;
 			}
 			case cUnitTypeypCastle:
 			{
-				retVal = retVal + 5.0;
+				retVal = retVal + 3.0;
 				break;
 			}
 			case cUnitTypeYPOutpostAsian:
 			{
-				retVal = retVal + 5.0;
+				retVal = retVal + 3.0;
 				break;
 			}
 			case cUnitTypedeIncaStronghold:
 			{
-				retVal = retVal + 20.0;
+				retVal = retVal + 10.0;
 				break;
 			}
 			default:
@@ -27930,62 +27963,62 @@ float getPointEnemyStrength(vector loc = cInvalidVector)
 		{
 		case cUnitTypeFortFrontier:
 		{
-			retVal = retVal + 20.0;
+			retVal = retVal + 10.0;
 			break;
 		}
 		case cUnitTypeTownCenter:
 		{
-			retVal = retVal + 10.0;
+			retVal = retVal + 5.0;
 			break;
 		}
 		case cUnitTypeOutpost:
 		{
-			retVal = retVal + 5.0;
+			retVal = retVal + 3.0;
 			break;
 		}
 		case cUnitTypeBlockhouse:
 		{
-			retVal = retVal + 5.0;
+			retVal = retVal + 3.0;
 			break;
 		}
 		case cUnitTypeNoblesHut:
 		{
-			retVal = retVal + 5.0;
+			retVal = retVal + 3.0;
 			break;
 		}
 		case cUnitTypeypWIAgraFort2:
 		{
-			retVal = retVal + 10.0;
+			retVal = retVal + 5.0;
 			break;
 		}
 		case cUnitTypeypWIAgraFort3:
 		{
-			retVal = retVal + 10.0;
+			retVal = retVal + 5.0;
 			break;
 		}
 		case cUnitTypeypWIAgraFort4:
 		{
-			retVal = retVal + 10.0;
+			retVal = retVal + 5.0;
 			break;
 		}
 		case cUnitTypeypWIAgraFort5:
 		{
-			retVal = retVal + 10.0;
+			retVal = retVal + 5.0;
 			break;
 		}
 		case cUnitTypeypCastle:
 		{
-			retVal = retVal + 5.0;
+			retVal = retVal + 3.0;
 			break;
 		}
 		case cUnitTypeYPOutpostAsian:
 		{
-			retVal = retVal + 5.0;
+			retVal = retVal + 3.0;
 			break;
 		}
 		case cUnitTypedeIncaStronghold:
 		{
-			retVal = retVal + 20.0;
+			retVal = retVal + 10.0;
 			break;
 		}
 		default:
@@ -28051,7 +28084,7 @@ float getPointAllyStrength(vector loc = cInvalidVector)
 		}
 		case cUnitTypeNoblesHut:
 		{
-			retVal = retVal + 5.0;
+			retVal = retVal + 3.0;
 			break;
 		}
 		case cUnitTypeypWIAgraFort2:
@@ -28076,7 +28109,7 @@ float getPointAllyStrength(vector loc = cInvalidVector)
 		}
 		case cUnitTypeypCastle:
 		{
-			retVal = retVal + 4.0;
+			retVal = retVal + 3.0;
 			break;
 		}
 		case cUnitTypeYPOutpostAsian:
@@ -28244,62 +28277,62 @@ float getPlanStrength(int planID = -1)
 		{
 		case cUnitTypeFortFrontier:
 		{
-			retVal = retVal + 20.0;
+			retVal = retVal + 10.0;
 			break;
 		}
 		case cUnitTypeTownCenter:
 		{
-			retVal = retVal + 10.0;
+			retVal = retVal + 5.0;
 			break;
 		}
 		case cUnitTypeOutpost:
 		{
-			retVal = retVal + 5.0;
+			retVal = retVal + 3.0;
 			break;
 		}
 		case cUnitTypeBlockhouse:
 		{
-			retVal = retVal + 5.0;
+			retVal = retVal + 3.0;
 			break;
 		}
 		case cUnitTypeNoblesHut:
 		{
-			retVal = retVal + 5.0;
+			retVal = retVal + 3.0;
 			break;
 		}
 		case cUnitTypeypWIAgraFort2:
 		{
-			retVal = retVal + 10.0;
+			retVal = retVal + 5.0;
 			break;
 		}
 		case cUnitTypeypWIAgraFort3:
 		{
-			retVal = retVal + 10.0;
+			retVal = retVal + 5.0;
 			break;
 		}
 		case cUnitTypeypWIAgraFort4:
 		{
-			retVal = retVal + 10.0;
+			retVal = retVal + 5.0;
 			break;
 		}
 		case cUnitTypeypWIAgraFort5:
 		{
-			retVal = retVal + 10.0;
+			retVal = retVal + 5.0;
 			break;
 		}
 		case cUnitTypeypCastle:
 		{
-			retVal = retVal + 5.0;
+			retVal = retVal + 3.0;
 			break;
 		}
 		case cUnitTypeYPOutpostAsian:
 		{
-			retVal = retVal + 5.0;
+			retVal = retVal + 3.0;
 			break;
 		}
 		case cUnitTypedeIncaStronghold:
 		{
-			retVal = retVal + 20.0;
+			retVal = retVal + 10.0;
 			break;
 		}
 		default:
@@ -28328,62 +28361,62 @@ float getUnitListStrength(int unitList = -1)
 		{
 		case cUnitTypeFortFrontier:
 		{
-			retVal = retVal + 20.0;
+			retVal = retVal + 10.0;
 			break;
 		}
 		case cUnitTypeTownCenter:
 		{
-			retVal = retVal + 10.0;
+			retVal = retVal + 5.0;
 			break;
 		}
 		case cUnitTypeOutpost:
 		{
-			retVal = retVal + 5.0;
+			retVal = retVal + 3.0;
 			break;
 		}
 		case cUnitTypeBlockhouse:
 		{
-			retVal = retVal + 5.0;
+			retVal = retVal + 3.0;
 			break;
 		}
 		case cUnitTypeNoblesHut:
 		{
-			retVal = retVal + 5.0;
+			retVal = retVal + 3.0;
 			break;
 		}
 		case cUnitTypeypWIAgraFort2:
 		{
-			retVal = retVal + 10.0;
+			retVal = retVal + 5.0;
 			break;
 		}
 		case cUnitTypeypWIAgraFort3:
 		{
-			retVal = retVal + 10.0;
+			retVal = retVal + 5.0;
 			break;
 		}
 		case cUnitTypeypWIAgraFort4:
 		{
-			retVal = retVal + 10.0;
+			retVal = retVal + 5.0;
 			break;
 		}
 		case cUnitTypeypWIAgraFort5:
 		{
-			retVal = retVal + 10.0;
+			retVal = retVal + 5.0;
 			break;
 		}
 		case cUnitTypeypCastle:
 		{
-			retVal = retVal + 5.0;
+			retVal = retVal + 3.0;
 			break;
 		}
 		case cUnitTypeYPOutpostAsian:
 		{
-			retVal = retVal + 5.0;
+			retVal = retVal + 3.0;
 			break;
 		}
 		case cUnitTypedeIncaStronghold:
 		{
-			retVal = retVal + 20.0;
+			retVal = retVal + 10.0;
 			break;
 		}
 		default:
