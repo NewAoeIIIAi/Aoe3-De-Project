@@ -27692,62 +27692,62 @@ float getBaseEnemyStrength(int baseID = -1)
 			{
 			case cUnitTypeFortFrontier:
 			{
-				retVal = retVal + 10.0;
+				retVal = retVal + 50.0;
 				break;
 			}
 			case cUnitTypeTownCenter:
 			{
-				retVal = retVal + 5.0;
+				retVal = retVal + 50.0;
 				break;
 			}
 			case cUnitTypeOutpost:
 			{
-				retVal = retVal + 3.0;
+				retVal = retVal + 30.0;
 				break;
 			}
 			case cUnitTypeBlockhouse:
 			{
-				retVal = retVal + 3.0;
+				retVal = retVal + 30.0;
 				break;
 			}
 			case cUnitTypeNoblesHut:
 			{
-				retVal = retVal + 5.0;
+				retVal = retVal + 30.0;
 				break;
 			}
 			case cUnitTypeypWIAgraFort2:
 			{
-				retVal = retVal + 5.0;
+				retVal = retVal + 50.0;
 				break;
 			}
 			case cUnitTypeypWIAgraFort3:
 			{
-				retVal = retVal + 5.0;
+				retVal = retVal + 50.0;
 				break;
 			}
 			case cUnitTypeypWIAgraFort4:
 			{
-				retVal = retVal + 5.0;
+				retVal = retVal + 50.0;
 				break;
 			}
 			case cUnitTypeypWIAgraFort5:
 			{
-				retVal = retVal + 5.0;
+				retVal = retVal + 50.0;
 				break;
 			}
 			case cUnitTypeypCastle:
 			{
-				retVal = retVal + 4.0;
+				retVal = retVal + 30.0;
 				break;
 			}
 			case cUnitTypeYPOutpostAsian:
 			{
-				retVal = retVal + 3.0;
+				retVal = retVal + 30.0;
 				break;
 			}
 			case cUnitTypedeIncaStronghold:
 			{
-				retVal = retVal + 10.0;
+				retVal = retVal + 50.0;
 				break;
 			}
 			default:
@@ -27809,62 +27809,62 @@ float getPointEnemyStrength(vector loc = cInvalidVector)
 		{
 		case cUnitTypeFortFrontier:
 		{
-			retVal = retVal + 10.0;
+			retVal = retVal + 50.0;
 			break;
 		}
 		case cUnitTypeTownCenter:
 		{
-			retVal = retVal + 5.0;
+			retVal = retVal + 50.0;
 			break;
 		}
 		case cUnitTypeOutpost:
 		{
-			retVal = retVal + 3.0;
+			retVal = retVal + 30.0;
 			break;
 		}
 		case cUnitTypeBlockhouse:
 		{
-			retVal = retVal + 3.0;
+			retVal = retVal + 30.0;
 			break;
 		}
 		case cUnitTypeNoblesHut:
 		{
-			retVal = retVal + 5.0;
+			retVal = retVal + 30.0;
 			break;
 		}
 		case cUnitTypeypWIAgraFort2:
 		{
-			retVal = retVal + 5.0;
+			retVal = retVal + 50.0;
 			break;
 		}
 		case cUnitTypeypWIAgraFort3:
 		{
-			retVal = retVal + 5.0;
+			retVal = retVal + 50.0;
 			break;
 		}
 		case cUnitTypeypWIAgraFort4:
 		{
-			retVal = retVal + 5.0;
+			retVal = retVal + 50.0;
 			break;
 		}
 		case cUnitTypeypWIAgraFort5:
 		{
-			retVal = retVal + 5.0;
+			retVal = retVal + 50.0;
 			break;
 		}
 		case cUnitTypeypCastle:
 		{
-			retVal = retVal + 4.0;
+			retVal = retVal + 30.0;
 			break;
 		}
 		case cUnitTypeYPOutpostAsian:
 		{
-			retVal = retVal + 3.0;
+			retVal = retVal + 30.0;
 			break;
 		}
 		case cUnitTypedeIncaStronghold:
 		{
-			retVal = retVal + 10.0;
+			retVal = retVal + 50.0;
 			break;
 		}
 		default:
@@ -28123,62 +28123,62 @@ float getPlanStrength(int planID = -1)
 		{
 		case cUnitTypeFortFrontier:
 		{
-			retVal = retVal + 10.0;
+			retVal = retVal + 50.0;
 			break;
 		}
 		case cUnitTypeTownCenter:
 		{
-			retVal = retVal + 5.0;
+			retVal = retVal + 50.0;
 			break;
 		}
 		case cUnitTypeOutpost:
 		{
-			retVal = retVal + 3.0;
+			retVal = retVal + 30.0;
 			break;
 		}
 		case cUnitTypeBlockhouse:
 		{
-			retVal = retVal + 3.0;
+			retVal = retVal + 30.0;
 			break;
 		}
 		case cUnitTypeNoblesHut:
 		{
-			retVal = retVal + 5.0;
+			retVal = retVal + 30.0;
 			break;
 		}
 		case cUnitTypeypWIAgraFort2:
 		{
-			retVal = retVal + 5.0;
+			retVal = retVal + 50.0;
 			break;
 		}
 		case cUnitTypeypWIAgraFort3:
 		{
-			retVal = retVal + 5.0;
+			retVal = retVal + 50.0;
 			break;
 		}
 		case cUnitTypeypWIAgraFort4:
 		{
-			retVal = retVal + 5.0;
+			retVal = retVal + 50.0;
 			break;
 		}
 		case cUnitTypeypWIAgraFort5:
 		{
-			retVal = retVal + 5.0;
+			retVal = retVal + 50.0;
 			break;
 		}
 		case cUnitTypeypCastle:
 		{
-			retVal = retVal + 4.0;
+			retVal = retVal + 30.0;
 			break;
 		}
 		case cUnitTypeYPOutpostAsian:
 		{
-			retVal = retVal + 3.0;
+			retVal = retVal + 30.0;
 			break;
 		}
 		case cUnitTypedeIncaStronghold:
 		{
-			retVal = retVal + 10.0;
+			retVal = retVal + 50.0;
 			break;
 		}
 		default:
@@ -28207,62 +28207,62 @@ float getUnitListStrength(int unitList = -1)
 		{
 		case cUnitTypeFortFrontier:
 		{
-			retVal = retVal + 10.0;
+			retVal = retVal + 50.0;
 			break;
 		}
 		case cUnitTypeTownCenter:
 		{
-			retVal = retVal + 5.0;
+			retVal = retVal + 50.0;
 			break;
 		}
 		case cUnitTypeOutpost:
 		{
-			retVal = retVal + 3.0;
+			retVal = retVal + 30.0;
 			break;
 		}
 		case cUnitTypeBlockhouse:
 		{
-			retVal = retVal + 3.0;
+			retVal = retVal + 30.0;
 			break;
 		}
 		case cUnitTypeNoblesHut:
 		{
-			retVal = retVal + 5.0;
+			retVal = retVal + 30.0;
 			break;
 		}
 		case cUnitTypeypWIAgraFort2:
 		{
-			retVal = retVal + 5.0;
+			retVal = retVal + 50.0;
 			break;
 		}
 		case cUnitTypeypWIAgraFort3:
 		{
-			retVal = retVal + 5.0;
+			retVal = retVal + 50.0;
 			break;
 		}
 		case cUnitTypeypWIAgraFort4:
 		{
-			retVal = retVal + 5.0;
+			retVal = retVal + 50.0;
 			break;
 		}
 		case cUnitTypeypWIAgraFort5:
 		{
-			retVal = retVal + 5.0;
+			retVal = retVal + 50.0;
 			break;
 		}
 		case cUnitTypeypCastle:
 		{
-			retVal = retVal + 4.0;
+			retVal = retVal + 30.0;
 			break;
 		}
 		case cUnitTypeYPOutpostAsian:
 		{
-			retVal = retVal + 3.0;
+			retVal = retVal + 30.0;
 			break;
 		}
 		case cUnitTypedeIncaStronghold:
 		{
-			retVal = retVal + 10.0;
+			retVal = retVal + 50.0;
 			break;
 		}
 		default:
