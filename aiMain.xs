@@ -5001,24 +5001,18 @@ void selectTowerBuildPlanPosition(int buildPlan = -1)
       aiPlanSetVariableFloat(buildPlan, cBuildPlanCenterPositionDistance, 0, 50.0);
 	  
 	  // Add position influences for trees, gold, TCs.
-   aiPlanSetNumberVariableValues(buildPlan, cBuildPlanInfluenceUnitTypeID, 4, true);
-   aiPlanSetNumberVariableValues(buildPlan, cBuildPlanInfluenceUnitDistance, 4, true);
-   aiPlanSetNumberVariableValues(buildPlan, cBuildPlanInfluenceUnitValue, 4, true);
-   aiPlanSetNumberVariableValues(buildPlan, cBuildPlanInfluenceUnitFalloff, 4, true);
+   aiPlanSetNumberVariableValues(buildPlan, cBuildPlanInfluenceUnitTypeID, 8, true);
+   aiPlanSetNumberVariableValues(buildPlan, cBuildPlanInfluenceUnitDistance, 8, true);
+   aiPlanSetNumberVariableValues(buildPlan, cBuildPlanInfluenceUnitValue, 8, true);
+   aiPlanSetNumberVariableValues(buildPlan, cBuildPlanInfluenceUnitFalloff, 8, true);
 
    aiPlanSetVariableInt(buildPlan, cBuildPlanInfluenceUnitTypeID, 0, cUnitTypeWood);
-   aiPlanSetVariableFloat(buildPlan, cBuildPlanInfluenceUnitDistance, 0, 30.0);     // 30m range.
+   aiPlanSetVariableFloat(buildPlan, cBuildPlanInfluenceUnitDistance, 0, 20.0);     // 30m range.
    aiPlanSetVariableFloat(buildPlan, cBuildPlanInfluenceUnitValue, 0, 10.0);        // 10 points per tree
    aiPlanSetVariableInt(buildPlan, cBuildPlanInfluenceUnitFalloff, 0, cBPIFalloffLinear);  // Linear slope falloff
    
-   aiPlanSetVariableInt(buildPlan, cBuildPlanInfluenceUnitTypeID, 0, cUnitTypeHuntable);
-   aiPlanSetVariableFloat(buildPlan, cBuildPlanInfluenceUnitDistance, 0, 30.0);     // 30m range.
-   aiPlanSetVariableFloat(buildPlan, cBuildPlanInfluenceUnitValue, 0, 10.0);        // 10 points per tree
-   aiPlanSetVariableInt(buildPlan, cBuildPlanInfluenceUnitFalloff, 0, cBPIFalloffLinear);
-
    aiPlanSetVariableInt(buildPlan, cBuildPlanInfluenceUnitTypeID, 1, cUnitTypeMine);
-   aiPlanSetVariableFloat(buildPlan, cBuildPlanInfluenceUnitDistance, 1,
-      40.0);              // 40 meter range for gold
+   aiPlanSetVariableFloat(buildPlan, cBuildPlanInfluenceUnitDistance, 1,  20.0);              // 40 meter range for gold
    aiPlanSetVariableFloat(buildPlan, cBuildPlanInfluenceUnitValue, 1, 300.0);                // 300 points each
    aiPlanSetVariableInt(buildPlan, cBuildPlanInfluenceUnitFalloff, 1, cBPIFalloffLinear);  // Linear slope falloff
    
@@ -5026,13 +5020,27 @@ void selectTowerBuildPlanPosition(int buildPlan = -1)
    aiPlanSetVariableFloat(buildPlan, cBuildPlanInfluenceUnitDistance, 2, 10.0);              // 10 meter inhibition to keep some space
    aiPlanSetVariableFloat(buildPlan, cBuildPlanInfluenceUnitValue, 2, -300.0);                // -300 points each
    aiPlanSetVariableInt(buildPlan, cBuildPlanInfluenceUnitFalloff, 2, cBPIFalloffNone);      // Cliff falloff
+   
+   aiPlanSetVariableInt(buildPlan, cBuildPlanInfluenceUnitTypeID, 3, cUnitTypeHuntable);
+   aiPlanSetVariableFloat(buildPlan, cBuildPlanInfluenceUnitDistance, 3, 20.0);     // 30m range.
+   aiPlanSetVariableFloat(buildPlan, cBuildPlanInfluenceUnitValue, 3, 40.0);        // 10 points per tree
+   aiPlanSetVariableInt(buildPlan, cBuildPlanInfluenceUnitFalloff, 3, cBPIFalloffLinear);
 
-   aiPlanSetVariableInt(buildPlan, cBuildPlanInfluenceUnitTypeID, 3, cUnitTypeTownCenter);
-   aiPlanSetVariableFloat(buildPlan, cBuildPlanInfluenceUnitDistance, 3, 40.0);              // 40 meter inhibition around TCs.
-   aiPlanSetVariableFloat(buildPlan, cBuildPlanInfluenceUnitValue, 3, -500.0);                // -500 points each
-   aiPlanSetVariableInt(buildPlan, cBuildPlanInfluenceUnitFalloff, 3, cBPIFalloffNone);      // Cliff falloff
-
+   aiPlanSetVariableInt(buildPlan, cBuildPlanInfluenceUnitTypeID, 4, cUnitTypeDock);
+   aiPlanSetVariableFloat(buildPlan, cBuildPlanInfluenceUnitDistance, 4, 10.0);              // 40 meter inhibition around TCs.
+   aiPlanSetVariableFloat(buildPlan, cBuildPlanInfluenceUnitValue, 4, 300.0);                // -500 points each
+   aiPlanSetVariableInt(buildPlan, cBuildPlanInfluenceUnitFalloff, 4, cBPIFalloffNone);      // Cliff falloff
 	  
+   aiPlanSetVariableInt(buildPlan, cBuildPlanInfluenceUnitTypeID, 5, gTowerUnit);
+   aiPlanSetVariableFloat(buildPlan, cBuildPlanInfluenceUnitDistance, 5, 40.0);              // 40 meter inhibition around TCs.
+   aiPlanSetVariableFloat(buildPlan, cBuildPlanInfluenceUnitValue, 5, -300.0);                // -500 points each
+   aiPlanSetVariableInt(buildPlan, cBuildPlanInfluenceUnitFalloff, 5, cBPIFalloffNone);      // Cliff falloff
+	  
+   aiPlanSetVariableInt(buildPlan, cBuildPlanInfluenceUnitTypeID, 6, cUnitTypeTownCenter);
+   aiPlanSetVariableFloat(buildPlan, cBuildPlanInfluenceUnitDistance, 6, 200.0);              // 40 meter inhibition around TCs.
+   aiPlanSetVariableFloat(buildPlan, cBuildPlanInfluenceUnitValue, 6, 100.0);                // -500 points each
+   aiPlanSetVariableInt(buildPlan, cBuildPlanInfluenceUnitFalloff, 6, cBPIFalloffNone);      // Cliff falloff
+   
 /*
    // Add position influence for nearby towers
    aiPlanSetVariableInt(buildPlan, cBuildPlanInfluenceUnitTypeID, 0, gTowerUnit);   // Russian's won't notice ally towers and vice versa...oh well.
@@ -5042,10 +5050,10 @@ void selectTowerBuildPlanPosition(int buildPlan = -1)
 */
 
    // Weight it to stay very close to center point.
-   aiPlanSetVariableVector(buildPlan, cBuildPlanInfluencePosition, 0, testVec);    // Position influence for landing position
-   aiPlanSetVariableFloat(buildPlan, cBuildPlanInfluencePositionDistance, 0, exclusionRadius);     // 100m range.
-   aiPlanSetVariableFloat(buildPlan, cBuildPlanInfluencePositionValue, 0, 10.0);        // 10 points for center
-   aiPlanSetVariableInt(buildPlan, cBuildPlanInfluencePositionFalloff, 0, cBPIFalloffLinear);  // Linear slope falloff
+   aiPlanSetVariableVector(buildPlan, cBuildPlanInfluencePosition, 7, testVec);    // Position influence for landing position
+   aiPlanSetVariableFloat(buildPlan, cBuildPlanInfluencePositionDistance, 7, exclusionRadius);     // 100m range.
+   aiPlanSetVariableFloat(buildPlan, cBuildPlanInfluencePositionValue, 7, 10.0);        // 10 points for center
+   aiPlanSetVariableInt(buildPlan, cBuildPlanInfluencePositionFalloff, 7, cBPIFalloffLinear);  // Linear slope falloff
 
    aiEcho("Building plan (" + buildPlan + ") for tower at location " + testVec);    
 }
@@ -9702,7 +9710,7 @@ void setUnitPickerPreference(int upID = -1)
 			 
 			if (kbGetAge() == 4)
 			{
-			kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeMercenary, 0.1);
+			//kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeMercenary, 0.1);
 			}   			 
 			
              break;
@@ -9732,7 +9740,7 @@ void setUnitPickerPreference(int upID = -1)
 
 			if (kbGetAge() == 4)
 			{
-			kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeMercenary, 0.1);
+			//kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeMercenary, 0.1);
 			}   			 
 			 
              break;
@@ -9760,7 +9768,7 @@ void setUnitPickerPreference(int upID = -1)
 			 
 			if (kbGetAge() == 4)
 			{
-			kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeMercenary, 0.1);
+			//kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeMercenary, 0.1);
 			}   
 			
              break;
@@ -9789,7 +9797,7 @@ void setUnitPickerPreference(int upID = -1)
 			       
 			if (kbGetAge() == 4)
 			{
-			kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeMercenary, 0.1);
+			//kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeMercenary, 0.1);
 			}   
 			 
              break;
@@ -9843,7 +9851,7 @@ void setUnitPickerPreference(int upID = -1)
 			 
 			if (kbGetAge() == 4)
 			{
-			kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeMercenary, 0.1);
+			//kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeMercenary, 0.1);
 			}   
 			
              break;
@@ -9880,7 +9888,7 @@ void setUnitPickerPreference(int upID = -1)
 			 
 			if (kbGetAge() == 4)
 			{
-			kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeMercenary, 0.1);
+			//kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeMercenary, 0.1);
 			}   
 			
              break;   
@@ -9938,7 +9946,7 @@ void setUnitPickerPreference(int upID = -1)
 			 
 			if (kbGetAge() == 4)
 			{
-			kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeMercenary, 0.1);
+			//kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeMercenary, 0.1);
 			}   
 			
               break;
@@ -9979,7 +9987,7 @@ void setUnitPickerPreference(int upID = -1)
 			 
 			if (kbGetAge() == 4)
 			{
-			kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeMercenary, 0.1);
+			//kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeMercenary, 0.1);
 			}   
 			
              break;
@@ -10006,7 +10014,7 @@ void setUnitPickerPreference(int upID = -1)
 			 
 			if (kbGetAge() == 4)
 			{
-			kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeMercenary, 0.1);
+			//kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeMercenary, 0.1);
 			}   
 			
              break;
@@ -10044,7 +10052,7 @@ void setUnitPickerPreference(int upID = -1)
 			 
 			if (kbGetAge() == 4)
 			{
-			kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeMercenary, 0.1);
+			//kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeMercenary, 0.1);
 			}   
 			
              break;                
@@ -10128,7 +10136,107 @@ void setUnitPickerPreference(int upID = -1)
              break;
            }
 		   
-       } 	
+       }
+	   
+	   if (kbTechGetStatus(cTechDEPoliticianMercContractor) == cTechStatusActive)
+	   {
+	   if ((kbUnitCount(cMyID, cUnitTypeMercenary, cUnitStateABQ) < 11) && (kbUnitCount(cMyID, cUnitTypeMercenary, cUnitStateAlive) < 11)
+			&& (kbUnitCount(cMyID, cUnitTypeSaloon, cUnitStateABQ) > 0) || (kbUnitCount(cMyID, cUnitTypeypMonastery, cUnitStateABQ) > 0))
+		   {  
+			 /*if (kbTechGetStatus(cTechSaloonNinja) == cTechStatusActive)
+			 {
+             kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeMercNinja, MercAssassinFactor * 1.625);
+			 }*/
+			 if (kbTechGetStatus(cTechSaloonMameluke) == cTechStatusActive)
+			 {
+             kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeMercMameluke, MercCuirassierFactor * 1.625);
+			 }
+			 if (kbTechGetStatus(cTechSaloonHackapell) == cTechStatusActive)
+			 {
+             kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeMercHackapell, MercheavyCavalryFactor * 1.625);
+             }
+			 if (kbTechGetStatus(cTechdeSaloonHarquebusier) == cTechStatusActive)
+			 {
+			 kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypedeMercHarquebusier, MercheavyCavalryFactor * 1.625);
+             }
+			 if (kbTechGetStatus(cTechSaloonStradiot) == cTechStatusActive)
+			 {
+			 kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeMercStradiot, MercheavyCavalryFactor * 1.625);
+             }
+			 if (kbTechGetStatus(cTechypSaloonJat) == cTechStatusActive)
+			 {
+			 kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeypMercJatLancer, MercLancerFactor * 1.625);
+             }
+			 if (kbTechGetStatus(cTechSaloonElmeti) == cTechStatusActive)
+			 {
+			 kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeMercElmeti, MercLancerFactor * 1.625);
+             }
+			 if (kbTechGetStatus(cTechSaloonManchu) == cTechStatusActive)
+			 {
+			 kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeMercManchu, MerclightCavalryFactor * 1.625);
+             }
+			 if (kbTechGetStatus(cTechypSaloonYojimbo) == cTechStatusActive)
+			 {
+			 kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeypMercYojimbo, MerclightCavalryFactor * 1.625);
+             }
+			 if (kbTechGetStatus(cTechSaloonBlackRider) == cTechStatusActive)
+			 {
+			 kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeMercBlackRider, MerclightCavalryFactor * 1.625);
+             }
+			 if (kbTechGetStatus(cTechSaloonHighlander) == cTechStatusActive)
+			 {
+			 kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeMercHighlander, MercJanissaryFactor * 1.625);
+             }
+			 if (kbTechGetStatus(cTechSaloonFusilier) == cTechStatusActive)
+			 {
+			 kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeMercFusilier, MercJanissaryFactor * 1.625);
+             }
+			 if (kbTechGetStatus(cTechSaloonCorsair) == cTechStatusActive)
+			 {
+			 kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeMercBarbaryCorsair, MercTercioFactor * 1.625);
+             }
+			 if (kbTechGetStatus(cTechSaloonSwissPikeman) == cTechStatusActive)
+			 {
+			 kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeMercSwissPikeman, MercTercioFactor * 1.625);
+             }
+			 if (kbTechGetStatus(cTechSaloonLandsknecht) == cTechStatusActive)
+			 {
+			 kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeMercLandsknecht, MercTercioFactor * 1.625);
+             }
+			 //if (kbTechGetStatus(cTechypSaloonArsonist) == cTechStatusActive)
+			 //{
+			 //kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeypMercArsonist, MerclightInfantryFactor * 1.625);
+             //}
+			 if (kbTechGetStatus(cTechypSaloonIronTroop) == cTechStatusActive)
+			 {
+			 kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeypMercIronTroop, MerclightInfantryFactor * 1.625);
+             }
+			 if (kbTechGetStatus(cTechSaloonJaeger) == cTechStatusActive)
+			 {
+			 kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeMercJaeger, ShinobiFactor * 1.625);
+             }
+			 if (kbTechGetStatus(cTechSaloonGreatCannon) == cTechStatusActive)
+			 {
+			 kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeMercGreatCannon, MercartilleryFactor * 1.625);
+             }
+			 if (kbTechGetStatus(cTechSaloonRonin) == cTechStatusActive)
+			 {
+			 kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeMercRonin, MercSamuraiFactor * 1.625);
+			 }
+			 if (kbTechGetStatus(cTechDEHCREVHajduks) == cTechStatusActive)
+			 {
+			 kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeSaloonOutlawRifleman, MerclightInfantryFactor * 1.625);
+			 }
+			 if (kbTechGetStatus(cTechDEHCREVChinacos) == cTechStatusActive)
+			 {
+			 kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeSaloonOutlawRifleman, MerclightInfantryFactor * 1.625);
+			 }
+			 if (kbTechGetStatus(cTechDEHCREVCharros) == cTechStatusActive)
+			 {
+			 kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypedeREVVaquero, MerclightInfantryFactor * 1.625);
+			 }
+			}
+	   }
 	   
 			if (gSPC == true) 
            {
@@ -12685,19 +12793,18 @@ void selectTCBuildPlanPosition(int buildPlan = -1)
 	aiPlanSetVariableFloat(buildPlan, cBuildPlanCenterPositionDistance, 0, 50.00);
 
 	// Add position influences for trees, gold, TCs.
-	aiPlanSetNumberVariableValues(buildPlan, cBuildPlanInfluenceUnitTypeID, 4, true);
-	aiPlanSetNumberVariableValues(buildPlan, cBuildPlanInfluenceUnitDistance, 4, true);
-	aiPlanSetNumberVariableValues(buildPlan, cBuildPlanInfluenceUnitValue, 4, true);
-	aiPlanSetNumberVariableValues(buildPlan, cBuildPlanInfluenceUnitFalloff, 4, true);
+	aiPlanSetNumberVariableValues(buildPlan, cBuildPlanInfluenceUnitTypeID, 8, true);
+	aiPlanSetNumberVariableValues(buildPlan, cBuildPlanInfluenceUnitDistance, 8, true);
+	aiPlanSetNumberVariableValues(buildPlan, cBuildPlanInfluenceUnitValue, 8, true);
+	aiPlanSetNumberVariableValues(buildPlan, cBuildPlanInfluenceUnitFalloff, 8, true);
 
 	aiPlanSetVariableInt(buildPlan, cBuildPlanInfluenceUnitTypeID, 0, cUnitTypeWood);
-	aiPlanSetVariableFloat(buildPlan, cBuildPlanInfluenceUnitDistance, 0, 30.0);     // 30m range.
+	aiPlanSetVariableFloat(buildPlan, cBuildPlanInfluenceUnitDistance, 0, 20.0);     // 30m range.
 	aiPlanSetVariableFloat(buildPlan, cBuildPlanInfluenceUnitValue, 0, 10.0);        // 10 points per tree
 	aiPlanSetVariableInt(buildPlan, cBuildPlanInfluenceUnitFalloff, 0, cBPIFalloffLinear);  // Linear slope falloff
 
 	aiPlanSetVariableInt(buildPlan, cBuildPlanInfluenceUnitTypeID, 1, cUnitTypeMine);
-	aiPlanSetVariableFloat(buildPlan, cBuildPlanInfluenceUnitDistance, 1,
-		40.0);              // 40 meter range for gold
+	aiPlanSetVariableFloat(buildPlan, cBuildPlanInfluenceUnitDistance, 1, 20.0);              // 40 meter range for gold
 	aiPlanSetVariableFloat(buildPlan, cBuildPlanInfluenceUnitValue, 1, 300.0);                // 300 points each
 	aiPlanSetVariableInt(buildPlan, cBuildPlanInfluenceUnitFalloff, 1, cBPIFalloffLinear);  // Linear slope falloff
 
@@ -12706,17 +12813,31 @@ void selectTCBuildPlanPosition(int buildPlan = -1)
 	aiPlanSetVariableFloat(buildPlan, cBuildPlanInfluenceUnitValue, 2, -300.0);                // -300 points each
 	aiPlanSetVariableInt(buildPlan, cBuildPlanInfluenceUnitFalloff, 2, cBPIFalloffNone);      // Cliff falloff
 
-	aiPlanSetVariableInt(buildPlan, cBuildPlanInfluenceUnitTypeID, 3, cUnitTypeTownCenter);
-	aiPlanSetVariableFloat(buildPlan, cBuildPlanInfluenceUnitDistance, 3, 40.0);              // 40 meter inhibition around TCs.
-	aiPlanSetVariableFloat(buildPlan, cBuildPlanInfluenceUnitValue, 3, -500.0);                // -500 points each
-	aiPlanSetVariableInt(buildPlan, cBuildPlanInfluenceUnitFalloff, 3, cBPIFalloffNone);      // Cliff falloff
+   aiPlanSetVariableInt(buildPlan, cBuildPlanInfluenceUnitTypeID, 3, cUnitTypeHuntable);
+   aiPlanSetVariableFloat(buildPlan, cBuildPlanInfluenceUnitDistance, 3, 20.0);     // 30m range.
+   aiPlanSetVariableFloat(buildPlan, cBuildPlanInfluenceUnitValue, 3, 40.0);        // 10 points per tree
+   aiPlanSetVariableInt(buildPlan, cBuildPlanInfluenceUnitFalloff, 3, cBPIFalloffLinear);  // Linear slope falloff   
+   
+	aiPlanSetVariableInt(buildPlan, cBuildPlanInfluenceUnitTypeID, 4, gTowerUnit);
+	aiPlanSetVariableFloat(buildPlan, cBuildPlanInfluenceUnitDistance, 4, 20.0);              // 40 meter inhibition around TCs.
+	aiPlanSetVariableFloat(buildPlan, cBuildPlanInfluenceUnitValue, 4, 300.0);                // -500 points each
+	aiPlanSetVariableInt(buildPlan, cBuildPlanInfluenceUnitFalloff, 4, cBPIFalloffNone);      // Cliff falloff
+   
+	aiPlanSetVariableInt(buildPlan, cBuildPlanInfluenceUnitTypeID, 5, cUnitTypeDock);
+	aiPlanSetVariableFloat(buildPlan, cBuildPlanInfluenceUnitDistance, 5, 10.0);              // 40 meter inhibition around TCs.
+	aiPlanSetVariableFloat(buildPlan, cBuildPlanInfluenceUnitValue, 5, 100.0);                // -500 points each
+	aiPlanSetVariableInt(buildPlan, cBuildPlanInfluenceUnitFalloff, 5, cBPIFalloffNone);      // Cliff falloff
 
+	aiPlanSetVariableInt(buildPlan, cBuildPlanInfluenceUnitTypeID, 6, cUnitTypeTownCenter);
+	aiPlanSetVariableFloat(buildPlan, cBuildPlanInfluenceUnitDistance, 6, 40.0);              // 40 meter inhibition around TCs.
+	aiPlanSetVariableFloat(buildPlan, cBuildPlanInfluenceUnitValue, 6, -500.0);                // -500 points each
+	aiPlanSetVariableInt(buildPlan, cBuildPlanInfluenceUnitFalloff, 6, cBPIFalloffNone);      // Cliff falloff
 
 	// Weight it to prefer the general starting neighborhood
-	aiPlanSetVariableVector(buildPlan, cBuildPlanInfluencePosition, 0, loc);    // Position influence for landing position
-	aiPlanSetVariableFloat(buildPlan, cBuildPlanInfluencePositionDistance, 0, 100.0);     // 100m range.
-	aiPlanSetVariableFloat(buildPlan, cBuildPlanInfluencePositionValue, 0, 300.0);        // 300 points max
-	aiPlanSetVariableInt(buildPlan, cBuildPlanInfluencePositionFalloff, 0, cBPIFalloffLinear);  // Linear slope falloff
+	aiPlanSetVariableVector(buildPlan, cBuildPlanInfluencePosition, 7, loc);    // Position influence for landing position
+	aiPlanSetVariableFloat(buildPlan, cBuildPlanInfluencePositionDistance, 7, 40.0);     // 100m range.
+	aiPlanSetVariableFloat(buildPlan, cBuildPlanInfluencePositionValue, 7, -500.0);        // 300 points max
+	aiPlanSetVariableInt(buildPlan, cBuildPlanInfluencePositionFalloff, 7, cBPIFalloffLinear);  // Linear slope falloff
 
 	aiPlanSetActive(buildPlan);
 	aiPlanSetEventHandler(buildPlan, cPlanEventStateChange, "tcPlacedEventHandler");
@@ -19285,7 +19406,7 @@ void init(void)
 
 
 		// Wait to activate TC build plan, to allow adequate exploration
-		gTCBuildPlanID = buildPlan;   // Save in a global var so the rule can access it.
+		//gTCBuildPlanID = buildPlan;   // Save in a global var so the rule can access it.
 		aiPlanSetEventHandler(buildPlan, cPlanEventStateChange, "tcPlacedEventHandler");
 
 		xsEnableRule("tcBuildPlanDelay");
@@ -32227,7 +32348,7 @@ minInterval 10
 			if (addBuilderToPlan(buildPlan, cUnitTypeTownCenter, 1) == false)
 				break;
 			aiPlanSetEventHandler(buildPlan, cPlanEventStateChange, "tcPlacedEventHandler");
-			gTCBuildPlanID = buildPlan;   // Save in a global var so the rule can access it.            
+			//gTCBuildPlanID = buildPlan;   // Save in a global var so the rule can access it.            
 		}
 		else
 		{
