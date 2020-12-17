@@ -469,7 +469,7 @@ void initArrays(void)
             xsArraySetInt(gAsianWonders, 0, cUnitTypeypWJToshoguShrine2);
             xsArraySetInt(gAsianWonders, 1, cUnitTypeypWJToriiGates3);
             xsArraySetInt(gAsianWonders, 2, cUnitTypeypWJGoldenPavillion4);
-            xsArraySetInt(gAsianWonders, 3, cUnitTypeypWJToshoguShrine5);
+            xsArraySetInt(gAsianWonders, 3, cUnitTypeypWJShogunate5);
 			/*
       //Giant Buddha, Golden Pavillion, Shogunate, Torii Gates, Toshogu Shrine 
       if (btRushBoom > 0)
@@ -5668,7 +5668,7 @@ minInterval 5
 
 			// now the goal
 			// wmj -- hard coded for now, but this should most likely ramp up as the ages progress
-			aiSetMinArmySize(15);
+			aiSetMinArmySize(20);
 			/*if (gMainAttackGoal >= 0)
 			{
 				aiPlanSetVariableInt(gMainAttackGoal, cGoalPlanUnitPickerID, 0, gLandUnitPicker);
@@ -24729,7 +24729,7 @@ void resignHandler(int result = -1)
 	aiEcho("Resign handler returned " + result);
 	static int ResignPre = 0;
 	ResignPre = xsGetTime();
-	if (xsGetTime() - ResignPre < 5*1000)
+	if (xsGetTime() - ResignPre > 5*1000)
 	{
 	aiResign();
 	}
@@ -28204,7 +28204,7 @@ void scoreOpportunity(int oppID = -1)
 //==============================================================================
 rule attackManager
 inactive
-minInterval 1
+minInterval 15
 {
    static int baseQuery = -1;
    static int baseEnemyQuery = -1;
