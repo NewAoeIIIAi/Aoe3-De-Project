@@ -5668,7 +5668,7 @@ minInterval 5
 
 			// now the goal
 			// wmj -- hard coded for now, but this should most likely ramp up as the ages progress
-			aiSetMinArmySize(20);
+			aiSetMinArmySize(15);
 			/*if (gMainAttackGoal >= 0)
 			{
 				aiPlanSetVariableInt(gMainAttackGoal, cGoalPlanUnitPickerID, 0, gLandUnitPicker);
@@ -6809,184 +6809,187 @@ inactive
 group tcComplete
 minInterval 15
 {
-   bool givenFishingBoats = false;
-   
-   if ((kbUnitCount(cMyID, gFishingUnit, cUnitStateAlive) > 0) && (gWaterExploreMaintain < 0) && (gFishingPlan < 0))
-      givenFishingBoats = true;  // I have fishing boats, but no fishing or water scout plans, so they must have been given to me.
+	bool givenFishingBoats = false;
 
-   if (givenFishingBoats == false)  // Skip these early-outs if we were granted free boats.
-   {
-      if ((cMyCiv == cCivDutch) && (kbUnitCount(cMyID, cUnitTypeBank, cUnitStateABQ) < 1))
-         return;  // Don't burn wood before we have a bank
-      if ((cMyCiv == cCivOttomans) && (kbUnitCount(cMyID, cUnitTypeChurch, cUnitStateABQ) < 1))
-         return;  // Don't burn wood before we have a mosque.
-   }
+	if ((kbUnitCount(cMyID, gFishingUnit, cUnitStateAlive) > 0) && (gWaterExploreMaintain < 0) && (gFishingPlan < 0))
+		givenFishingBoats = true;  // I have fishing boats, but no fishing or water scout plans, so they must have been given to me.
 
-   gNumFishBoats = aiGetEconomyPop() * 0.2; //((btRushBoom * -1.0) + 0.7) * 7.5; // At max boom, that's 12.  At balance, it's 3.  
-   if ((mapIsIsland() == true) || (cRandomMapName == "Borneo") || (cRandomMapName == "Honshu"))
-   {
-      if (gNumFishBoats < 12)
-         gNumFishBoats = 12;   // Always fish on those maps.
-   }
-   if ((givenFishingBoats == false) && (gNumFishBoats <= 0))
-      return;  //We weren't given any, and don't plan on making any, so quit.
+	if (givenFishingBoats == false)  // Skip these early-outs if we were granted free boats.
+	{
+		if ((cMyCiv == cCivDutch) && (kbUnitCount(cMyID, cUnitTypeBank, cUnitStateABQ) < 1))
+			return;  // Don't burn wood before we have a bank
+		if ((cMyCiv == cCivOttomans) && (kbUnitCount(cMyID, cUnitTypeChurch, cUnitStateABQ) < 1))
+			return;  // Don't burn wood before we have a mosque.
+	}
 
-   aiEcho("StartFishing rule running.  gGoodFishingMap is " + gGoodFishingMap + ", cvOkToFish is " + cvOkToFish);
-   if ((cvOkToFish == true) && (gGoodFishingMap == true))
-   {
-      //  Check to see if we have spotted a fish reasonably close to our water spawn flag.  
-      int flag = getUnit(cUnitTypeHomeCityWaterSpawnFlag, cMyID);
-      if (flag >= 0)
-      {
-         static int fishQuery = -1;
-         int fish = -1;
-         int fishAreaGroup = -1;
-         int flagAreaGroup = -1;
+	gNumFishBoats = 20; //((btRushBoom * -1.0) + 0.7) * 7.5; // At max boom, that's 12.  At balance, it's 3.  
+	if (gNumFishBoats < 2)
+	{
+		gNumFishBoats = 0;   // Rushers generally shouldn't fish.
+	}
+	if ((mapIsIsland() == true) || (cRandomMapName == "Borneo") || (cRandomMapName == "Honshu"))
+	{
+		if (gNumFishBoats < 3)
+			gNumFishBoats = 3;   // Always fish on those maps.
+	}
+	if ((givenFishingBoats == false) && (gNumFishBoats <= 0))
+		return;  //We weren't given any, and don't plan on making any, so quit.
 
-         flagAreaGroup = kbAreaGroupGetIDByPosition(kbUnitGetPosition(flag));
+	aiEcho("StartFishing rule running.  gGoodFishingMap is " + gGoodFishingMap + ", cvOkToFish is " + cvOkToFish);
+	if ((cvOkToFish == true) && (gGoodFishingMap == true))
+	{
+		//  Check to see if we have spotted a fish reasonably close to our water spawn flag.  
+		int flag = getUnit(cUnitTypeHomeCityWaterSpawnFlag, cMyID);
+		if (flag >= 0)
+		{
+			static int fishQuery = -1;
+			int fish = -1;
+			int fishAreaGroup = -1;
+			int flagAreaGroup = -1;
 
-         if (fishQuery < 0)
-         {
-            fishQuery = kbUnitQueryCreate("fish query");
-            kbUnitQuerySetIgnoreKnockedOutUnits(fishQuery, true);
-            kbUnitQuerySetPlayerID(fishQuery, 0);
-            kbUnitQuerySetUnitType(fishQuery, cUnitTypeAbstractFish);
-            kbUnitQuerySetState(fishQuery, cUnitStateAny);
-            kbUnitQuerySetPosition(fishQuery, kbUnitGetPosition(flag));
-            kbUnitQuerySetMaximumDistance(fishQuery, 400.0);
-            kbUnitQuerySetAscendingSort(fishQuery, true);
-         }
-         kbUnitQueryResetResults(fishQuery);
-         if (kbUnitQueryExecute(fishQuery) > 0)
-            fish = kbUnitQueryGetResult(fishQuery, 0);   // Get the nearest fish.
-         if (fish >= 0)
-            fishAreaGroup = kbAreaGroupGetIDByPosition(kbUnitGetPosition(fish));
-         if ((fish >= 0) && (fishAreaGroup == flagAreaGroup))
-            aiEcho("Found fish # " + fish + " at " + kbUnitGetPosition(fish));
-         else
-         {
-            aiEcho("No fish found near " + kbUnitGetPosition(flag));
-            return;  // No fish near enough, keep looking
-         }
-      }  // else, no flag, so just go ahead.
+			flagAreaGroup = kbAreaGroupGetIDByPosition(kbUnitGetPosition(flag));
 
-      if (fish < 0)
-         getUnit(cUnitTypeAbstractFish, 0, cUnitStateAny);  // need to have one fish visible
+			if (fishQuery < 0)
+			{
+				fishQuery = kbUnitQueryCreate("fish query");
+				kbUnitQuerySetIgnoreKnockedOutUnits(fishQuery, true);
+				kbUnitQuerySetPlayerID(fishQuery, 0);
+				kbUnitQuerySetUnitType(fishQuery, cUnitTypeAbstractFish);
+				kbUnitQuerySetState(fishQuery, cUnitStateAny);
+				kbUnitQuerySetPosition(fishQuery, kbUnitGetPosition(flag));
+				kbUnitQuerySetMaximumDistance(fishQuery, 100.0);
+				kbUnitQuerySetAscendingSort(fishQuery, true);
+			}
+			kbUnitQueryResetResults(fishQuery);
+			if (kbUnitQueryExecute(fishQuery) > 0)
+				fish = kbUnitQueryGetResult(fishQuery, 0);   // Get the nearest fish.
+			if (fish >= 0)
+				fishAreaGroup = kbAreaGroupGetIDByPosition(kbUnitGetPosition(fish));
+			if ((fish >= 0) && (fishAreaGroup == flagAreaGroup))
+				aiEcho("Found fish # " + fish + " at " + kbUnitGetPosition(fish));
+			else
+			{
+				aiEcho("No fish found near " + kbUnitGetPosition(flag));
+				return;  // No fish near enough, keep looking
+			}
+		}  // else, no flag, so just go ahead.
 
-      if (fish < 0)
-         return;
+		if (fish < 0)
+			getUnit(cUnitTypeAbstractFish, 0, cUnitStateAny);  // need to have one fish visible
 
-      aiEcho("*** Starting fishing plan. ***");
+		if (fish < 0)
+			return;
 
-      gFishingPlan = aiPlanCreate("Fishing plan", cPlanFish);
-      aiPlanSetDesiredPriority(gFishingPlan, 20);     // Very low
-      aiPlanAddUnitType(gFishingPlan, gFishingUnit, 1, 10, 200);
-      aiPlanSetEscrowID(gFishingPlan, cEconomyEscrowID);
-      aiPlanSetBaseID(gFishingPlan, kbBaseGetMainID(cMyID));
-      aiPlanSetVariableVector(gFishingPlan, cFishPlanLandPoint, 0, kbBaseGetLocation(cMyID, kbBaseGetMainID(cMyID)));
-      if (flag >= 0)
-      {
-         aiEcho("Setting fishing plan water point to " + kbUnitGetPosition(getUnit(cUnitTypeHomeCityWaterSpawnFlag, cMyID)));
-         aiPlanSetVariableVector(gFishingPlan, cFishPlanWaterPoint, 0, kbUnitGetPosition(getUnit(cUnitTypeHomeCityWaterSpawnFlag, cMyID)));
-      }
-      else
-         aiEcho("Couldn't find a water spawn flag.");
+		aiEcho("*** Starting fishing plan. ***");
 
-      aiPlanSetVariableBool(gFishingPlan, cFishPlanBuildDock, 0, false);    //BHG - the ai doesn't like to fish if this is set to true
+		gFishingPlan = aiPlanCreate("Fishing plan", cPlanFish);
+		aiPlanSetDesiredPriority(gFishingPlan, 49);     // Very low
+		aiPlanAddUnitType(gFishingPlan, gFishingUnit, 1, 10, 200);
+		aiPlanSetEscrowID(gFishingPlan, cEconomyEscrowID);
+		aiPlanSetBaseID(gFishingPlan, kbBaseGetMainID(cMyID));
+		aiPlanSetVariableVector(gFishingPlan, cFishPlanLandPoint, 0, kbBaseGetLocation(cMyID, kbBaseGetMainID(cMyID)));
+		if (flag >= 0)
+		{
+			aiEcho("Setting fishing plan water point to " + kbUnitGetPosition(getUnit(cUnitTypeHomeCityWaterSpawnFlag, cMyID)));
+			aiPlanSetVariableVector(gFishingPlan, cFishPlanWaterPoint, 0, kbUnitGetPosition(getUnit(cUnitTypeHomeCityWaterSpawnFlag, cMyID)));
+		}
+		else
+			aiEcho("Couldn't find a water spawn flag.");
 
-      aiPlanSetActive(gFishingPlan);
+		aiPlanSetVariableBool(gFishingPlan, cFishPlanBuildDock, 0, false);    //BHG - the ai doesn't like to fish if this is set to true
 
-      aiEcho("*** Creating maintain plan for fishing boats.");
-      gFishingBoatMaintainPlan = createSimpleMaintainPlan(gFishingUnit, gNumFishBoats, true, kbBaseGetMainID(cMyID), 1);
+		aiPlanSetActive(gFishingPlan);
 
-      if (gWaterExplorePlan < 0)
-      {
-         vector location = kbUnitGetPosition(fish);
-         gWaterExplorePlan = aiPlanCreate("Water Explore", cPlanExplore);
-         aiPlanSetVariableBool(gWaterExplorePlan, cExplorePlanReExploreAreas, 0, false);
-         aiPlanSetInitialPosition(gWaterExplorePlan, location);
-         aiPlanSetDesiredPriority(gWaterExplorePlan, 99);   // Low, so that transport plans can steal it as needed, but just above fishing plans.
-         aiPlanAddUnitType(gWaterExplorePlan, gFishingUnit, 1, 1, 1);
-         aiPlanSetEscrowID(gWaterExplorePlan, cEconomyEscrowID);
-         aiPlanSetVariableBool(gWaterExplorePlan, cExplorePlanDoLoops, 0, false);
-         aiPlanSetActive(gWaterExplorePlan);
-      }
-   }
+		aiEcho("*** Creating maintain plan for fishing boats.");
+		gFishingBoatMaintainPlan = createSimpleMaintainPlan(gFishingUnit, gNumFishBoats, true, kbBaseGetMainID(cMyID), 1);
 
-   if (cvOkToFish == true)
-   {
-      xsDisableSelf();  // Normally, disable if we get here because we're done.  
-                        // But if okToFish is false, keep rule active in case it gets turned true later. 
-      xsEnableRule("fishManager");                        
-   }
+		if (gWaterExplorePlan < 0)
+		{
+			vector location = kbUnitGetPosition(fish);
+			gWaterExplorePlan = aiPlanCreate("Water Explore", cPlanExplore);
+			aiPlanSetVariableBool(gWaterExplorePlan, cExplorePlanReExploreAreas, 0, false);
+			aiPlanSetInitialPosition(gWaterExplorePlan, location);
+			aiPlanSetDesiredPriority(gWaterExplorePlan, 50);   // Low, so that transport plans can steal it as needed, but just above fishing plans.
+			aiPlanAddUnitType(gWaterExplorePlan, gFishingUnit, 1, 1, 1);
+			aiPlanSetEscrowID(gWaterExplorePlan, cEconomyEscrowID);
+			aiPlanSetVariableBool(gWaterExplorePlan, cExplorePlanDoLoops, 0, false);
+			aiPlanSetActive(gWaterExplorePlan);
+		}
+	}
+
+	if (cvOkToFish == true)
+	{
+		xsDisableSelf();  // Normally, disable if we get here because we're done.  
+						  // But if okToFish is false, keep rule active in case it gets turned true later. 
+		xsEnableRule("fishManager");
+	}
 }
 
 rule fishManager
 inactive
 minInterval 20
 {
-   static int fishingPlans = -1;
-   
-   if (fishingPlans < 0)
-      fishingPlans = xsArrayCreateInt(10, -1, "Fishing plans");
-   
-   if (gFishingPlan > 0)
-   {
-      xsArraySetInt(fishingPlans, 0, gFishingPlan);
-      aiPlanAddUnitType(gFishingPlan, gFishingUnit, 1, 4, 4);
-   }
-   
-   int numberFishingBoats = kbUnitCount(cMyID, gFishingUnit, cUnitStateAlive);
-   int numberPlans = numberFishingBoats / 4;
-   int foodPercentage = aiGetResourcePercentage(cResourceFood);
-   int goldPercentage = aiGetResourcePercentage(cResourceGold);
-   int numberWhalePlans = 0;
-   
-   if (goldPercentage > 0.0)
-   {
-      numberWhalePlans = (goldPercentage / (foodPercentage + goldPercentage)) * numberPlans;
-      int numberWhales = kbUnitCount(0, cUnitTypeAbstractWhale, cUnitStateAny);
-      if (numberWhalePlans > numberWhales)
-         numberWhalePlans = numberWhales;
-   }
-   
-   int mainBaseID = kbBaseGetMainID(cMyID);
-   vector location = kbBaseGetLocation(cMyID, mainBaseID);
-   vector waterPoint = kbUnitGetPosition(getUnit(cUnitTypeHomeCityWaterSpawnFlag, cMyID));
-   
-   for (i = 0; < numberPlans)
-   {
-      int planID = xsArrayGetInt(fishingPlans, 0);
-      // first element reserved for global fishing plan
-      if (i > 0 && planID < 0)
-      {
-         planID = aiPlanCreate("Fishing plan " +i, cPlanFish);
-         aiPlanSetDesiredPriority(planID, 20);     // Very low
-         aiPlanSetEscrowID(planID, cEconomyEscrowID);
-         aiPlanSetBaseID(planID, mainBaseID);
-         aiPlanSetVariableVector(planID, cFishPlanLandPoint, 0, location);
-         if (waterPoint != cInvalidVector)
-            aiPlanSetVariableVector(planID, cFishPlanWaterPoint, 0, waterPoint);
-         aiPlanSetVariableBool(planID, cFishPlanBuildDock, 0, false);    //BHG - the ai doesn't like to fish if this is set to true
-         aiPlanAddUnitType(planID, gFishingUnit, 1, 4, 4);
-         aiPlanSetActive(planID);   
-         xsArraySetInt(fishingPlans, i, planID);         
-      }
-      int resourceType = cResourceFood;
-      if (numberWhalePlans > 0)
-      {
-         resourceType = cResourceGold;
-         numberWhalePlans = numberWhalePlans - 1;
-      }
-      // force the plan to find a new gather site.
-      if (resourceType != aiPlanGetVariableInt(planID, cFishPlanResourceType, 0))
-      {
-         aiPlanSetVariableInt(planID, cFishPlanResourceType, 0, resourceType);      
-         aiPlanSetVariableInt(planID, cFishPlanKBResourceID, 0, -1);
-      }
-   }
-}
+	static int fishingPlans = -1;
 
+	if (fishingPlans < 0)
+		fishingPlans = xsArrayCreateInt(10, -1, "Fishing plans");
+
+	if (gFishingPlan > 0)
+	{
+		xsArraySetInt(fishingPlans, 0, gFishingPlan);
+		aiPlanAddUnitType(gFishingPlan, gFishingUnit, 1, 4, 4);
+	}
+
+	int numberFishingBoats = kbUnitCount(cMyID, gFishingUnit, cUnitStateAlive);
+	int numberPlans = numberFishingBoats / 4;
+	int foodPercentage = aiGetResourcePercentage(cResourceFood);
+	int goldPercentage = aiGetResourcePercentage(cResourceGold);
+	int numberWhalePlans = 0;
+
+	if (goldPercentage > 0.0)
+	{
+		numberWhalePlans = (goldPercentage / (foodPercentage + goldPercentage)) * numberPlans;
+		int numberWhales = kbUnitCount(0, cUnitTypeAbstractWhale, cUnitStateAny);
+		if (numberWhalePlans > numberWhales)
+			numberWhalePlans = numberWhales;
+	}
+
+	int mainBaseID = kbBaseGetMainID(cMyID);
+	vector location = kbBaseGetLocation(cMyID, mainBaseID);
+	vector waterPoint = kbUnitGetPosition(getUnit(cUnitTypeHomeCityWaterSpawnFlag, cMyID));
+
+	for (i = 0; < numberPlans)
+	{
+		int planID = xsArrayGetInt(fishingPlans, 0);
+		// first element reserved for global fishing plan
+		if (i > 0 && planID < 0)
+		{
+			planID = aiPlanCreate("Fishing plan " + i, cPlanFish);
+			aiPlanSetDesiredPriority(planID, 49);     // Very low
+			aiPlanSetEscrowID(planID, cEconomyEscrowID);
+			aiPlanSetBaseID(planID, mainBaseID);
+			aiPlanSetVariableVector(planID, cFishPlanLandPoint, 0, location);
+			if (waterPoint != cInvalidVector)
+				aiPlanSetVariableVector(planID, cFishPlanWaterPoint, 0, waterPoint);
+			aiPlanSetVariableBool(planID, cFishPlanBuildDock, 0, false);    //BHG - the ai doesn't like to fish if this is set to true
+			aiPlanAddUnitType(planID, gFishingUnit, 1, 4, 4);
+			aiPlanSetActive(planID);
+			xsArraySetInt(fishingPlans, i, planID);
+		}
+		int resourceType = cResourceFood;
+		if (numberWhalePlans > 0)
+		{
+			resourceType = cResourceGold;
+			numberWhalePlans = numberWhalePlans - 1;
+		}
+		// force the plan to find a new gather site.
+		if (resourceType != aiPlanGetVariableInt(planID, cFishPlanResourceType, 0))
+		{
+			aiPlanSetVariableInt(planID, cFishPlanResourceType, 0, resourceType);
+			aiPlanSetVariableInt(planID, cFishPlanKBResourceID, 0, -1);
+		}
+	}
+}
 //==============================================================================
 // rule repairManager
 //==============================================================================
@@ -8474,7 +8477,7 @@ void setUnitPickerPreference(int upID = -1)
       float BolasFactor = BolasCount * 2 / totalEnemyCount;
 	  
       float CuirassierFactor = CuirassierCount * 2 / totalEnemyCount;
-      float MantletFactor = MantletCount * 1 / totalEnemyCount;
+      float MantletFactor = MantletCount * 2 / totalEnemyCount;
       float lightCavalryFactor = lightCavalryCount * 1 / totalEnemyCount;
       float heavyCavalryFactor = heavyCavalryCount * 1 / totalEnemyCount;
       float MahoutFactor = MahoutCount * 1 / totalEnemyCount;
@@ -8522,7 +8525,9 @@ void setUnitPickerPreference(int upID = -1)
              if (kbGetAge() == cAge2)
 			 {
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypexpAenna, lightInfantryFactor);
-			 }        
+			 }      
+			 else
+             kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypexpAenna, lightInfantryFactor*0);
 			 
              if (kbGetAge() >= cAge3)
 			 {
@@ -8544,17 +8549,18 @@ void setUnitPickerPreference(int upID = -1)
 		  
           case cCivXPSioux:
           {
-             kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypexpAxeRider, OttoHussarFactor); 
+             kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypexpAxeRider, heavyCavalryFactor); 
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypexpBowRider, lightCavalryFactor);  
 			 //kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypexpWarRifle, lightInfantryFactor);
-		  
+			
+			/*
              if (kbGetAge() <= cAge2)
 			 {  
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypexpBowRider, heavyInfantryFactor);
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypexpBowRider, lightInfantryFactor);    
 			 }
 			 
-             /*if (kbGetAge() == cAge3) // && (kbCanAffordUnit(cUnitTypexpRifleRider, cEconomyEscrowID) == true))
+             if (kbGetAge() == cAge3) // && (kbCanAffordUnit(cUnitTypexpRifleRider, cEconomyEscrowID) == true))
 			 {
              //kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeAbstractNativeWarrior, 0.5);
 			 
@@ -8588,6 +8594,8 @@ void setUnitPickerPreference(int upID = -1)
 			 {  
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypexpPumaMan, TercioFactor);  
 			 }
+			 else
+             kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypexpPumaMan, TercioFactor*0); 
 			 
              if (kbGetAge() > cAge2)
 			 {
@@ -8725,17 +8733,26 @@ void setUnitPickerPreference(int upID = -1)
              //kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeCrossbowman, lightInfantryFactor); 
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeMusketeer, lightInfantryFactor);   
 			 }
+			 else
+			 {  
+             kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeHussar, heavyCavalryFactor*0);
+             kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeMusketeer, lightInfantryFactor*0);   
+			 }
 			 
 			 
              if (kbGetAge() <= cAge4)
 			 {             
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeMusketeer, heavyInfantryFactor); 
 			 }
+			 else
+			 kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeMusketeer, heavyInfantryFactor*0); 
 			 
              if ((kbGetAge() == cAge3) ||  (kbGetAge() == cAge4))
 			 {  
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeDragoon, lightCavalryFactor);    
 			 }
+			 else
+             kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeDragoon, lightCavalryFactor*0); 
 			 
              if (kbGetAge() >= cAge3)
 			 {  
@@ -8766,19 +8783,23 @@ void setUnitPickerPreference(int upID = -1)
 			 {                           
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeHussar, OttoHussarFactor);
 			 }
+			 else
+             kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeHussar, OttoHussarFactor*0);
 
 			 if (kbGetAge() >= cAge3)
 			 {                
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeHussar, heavyCavalryFactor); 
              //kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeAbstractNativeWarrior, 0.5);   
              //kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeFalconet, artilleryFactor);  
-             kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeRuyter, lightCavalryFactor);
+             kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeRuyter, lightCavalryFactor*2);
 			 }
 			 
-			 if ((kbGetAge() >= cAge3) && (kbUnitCount(cMyID, gAbstractArtilleryUnit, cUnitStateABQ) < 5) && (kbUnitCount(cMyID, gAbstractArtilleryUnit, cUnitStateAlive) < 5))
+			 if ((kbGetAge() >= cAge3) && (kbUnitCount(cMyID, gAbstractArtilleryUnit, cUnitStateABQ) < 10) && (kbUnitCount(cMyID, gAbstractArtilleryUnit, cUnitStateAlive) < 2))
 			 {
-             //kbUnitPickSetPreferenceFactor(gLandUnitPicker, gAbstractArtilleryUnit, artilleryFactor); 
+             kbUnitPickSetPreferenceFactor(gLandUnitPicker, gAbstractArtilleryUnit, artilleryFactor); 
 			 }  
+			 else
+             kbUnitPickSetPreferenceFactor(gLandUnitPicker, gAbstractArtilleryUnit, artilleryFactor*0); 
 			 
 			if (kbGetAge() == 4)
 			{
@@ -8793,16 +8814,27 @@ void setUnitPickerPreference(int upID = -1)
              if (kbGetAge() == cAge2)
 			 {  
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeHussar, heavyCavalryFactor);
-             kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeMusketeer, lightInfantryFactor);  
+             //kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeMusketeer, lightInfantryFactor);  
+			 }
+			 else
+			 {  
+             kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeHussar, heavyCavalryFactor*0);
+             //kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeMusketeer, lightInfantryFactor*0);  
 			 }
 			 
              if (kbGetAge() < cAge4)
 			 {  
              //kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeHussar, heavyCavalryFactor);
              //kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeCrossbowman, lightInfantryFactor); 
-             //kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeMusketeer, lightInfantryFactor);   
+             kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeMusketeer, lightInfantryFactor);   
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypePikeman, TercioFactor);
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeRodelero, EspadaFactor);  
+			 }
+			 else
+			 {  
+			 kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypePikeman, TercioFactor*0);
+             kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeRodelero, EspadaFactor*0);  
+             kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeMusketeer, lightInfantryFactor*0);   
 			 }
 			 
              if (kbGetAge() >= cAge4)
@@ -8842,8 +8874,12 @@ void setUnitPickerPreference(int upID = -1)
              if (kbGetAge() == cAge2)
 			 {  
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeUhlan, OttoHussarFactor); 
-             kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeCrossbowman, lightInfantryFactor);     
-             //kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeDopplesoldner, SamuraiFactor);  
+             kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeCrossbowman, lightInfantryFactor);    
+			 }
+			 else
+			 {  
+             kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeUhlan, OttoHussarFactor*0); 
+             kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeCrossbowman, lightInfantryFactor*0);     
 			 }
 			 
              if (kbGetAge() >= cAge3)
@@ -8851,7 +8887,7 @@ void setUnitPickerPreference(int upID = -1)
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeDopplesoldner, SamuraiFactor);  
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeUhlan, heavyCavalryFactor); 
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeSkirmisher, lightInfantryFactor); 
-            //kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeAbstractNativeWarrior, 0.5);
+             //kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeAbstractNativeWarrior, 0.5);
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeWarWagon, lightCavalryFactor); 
 			}
 			
@@ -8912,10 +8948,11 @@ void setUnitPickerPreference(int upID = -1)
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeDragoon, lightCavalryFactor);  
 			 }
 			 
-			 if ((kbGetAge() >= cAge3) && (kbUnitCount(cMyID, gAbstractArtilleryUnit, cUnitStateABQ) < 5) && (kbUnitCount(cMyID, gAbstractArtilleryUnit, cUnitStateAlive) < 5))
+			 if ((kbGetAge() >= cAge3) && (kbUnitCount(cMyID, gAbstractArtilleryUnit, cUnitStateABQ) < 10) && (kbUnitCount(cMyID, gAbstractArtilleryUnit, cUnitStateAlive) < 2))
 			 {
-             //kbUnitPickSetPreferenceFactor(gLandUnitPicker, gAbstractArtilleryUnit, artilleryFactor); 
+             kbUnitPickSetPreferenceFactor(gLandUnitPicker, gAbstractArtilleryUnit, artilleryFactor); 
 			 }  
+             kbUnitPickSetPreferenceFactor(gLandUnitPicker, gAbstractArtilleryUnit, artilleryFactor*0); 
 			 
 			if (kbGetAge() == 4)
 			{
@@ -8927,14 +8964,14 @@ void setUnitPickerPreference(int upID = -1)
 		   
            case cCivOttomans:
            {
-             kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeAbusGun, AbusGunFactor);      
+             //kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeAbusGun, AbusGunFactor);      
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeJanissary, JanissaryFactor); 
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeHussar, OttoHussarFactor);  
              //kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeAbstractNativeWarrior, 0.5);    
 			 if ((kbGetAge() >= cAge4) && (kbTechGetStatus(cTechDEPoliticianMercContractorFortressOttoman) == cTechStatusActive))
 			 {
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeMercMameluke, CuirassierFactor * 1.0); 
-             kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeMercBarbaryCorsair, TercioFactor * 1.0);
+             //kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeMercBarbaryCorsair, TercioFactor * 1.0);
 			 }  
              //if (kbGetAge() >= cAge2)
 			 //{  
@@ -8942,10 +8979,12 @@ void setUnitPickerPreference(int upID = -1)
              //kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeAbstractNativeWarrior, 0.5);
 			 //}  
 			 
-			 if ((kbGetAge() >= cAge3) && (kbUnitCount(cMyID, gAbstractArtilleryUnit, cUnitStateABQ) < 5) && (kbUnitCount(cMyID, gAbstractArtilleryUnit, cUnitStateAlive) < 5))
+			 if ((kbGetAge() >= cAge3) && (kbUnitCount(cMyID, gAbstractArtilleryUnit, cUnitStateABQ) < 10) && (kbUnitCount(cMyID, gAbstractArtilleryUnit, cUnitStateAlive) < 2))
 			 {
-             //kbUnitPickSetPreferenceFactor(gLandUnitPicker, gAbstractArtilleryUnit, artilleryFactor); 
+             kbUnitPickSetPreferenceFactor(gLandUnitPicker, gAbstractArtilleryUnit, artilleryFactor); 
 			 }  
+			 else
+             kbUnitPickSetPreferenceFactor(gLandUnitPicker, gAbstractArtilleryUnit, artilleryFactor*.0); 
 			 
 			if (kbGetAge() == 4)
 			{
@@ -8958,15 +8997,19 @@ void setUnitPickerPreference(int upID = -1)
 		   case cCivDESwedish:
            {         
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypedeCarolean, JanissaryFactor); 
-			 if ((kbUnitCount(cMyID, cUnitTypedeLeatherCannon, cUnitStateABQ) < 9) && (kbUnitCount(cMyID, cUnitTypedeLeatherCannon, cUnitStateAlive) < 9))
+			 if ((kbUnitCount(cMyID, cUnitTypedeLeatherCannon, cUnitStateABQ) < 15) && (kbUnitCount(cMyID, cUnitTypedeLeatherCannon, cUnitStateAlive) < 15) && (kbGetAge() > cAge2))
 			 {
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypedeLeatherCannon, artilleryFactor);
 			 }
+			 else
+			 kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypedeLeatherCannon, artilleryFactor*0);
 			 
              if (kbGetAge() == cAge2)
 			 {  
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeHussar, heavyCavalryFactor); 
 			 }
+			 else
+			 kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeHussar, heavyCavalryFactor*0); 
 			 
              if (kbGetAge() >= cAge3)
 			 {  
@@ -8990,6 +9033,8 @@ void setUnitPickerPreference(int upID = -1)
 			 {      
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypedeIncaSpearman, heavyInfantryFactor);  
 			 }
+			 else
+			 kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypedeIncaSpearman, heavyInfantryFactor*0);  
 			 
              if (kbGetAge() >= cAge3)
 			 {  
@@ -9969,7 +10014,7 @@ minInterval 15
 //==============================================================================
 rule navyUpgradeMonitor
 inactive
-minInterval 90
+minInterval 40
 {
 	// Disable rule if we're not on a water map.
 	if (gNavyMap == false)
@@ -9995,9 +10040,9 @@ minInterval 90
 	/*if (kbTechGetStatus(cTechGillNets) == cTechStatusObtainable)
 	{
 	   upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechGillNets);
-	   if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, gFishingUnit, cUnitStateAlive) < 4))
+	   if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, gFishingUnit, cUnitStateAlive) < 2))
 		  aiPlanDestroy(upgradePlanID);
-	   if ((upgradePlanID < 0) && (kbUnitCount(cMyID, gFishingUnit, cUnitStateAlive) >= 4))
+	   if ((upgradePlanID < 0) && (kbUnitCount(cMyID, gFishingUnit, cUnitStateAlive) >= 2))
 	   {
 		  createSimpleResearchPlan(cTechGillNets, getUnit(gDockUnit), cEconomyEscrowID, 45);
 		  return;
@@ -10006,9 +10051,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechLongLines) == cTechStatusObtainable)
 	{
 	   upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechLongLines);
-	   if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, gFishingUnit, cUnitStateAlive) < 4))
+	   if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, gFishingUnit, cUnitStateAlive) < 2))
 		  aiPlanDestroy(upgradePlanID);
-	   if ((upgradePlanID < 0) && (kbUnitCount(cMyID, gFishingUnit, cUnitStateAlive) >= 4))
+	   if ((upgradePlanID < 0) && (kbUnitCount(cMyID, gFishingUnit, cUnitStateAlive) >= 2))
 	   {
 		  createSimpleResearchPlan(cTechLongLines, getUnit(gDockUnit), cEconomyEscrowID, 45);
 		  return;
@@ -10135,7 +10180,7 @@ minInterval 30
 // Determine who we should attack, checking control variables
 //==============================================================================
 rule mostHatedEnemy
-minInterval 15
+minInterval 60
 active
 {
    if ((cvPlayerToAttack > 0) && (kbHasPlayerLost(cvPlayerToAttack) == false))
@@ -10199,6 +10244,69 @@ active
         }
       }
    }
+   
+   static int lostPlayerEnemy = 0;
+    static int lostPlayerAlly = 0;
+    static int lastUpdateTime = 0;
+    if (getEnemyCount()-lostPlayerEnemy > 1)
+    {
+       int totalScoreEnemy = 0;
+       int averageScoreEnemy = 0;
+       int totalScoreAlly = 0;
+       int averageScoreAlly = 0;
+       int militaryBaseAttackAlly = 0;
+       int jointAttackTarget = -1;
+       int player = 0;
+       if (xsGetTime() - lastUpdateTime > 1.0*60*1000)  //every 3 minutes.
+      {
+	  lastUpdateTime = xsGetTime();
+	  for (player=1; < cNumberPlayers)
+	  {
+	     if (kbIsPlayerEnemy(player) == true)
+	     {
+		if (kbHasPlayerLost(player) == false)
+		  totalScoreEnemy = totalScoreEnemy + aiGetScore(player);
+		else
+		  lostPlayerEnemy = lostPlayerEnemy + 1;                   
+	     }
+	     else
+	     {
+		if (kbHasPlayerLost(player) == false)
+		  totalScoreAlly = totalScoreAlly + aiGetScore(player);
+		else
+		  lostPlayerAlly = lostPlayerAlly + 1; 
+				}
+	     }
+		averageScoreEnemy = totalScoreEnemy / (getEnemyCount()-lostPlayerEnemy);
+		averageScoreAlly = totalScoreAlly / (getAllyCount()+1-lostPlayerAlly);
+		for (player=1; < cNumberPlayers)
+		{
+		   if ((kbIsPlayerEnemy(player) == true)&&(kbHasPlayerLost(player) == false))
+		   {
+		      militaryBaseAttackAlly = getUnitCountByLocation(cUnitTypeLogicalTypeLandMilitary, cPlayerRelationAlly, cUnitStateAlive, kbBaseGetLocation(player, kbBaseGetMainID(player)), 80.0);
+		      if (militaryBaseAttackAlly > 30)
+		      {
+			  aiSetMostHatedPlayerID(player);
+			  jointAttackTarget = player; 
+			  kbUnitPickSetEnemyPlayerID(gLandUnitPicker, player);
+		      }		   
+			  else
+		      if (aiGetScore(player) > averageScoreEnemy*1.1)
+		      {
+			 aiSetMostHatedPlayerID(player);
+			 jointAttackTarget = player; 
+			 cvPlayerToAttack = player;
+			 kbUnitPickSetEnemyPlayerID(gLandUnitPicker, player);
+			 break;
+		      }
+		      /*else
+		      {
+			 cvPlayerToAttack = -1;
+		      }*/
+		   }
+	    }
+	   }
+	}
 }
 
 
@@ -12567,7 +12675,7 @@ minInterval 5
 		return;
 
 	// if Dutch, add banks to the build limit.
-	if (cMyCiv == cCivDutch)
+	if ((cMyCiv == cCivDutch) && (kbGetAge() > cAge1) || (agingUp() == true))
 	{
 		planID = aiPlanGetIDByTypeAndVariableType(cPlanBuild, cBuildPlanBuildingTypeID, cUnitTypeBank);
 		if ((planID < 0) && (kbUnitCount(cMyID, cUnitTypeBank, cUnitStateAlive) < kbGetBuildLimit(cMyID, cUnitTypeBank)))  // If I'm not building one and I could be, do it.
@@ -12580,7 +12688,7 @@ minInterval 5
 			{  // 10 banks starting from age 4.*/
 				planID = createSimpleBuildPlan(cUnitTypeBank, 1, 93, true, cEconomyEscrowID, kbBaseGetMainID(cMyID), 1); // Very high pri, just above houses
 				aiEcho("Starting a new bank build plan.");
-				aiPlanSetDesiredResourcePriority(planID, 60);
+				aiPlanSetDesiredResourcePriority(planID, 55);
 			//}
 		}
 	}
@@ -12730,6 +12838,34 @@ minInterval 5
 	if (kbGetAge() < cAge2)
 		return;
 	// ***************************************************
+   
+   
+	
+	   // At least 1 barracks
+	   planID = aiPlanGetIDByTypeAndVariableType(cPlanBuild, cBuildPlanBuildingTypeID, gBarracksUnit);
+	   if ( (planID < 0) && (kbUnitCount(cMyID, gBarracksUnit, cUnitStateAlive) < 1) )
+	   {     // Start a new one
+		  createSimpleBuildPlan(gBarracksUnit, 1, 70, false, cMilitaryEscrowID, kbBaseGetMainID(cMyID), 1);
+		  aiEcho("Starting a new barracks build plan.");
+	   }
+	   
+	   planID = aiPlanGetIDByTypeAndVariableType(cPlanBuild, cBuildPlanBuildingTypeID, gStableUnit);
+	   if ( (planID < 0) && (kbUnitCount(cMyID, gStableUnit, cUnitStateAlive) < 1) )
+	   {     // Start a new one
+		  createSimpleBuildPlan(gStableUnit, 1, 70, false, cMilitaryEscrowID, kbBaseGetMainID(cMyID), 1);
+		  aiEcho("Starting a new barracks build plan.");
+	   }
+	   
+	   /*if ((cMyCiv == cCivOttomans) || (cMyCiv == cCivDESwedish))
+	   {
+	   planID = aiPlanGetIDByTypeAndVariableType(cPlanBuild, cBuildPlanBuildingTypeID, gStableUnit);
+	   if ( (planID < 0) && (kbUnitCount(cMyID, gStableUnit, cUnitStateAlive) < 1))
+	   {     // Start a new one
+		  createSimpleBuildPlan(gStableUnit, 1, 70, false, cMilitaryEscrowID, kbBaseGetMainID(cMyID), 1);
+		  aiEcho("Starting a new barracks build plan.");
+	   }
+	   }*/
+	   
    
    // Build enough military buildings for military production.
    numberMilitaryBuildings = xsArrayGetSize(gMilitaryBuildings);
@@ -13115,6 +13251,14 @@ minInterval 5
 		  aiEcho("Starting a new artillery depot build plan.");
 	   }
 	}*/
+	
+	
+	   planID = aiPlanGetIDByTypeAndVariableType(cPlanBuild, cBuildPlanBuildingTypeID, gStableUnit);
+	   if ( (planID < 0) && (kbUnitCount(cMyID, gStableUnit, cUnitStateAlive) < 1))
+	   {     // Start a new one
+		  createSimpleBuildPlan(gStableUnit, 1, 70, false, cMilitaryEscrowID, kbBaseGetMainID(cMyID), 1);
+		  aiEcho("Starting a new barracks build plan.");
+	   }
 
 	// At least one arsenal
 	if ((civIsNative() == false) && (civIsAsian() == false) && ((gRevolutionType & cRevolutionFinland) == 0))
@@ -13459,11 +13603,11 @@ minInterval 5
 			aiPlanSetVariableInt(gNativeDancePlan, cNativeResearchPlanTacticID, 0, cTacticWarChiefDanceAztec);
 			lastTactic = cTacticWarChiefDanceAztec;
 		}
-		else if (cMyCiv == cCivXPSioux)
+		/*else if (cMyCiv == cCivXPSioux)
 		{
 			aiPlanSetVariableInt(gNativeDancePlan, cNativeResearchPlanTacticID, 0, cTacticWarChiefDanceSioux);
 			lastTactic = cTacticWarChiefDanceSioux;
-		}
+		}*/
 		else if (cMyCiv == cCivDEInca)
 		{
 			aiPlanSetVariableInt(gNativeDancePlan, cNativeResearchPlanTacticID, 0, cTacticdeWarChiefDanceInca);
@@ -19059,7 +19203,7 @@ group tcComplete
 
 rule tradeRouteUpgradeMonitor
 inactive
-minInterval 90
+minInterval 40
 {
 	if (aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechTradeRouteUpgrade1) >= 0 ||
 		aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechTradeRouteUpgrade2) >= 0 ||
@@ -19257,7 +19401,7 @@ minInterval 90
 
 rule strongholdUpgradeMonitor
 inactive
-minInterval 90
+minInterval 40
 {
 	if (cMyCiv != cCivDEInca)
 	{
@@ -19402,7 +19546,7 @@ minInterval 90
 
 	// Carib techs
 	if ((kbTechGetStatus(cTechNatCeremonialFeast) == cTechStatusObtainable) &&
-		(kbUnitCount(cMyID, cUnitTypeNatBlowgunWarrior, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatBlowgunAmbusher, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercBlowgunWarrior, cUnitStateAlive) >= 10))
+		(kbUnitCount(cMyID, cUnitTypeNatBlowgunWarrior, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatBlowgunAmbusher, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercBlowgunWarrior, cUnitStateAlive) >= 2))
 	{
 		if (aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechNatCeremonialFeast) >= 0)
 			return;
@@ -19687,7 +19831,7 @@ minInterval 90
 		createSimpleResearchPlan(cTechYPNatBhaktiYoga, getUnitByTech(cUnitTypeypTradingPostAsian, cTechYPNatBhaktiYoga), cMilitaryEscrowID, 50);
 		return;
 	}
-	if ((kbTechGetStatus(cTechYPNatBhaktiReinforcedGuantlets) == cTechStatusObtainable) && (kbGetAge() > cAge3) && (kbUnitCount(cMyID, cUnitTypeypNatTigerClaw, cUnitStateAlive) >= 10))
+	if ((kbTechGetStatus(cTechYPNatBhaktiReinforcedGuantlets) == cTechStatusObtainable) && (kbGetAge() > cAge3) && (kbUnitCount(cMyID, cUnitTypeypNatTigerClaw, cUnitStateAlive) >= 2))
 	{
 		if (aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechYPNatBhaktiReinforcedGuantlets) >= 0)
 			return;
@@ -19726,7 +19870,7 @@ minInterval 90
 		createSimpleResearchPlan(cTechYPNatShaolinClenchedFist, getUnitByTech(cUnitTypeypTradingPostAsian, cTechYPNatShaolinClenchedFist), cMilitaryEscrowID, 50);
 		return;
 	}
-	if ((kbTechGetStatus(cTechYPNatShaolinDimMak) == cTechStatusObtainable) && (kbGetAge() > cAge3) && (kbUnitCount(cMyID, cUnitTypeypNatRattanShield, cUnitStateAlive) >= 10))
+	if ((kbTechGetStatus(cTechYPNatShaolinDimMak) == cTechStatusObtainable) && (kbGetAge() > cAge3) && (kbUnitCount(cMyID, cUnitTypeypNatRattanShield, cUnitStateAlive) >= 2))
 	{
 		if (aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechYPNatShaolinDimMak) >= 0)
 			return;
@@ -19758,7 +19902,7 @@ minInterval 90
 		createSimpleResearchPlan(cTechYPNatUdasiGurus, getUnitByTech(cUnitTypeypTradingPostAsian, cTechYPNatUdasiGurus), cMilitaryEscrowID, 50);
 		return;
 	}
-	if ((kbTechGetStatus(cTechYPNatUdasiArmyOfThePure) == cTechStatusObtainable) && (kbGetAge() > cAge3) && (kbUnitCount(cMyID, cUnitTypeypNatChakram, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeypNatMercChakram, cUnitStateAlive) >= 10))
+	if ((kbTechGetStatus(cTechYPNatUdasiArmyOfThePure) == cTechStatusObtainable) && (kbGetAge() > cAge3) && (kbUnitCount(cMyID, cUnitTypeypNatChakram, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeypNatMercChakram, cUnitStateAlive) >= 2))
 	{
 		if (aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechYPNatUdasiArmyOfThePure) >= 0)
 			return;
@@ -19926,7 +20070,7 @@ minInterval 10
 
 rule churchUpgradeMonitor
 inactive
-minInterval 45
+minInterval 40
 {
 	int upgradePlanID = -1;
 
@@ -19982,7 +20126,7 @@ minInterval 45
 
 rule churchUpgradeAsianMonitor
 inactive
-minInterval 45
+minInterval 40
 {
 	int upgradePlanID = -1;
 
@@ -20040,7 +20184,7 @@ minInterval 45
 
 rule royalDecreeMonitor
 inactive
-minInterval 45
+minInterval 40
 {
    int decreePlanID = -1;
 
@@ -20383,7 +20527,7 @@ minInterval 45
 
 rule aztecWarhutUpgradeMonitor
 inactive
-minInterval 90
+minInterval 40
 {
 	int aztecWarhutUpgradePlan = -1;
 
@@ -20434,7 +20578,7 @@ minInterval 90
 
 rule settlerUpgradeMonitor
 inactive
-minInterval 180 // research to be started 3 minutes into Age 2
+minInterval 40 // research to be started 3 minutes into Age 2
 {
 	int upgradePlanID = -1;
 
@@ -20506,7 +20650,7 @@ minInterval 180 // research to be started 3 minutes into Age 2
 
 rule arsenalUpgradeMonitor
 inactive
-minInterval 60
+minInterval 40
 {
 	int upgradePlanID = -1;
 
@@ -20550,7 +20694,7 @@ minInterval 60
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechGunnersQuadrant);
 		if ((upgradePlanID >= 0) && (kbUnitCount(cUnitTypeAbstractArtillery) < 4))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractArtillery, cUnitStateAlive) >= 4))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractArtillery, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechGunnersQuadrant, getUnit(cUnitTypeArsenal), cMilitaryEscrowID, 50);
 			return;
@@ -20569,7 +20713,7 @@ minInterval 60
 			kbUnitCount(cMyID, cUnitTypexpMusketWarrior, cUnitStateAlive) +
 			kbUnitCount(cMyID, cUnitTypexpWarRifle, cUnitStateAlive) +
 			kbUnitCount(cMyID, cUnitTypeNatKlamathRifleman, cUnitStateAlive) +
-			kbUnitCount(cMyID, cUnitTypeNatNavajoRifleman, cUnitStateAlive) >= 12))
+			kbUnitCount(cMyID, cUnitTypeNatNavajoRifleman, cUnitStateAlive) >= 2))
 	{
 		if (aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechRifling) >= 0)
 			return;
@@ -20584,7 +20728,7 @@ minInterval 60
 			kbUnitCount(cMyID, cUnitTypeMercFusilier, cUnitStateAlive) +
 			kbUnitCount(cMyID, cUnitTypeypAshigaru, cUnitStateAlive) +
 			kbUnitCount(cMyID, cUnitTypeypConsulateGuerreiros, cUnitStateAlive) +
-			kbUnitCount(cMyID, cUnitTypeypConsulateStadhouders, cUnitStateAlive) >= 12))
+			kbUnitCount(cMyID, cUnitTypeypConsulateStadhouders, cUnitStateAlive) >= 2))
 	{
 		if (aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechBayonet) >= 0)
 			return;
@@ -20596,7 +20740,7 @@ minInterval 60
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechCaracole);
 		if ((upgradePlanID >= 0) && (kbUnitCount(cUnitTypeAbstractLightCavalry) < 12))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractLightCavalry, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractLightCavalry, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechCaracole, getUnit(cUnitTypeArsenal), cMilitaryEscrowID, 50);
 			return;
@@ -20607,7 +20751,7 @@ minInterval 60
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechCavalryCuirass);
 		if ((upgradePlanID >= 0) && (kbUnitCount(cUnitTypeAbstractHeavyCavalry) < 12))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractHeavyCavalry, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractHeavyCavalry, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechCavalryCuirass, getUnit(cUnitTypeArsenal), cMilitaryEscrowID, 50);
 			return;
@@ -20630,7 +20774,7 @@ minInterval 60
 			kbUnitCount(cMyID, cUnitTypeypYumi, cUnitStateAlive) +
 			kbUnitCount(cMyID, cUnitTypeypShinobiHorse, cUnitStateAlive) +
 			kbUnitCount(cMyID, cUnitTypeypConsulateShinobi, cUnitStateAlive) +
-			kbUnitCount(cMyID, cUnitTypeypConsulateBestieros, cUnitStateAlive) >= 12))
+			kbUnitCount(cMyID, cUnitTypeypConsulateBestieros, cUnitStateAlive) >= 2))
 	{
 		if (aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechInfantryBreastplate) >= 0)
 			return;
@@ -20642,7 +20786,7 @@ minInterval 60
 
 rule arsenalUpgradeAsianMonitor
 inactive
-minInterval 60
+minInterval 40
 {
 	int upgradePlanID = -1;
 
@@ -20679,7 +20823,7 @@ minInterval 60
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechGunnersQuadrant);
 		if ((upgradePlanID >= 0) && (kbUnitCount(cUnitTypeAbstractArtillery) < 4))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractArtillery, cUnitStateAlive) >= 4))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractArtillery, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechGunnersQuadrant, getUnit(cUnitTypeypArsenalAsian), cMilitaryEscrowID, 50);
 			return;
@@ -20693,7 +20837,7 @@ minInterval 60
 			kbUnitCount(cMyID, cUnitTypeMercFusilier, cUnitStateAlive) +
 			kbUnitCount(cMyID, cUnitTypeypAshigaru, cUnitStateAlive) +
 			kbUnitCount(cMyID, cUnitTypeypConsulateGuerreiros, cUnitStateAlive) +
-			kbUnitCount(cMyID, cUnitTypeypConsulateStadhouders, cUnitStateAlive) >= 12))
+			kbUnitCount(cMyID, cUnitTypeypConsulateStadhouders, cUnitStateAlive) >= 2))
 	{
 		if (aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechBayonet) >= 0)
 			return;
@@ -20728,7 +20872,7 @@ minInterval 60
 			kbUnitCount(cMyID, cUnitTypeypYumi, cUnitStateAlive) +
 			kbUnitCount(cMyID, cUnitTypeypShinobiHorse, cUnitStateAlive) +
 			kbUnitCount(cMyID, cUnitTypeypConsulateShinobi, cUnitStateAlive) +
-			kbUnitCount(cMyID, cUnitTypeypConsulateBestieros, cUnitStateAlive) >= 12))
+			kbUnitCount(cMyID, cUnitTypeypConsulateBestieros, cUnitStateAlive) >= 2))
 	{
 		if (aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechInfantryBreastplate) >= 0)
 			return;
@@ -20740,7 +20884,7 @@ minInterval 60
 
 rule advancedArsenalUpgradeMonitor
 inactive
-minInterval 60
+minInterval 40
 {
 	int upgradePlanID = -1;
 
@@ -20777,7 +20921,7 @@ minInterval 60
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechPaperCartridge);
 		if ((upgradePlanID >= 0) && (kbUnitCount(cUnitTypeAbstractGunpowderTrooper) < 12))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractGunpowderTrooper, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractGunpowderTrooper, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechPaperCartridge, getUnit(cUnitTypeArsenal), cMilitaryEscrowID, 50);
 			return;
@@ -20788,7 +20932,7 @@ minInterval 60
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechFlintlock);
 		if ((upgradePlanID >= 0) && (kbUnitCount(cUnitTypeAbstractGunpowderTrooper) < 12))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractGunpowderTrooper, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractGunpowderTrooper, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechFlintlock, getUnit(cUnitTypeArsenal), cMilitaryEscrowID, 50);
 			return;
@@ -20799,7 +20943,7 @@ minInterval 60
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechMilitaryDrummers);
 		if ((upgradePlanID >= 0) && (kbUnitCount(cUnitTypeAbstractInfantry) < 12))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractInfantry, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractInfantry, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechMilitaryDrummers, getUnit(cUnitTypeArsenal), cMilitaryEscrowID, 50);
 			return;
@@ -20810,7 +20954,7 @@ minInterval 60
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechProfessionalGunners);
 		if ((upgradePlanID >= 0) && (kbUnitCount(cUnitTypeAbstractArtillery) < 6))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractArtillery, cUnitStateAlive) >= 6))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractArtillery, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechProfessionalGunners, getUnit(cUnitTypeArsenal), cMilitaryEscrowID, 50);
 			return;
@@ -20821,7 +20965,7 @@ minInterval 60
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechTrunion);
 		if ((upgradePlanID >= 0) && (kbUnitCount(cUnitTypeAbstractArtillery) < 6))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractArtillery, cUnitStateAlive) >= 6))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractArtillery, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechTrunion, getUnit(cUnitTypeArsenal), cMilitaryEscrowID, 50);
 			return;
@@ -20832,7 +20976,7 @@ minInterval 60
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechPillage);
 		if ((upgradePlanID >= 0) && (kbUnitCount(cUnitTypeAbstractHeavyCavalry) < 8))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractHeavyCavalry, cUnitStateAlive) >= 8))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractHeavyCavalry, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechPillage, getUnit(cUnitTypeArsenal), cMilitaryEscrowID, 50);
 			return;
@@ -20843,7 +20987,7 @@ minInterval 60
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechIncendiaryGrenades);
 		if ((upgradePlanID >= 0) && (kbUnitCount(cUnitTypeGrenadier) < 12))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeGrenadier, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeGrenadier, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechIncendiaryGrenades, getUnit(cUnitTypeArsenal), cMilitaryEscrowID, 50);
 			return;
@@ -20854,7 +20998,7 @@ minInterval 60
 
 rule goldenPavillionUpgradeMonitor
 inactive
-minInterval 60
+minInterval 40
 {
 	int upgradePlanID = -1;
 	int pavillionType = -1;
@@ -20900,7 +21044,7 @@ minInterval 60
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechPaperCartridge);
 		if ((upgradePlanID >= 0) && (kbUnitCount(cUnitTypeAbstractGunpowderTrooper) < 12))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractGunpowderTrooper, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractGunpowderTrooper, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechPaperCartridge, getUnit(pavillionType), cMilitaryEscrowID, 50);
 			return;
@@ -20911,7 +21055,7 @@ minInterval 60
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechFlintlock);
 		if ((upgradePlanID >= 0) && (kbUnitCount(cTechFlintlock) < 12))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cTechFlintlock, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cTechFlintlock, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechFlintlock, getUnit(pavillionType), cMilitaryEscrowID, 50);
 			return;
@@ -20922,7 +21066,7 @@ minInterval 60
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechProfessionalGunners);
 		if ((upgradePlanID >= 0) && (kbUnitCount(cUnitTypeAbstractArtillery) < 6))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractArtillery, cUnitStateAlive) >= 6))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractArtillery, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechProfessionalGunners, getUnit(pavillionType), cMilitaryEscrowID, 50);
 			return;
@@ -20933,7 +21077,7 @@ minInterval 60
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechPillage);
 		if ((upgradePlanID >= 0) && (kbUnitCount(cUnitTypeAbstractHeavyCavalry) < 12))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractHeavyCavalry, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractHeavyCavalry, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechPillage, getUnit(pavillionType), cMilitaryEscrowID, 50);
 			return;
@@ -20944,7 +21088,7 @@ minInterval 60
 
 rule newWayIroquoisMonitor
 inactive
-minInterval 90
+minInterval 40
 {
 	int upgradePlanID = -1;
 
@@ -20983,7 +21127,7 @@ minInterval 90
 			kbUnitCount(cMyID, cUnitTypexpMusketWarrior, cUnitStateAlive) +
 			kbUnitCount(cMyID, cUnitTypexpWarRifle, cUnitStateAlive) +
 			kbUnitCount(cMyID, cUnitTypeNatKlamathRifleman, cUnitStateAlive) +
-			kbUnitCount(cMyID, cUnitTypeNatNavajoRifleman, cUnitStateAlive) >= 12))
+			kbUnitCount(cMyID, cUnitTypeNatNavajoRifleman, cUnitStateAlive) >= 2))
 	{
 		if (aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechRifling) >= 0)
 			return;
@@ -20995,7 +21139,7 @@ minInterval 90
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechCaracole);
 		if ((upgradePlanID >= 0) && (kbUnitCount(cUnitTypeAbstractLightCavalry) < 12))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractLightCavalry, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractLightCavalry, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechCaracole, getUnit(cUnitTypeLonghouse), cMilitaryEscrowID, 50);
 			return;
@@ -21006,7 +21150,7 @@ minInterval 90
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechCavalryCuirass);
 		if ((upgradePlanID >= 0) && (kbUnitCount(cUnitTypeAbstractHeavyCavalry) < 12))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractHeavyCavalry, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractHeavyCavalry, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechCavalryCuirass, getUnit(cUnitTypeLonghouse), cMilitaryEscrowID, 50);
 			return;
@@ -21029,7 +21173,7 @@ minInterval 90
 			kbUnitCount(cMyID, cUnitTypeypYumi, cUnitStateAlive) +
 			kbUnitCount(cMyID, cUnitTypeypShinobiHorse, cUnitStateAlive) +
 			kbUnitCount(cMyID, cUnitTypeypConsulateShinobi, cUnitStateAlive) +
-			kbUnitCount(cMyID, cUnitTypeypConsulateBestieros, cUnitStateAlive) >= 12))
+			kbUnitCount(cMyID, cUnitTypeypConsulateBestieros, cUnitStateAlive) >= 2))
 	{
 		if (aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechInfantryBreastplate) >= 0)
 			return;
@@ -21041,7 +21185,7 @@ minInterval 90
 
 rule newWaySiouxMonitor
 inactive
-minInterval 90
+minInterval 40
 {
 	int upgradePlanID = -1;
 
@@ -21063,7 +21207,7 @@ minInterval 90
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechCaracole);
 		if ((upgradePlanID >= 0) && (kbUnitCount(cUnitTypeAbstractLightCavalry) < 12))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractLightCavalry, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractLightCavalry, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechCaracole, getUnit(cUnitTypeTeepee), cMilitaryEscrowID, 50);
 			return;
@@ -21072,9 +21216,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechPillage) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechPillage);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeAbstractHeavyCavalry, cUnitStateAlive) < 8))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeAbstractHeavyCavalry, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractHeavyCavalry, cUnitStateAlive) >= 8))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractHeavyCavalry, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechPillage, getUnit(cUnitTypeTeepee), cMilitaryEscrowID, 50);
 			return;
@@ -21083,9 +21227,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechCavalryCuirass) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechCavalryCuirass);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeAbstractHeavyCavalry, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeAbstractHeavyCavalry, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractHeavyCavalry, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractHeavyCavalry, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechCavalryCuirass, getUnit(cUnitTypeTeepee), cMilitaryEscrowID, 50);
 			return;
@@ -21104,7 +21248,7 @@ minInterval 90
 			kbUnitCount(cMyID, cUnitTypexpMusketWarrior, cUnitStateAlive) +
 			kbUnitCount(cMyID, cUnitTypexpWarRifle, cUnitStateAlive) +
 			kbUnitCount(cMyID, cUnitTypeNatKlamathRifleman, cUnitStateAlive) +
-			kbUnitCount(cMyID, cUnitTypeNatNavajoRifleman, cUnitStateAlive) >= 12))
+			kbUnitCount(cMyID, cUnitTypeNatNavajoRifleman, cUnitStateAlive) >= 2))
 	{
 		if (aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechRifling) >= 0)
 			return;
@@ -21128,7 +21272,7 @@ minInterval 90
 			kbUnitCount(cMyID, cUnitTypeypYumi, cUnitStateAlive) +
 			kbUnitCount(cMyID, cUnitTypeypShinobiHorse, cUnitStateAlive) +
 			kbUnitCount(cMyID, cUnitTypeypConsulateShinobi, cUnitStateAlive) +
-			kbUnitCount(cMyID, cUnitTypeypConsulateBestieros, cUnitStateAlive) >= 12))
+			kbUnitCount(cMyID, cUnitTypeypConsulateBestieros, cUnitStateAlive) >= 2))
 	{
 		if (aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechInfantryBreastplate) >= 0)
 			return;
@@ -21140,7 +21284,7 @@ minInterval 90
 
 rule veteranUpgradeMonitor
 inactive
-minInterval 90
+minInterval 40
 {
 	int upgradePlanID = -1;
 
@@ -21165,9 +21309,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechVeteranHussars) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechVeteranHussars);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeHussar, cUnitStateAlive) < 8))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeHussar, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeHussar, cUnitStateAlive) >= 8))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeHussar, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechVeteranHussars, getUnit(cUnitTypeStable), cMilitaryEscrowID, 50);
 			return;
@@ -21176,9 +21320,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechVeteranUhlans) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechVeteranUhlans);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeUhlan, cUnitStateAlive) < 8))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeUhlan, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeUhlan, cUnitStateAlive) >= 8))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeUhlan, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechVeteranUhlans, getUnit(cUnitTypeStable), cMilitaryEscrowID, 50);
 			return;
@@ -21189,9 +21333,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechVeteranAbusGuns) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechVeteranAbusGuns);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeAbusGun, cUnitStateAlive) < 8))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeAbusGun, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbusGun, cUnitStateAlive) >= 8))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbusGun, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechVeteranAbusGuns, getUnit(cUnitTypeArtilleryDepot), cMilitaryEscrowID, 50);
 			return;
@@ -21200,9 +21344,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechVeteranGrenadiers) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechVeteranGrenadiers);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeGrenadier, cUnitStateAlive) < 8))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeGrenadier, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeGrenadier, cUnitStateAlive) >= 8))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeGrenadier, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechVeteranGrenadiers, getUnit(cUnitTypeArtilleryDepot), cMilitaryEscrowID, 50);
 			return;
@@ -21213,9 +21357,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechVeteranMusketeers) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechVeteranMusketeers);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeMusketeer, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeMusketeer, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeMusketeer, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeMusketeer, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechVeteranMusketeers, getUnit(cUnitTypeBarracks), cMilitaryEscrowID, 50);
 			return;
@@ -21224,9 +21368,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechVeteranJanissaries) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechVeteranJanissaries);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeJanissary, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeJanissary, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeJanissary, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeJanissary, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechVeteranJanissaries, getUnit(cUnitTypeBarracks), cMilitaryEscrowID, 50);
 			return;
@@ -21235,9 +21379,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechVeteranLongbowmen) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechVeteranLongbowmen);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeLongbowman, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeLongbowman, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeLongbowman, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeLongbowman, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechVeteranLongbowmen, getUnit(cUnitTypeBarracks), cMilitaryEscrowID, 50);
 			return;
@@ -21246,9 +21390,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechVeteranDopplesoldners) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechVeteranDopplesoldners);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeDopplesoldner, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeDopplesoldner, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeDopplesoldner, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeDopplesoldner, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechVeteranDopplesoldners, getUnit(cUnitTypeBarracks), cMilitaryEscrowID, 50);
 			return;
@@ -21257,9 +21401,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechVeteranRodeleros) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechVeteranRodeleros);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeRodelero, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeRodelero, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeRodelero, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeRodelero, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechVeteranRodeleros, getUnit(cUnitTypeBarracks), cMilitaryEscrowID, 50);
 			return;
@@ -21268,9 +21412,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechVeteranCrossbowmen) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechVeteranCrossbowmen);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeCrossbowman, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeCrossbowman, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeCrossbowman, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeCrossbowman, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechVeteranCrossbowmen, getUnit(cUnitTypeBarracks), cMilitaryEscrowID, 50);
 			return;
@@ -21279,9 +21423,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechVeteranPikemen) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechVeteranPikemen);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypePikeman, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypePikeman, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypePikeman, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypePikeman, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechVeteranPikemen, getUnit(cUnitTypeBarracks), cMilitaryEscrowID, 50);
 			return;
@@ -21292,7 +21436,7 @@ minInterval 90
 
 rule guardUpgradeMonitor
 inactive
-minInterval 90
+minInterval 40
 {
 	int upgradePlanID = -1;
 
@@ -21317,9 +21461,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechGuardWarWagons) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechGuardWarWagons);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeWarWagon, cUnitStateAlive) < 8))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeWarWagon, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeWarWagon, cUnitStateAlive) >= 8))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeWarWagon, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechGuardWarWagons, getUnit(cUnitTypeStable), cMilitaryEscrowID, 50);
 			return;
@@ -21328,9 +21472,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechGuardDragoons) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechGuardDragoons);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeDragoon, cUnitStateAlive) < 8))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeDragoon, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeDragoon, cUnitStateAlive) >= 8))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeDragoon, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechGuardDragoons, getUnit(cUnitTypeStable), cMilitaryEscrowID, 50);
 			return;
@@ -21339,9 +21483,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechGuardHussars) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechGuardHussars);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeHussar, cUnitStateAlive) < 8))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeHussar, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeHussar, cUnitStateAlive) >= 8))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeHussar, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechGuardHussars, getUnit(cUnitTypeStable), cMilitaryEscrowID, 50);
 			return;
@@ -21350,9 +21494,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechGuardCavalryArchers) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechGuardCavalryArchers);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeCavalryArcher, cUnitStateAlive) < 8))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeCavalryArcher, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeCavalryArcher, cUnitStateAlive) >= 8))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeCavalryArcher, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechGuardCavalryArchers, getUnit(cUnitTypeStable), cMilitaryEscrowID, 50);
 			return;
@@ -21363,9 +21507,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechGuardAbusGuns) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechGuardAbusGuns);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeAbusGun, cUnitStateAlive) < 8))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeAbusGun, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbusGun, cUnitStateAlive) >= 8))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbusGun, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechGuardAbusGuns, getUnit(cUnitTypeArtilleryDepot), cMilitaryEscrowID, 50);
 			return;
@@ -21374,9 +21518,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechGuardGrenadiers) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechGuardGrenadiers);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeGrenadier, cUnitStateAlive) < 8))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeGrenadier, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeGrenadier, cUnitStateAlive) >= 8))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeGrenadier, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechGuardGrenadiers, getUnit(cUnitTypeArtilleryDepot), cMilitaryEscrowID, 50);
 			return;
@@ -21387,9 +21531,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechGuardMusketeers) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechGuardMusketeers);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeMusketeer, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeMusketeer, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeMusketeer, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeMusketeer, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechGuardMusketeers, getUnit(cUnitTypeBarracks), cMilitaryEscrowID, 50);
 			return;
@@ -21398,9 +21542,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechGuardSkirmishers) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechGuardSkirmishers);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeSkirmisher, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeSkirmisher, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeSkirmisher, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeSkirmisher, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechGuardSkirmishers, getUnit(cUnitTypeBarracks), cMilitaryEscrowID, 50);
 			return;
@@ -21409,9 +21553,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechGuardJanissaries) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechGuardJanissaries);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeJanissary, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeJanissary, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeJanissary, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeJanissary, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechGuardJanissaries, getUnit(cUnitTypeBarracks), cMilitaryEscrowID, 50);
 			return;
@@ -21420,9 +21564,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechGuardCacadores) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechGuardCacadores);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeCacadore, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeCacadore, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeCacadore, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeCacadore, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechGuardCacadores, getUnit(cUnitTypeBarracks), cMilitaryEscrowID, 50);
 			return;
@@ -21431,9 +21575,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechGuardLongbowmen) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechGuardLongbowmen);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeLongbowman, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeLongbowman, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeLongbowman, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeLongbowman, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechGuardLongbowmen, getUnit(cUnitTypeBarracks), cMilitaryEscrowID, 50);
 			return;
@@ -21442,9 +21586,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechGuardDopplesoldners) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechGuardDopplesoldners);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeDopplesoldner, cUnitStateAlive) < 8))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeDopplesoldner, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeDopplesoldner, cUnitStateAlive) >= 8))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeDopplesoldner, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechGuardDopplesoldners, getUnit(cUnitTypeBarracks), cMilitaryEscrowID, 50);
 			return;
@@ -21453,9 +21597,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechGuardHalberdiers) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechGuardHalberdiers);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeHalberdier, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeHalberdier, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeHalberdier, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeHalberdier, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechGuardHalberdiers, getUnit(cUnitTypeBarracks), cMilitaryEscrowID, 50);
 			return;
@@ -21464,9 +21608,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechGuardPikemen) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechGuardPikemen);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypePikeman, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypePikeman, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypePikeman, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypePikeman, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechGuardPikemen, getUnit(cUnitTypeBarracks), cMilitaryEscrowID, 50);
 			return;
@@ -21477,7 +21621,7 @@ minInterval 90
 
 rule royalGuardUpgradeMonitor
 inactive
-minInterval 90
+minInterval 40
 {
 	int upgradePlanID = -1;
 
@@ -21502,9 +21646,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechRGGendarmes) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechRGGendarmes);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeCuirassier, cUnitStateAlive) < 6))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeCuirassier, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeCuirassier, cUnitStateAlive) >= 6))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeCuirassier, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechRGGendarmes, getUnit(cUnitTypeStable), cMilitaryEscrowID, 50);
 			return;
@@ -21513,9 +21657,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechRGGarrochista) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechRGGarrochista);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeLancer, cUnitStateAlive) < 8))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeLancer, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeLancer, cUnitStateAlive) >= 8))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeLancer, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechRGGarrochista, getUnit(cUnitTypeStable), cMilitaryEscrowID, 50);
 			return;
@@ -21524,9 +21668,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechRGCarabineer) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechRGCarabineer);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeRuyter, cUnitStateAlive) < 8))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeRuyter, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeRuyter, cUnitStateAlive) >= 8))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeRuyter, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechRGCarabineer, getUnit(cUnitTypeStable), cMilitaryEscrowID, 50);
 			return;
@@ -21535,9 +21679,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechRGJinetes) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechRGJinetes);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeDragoon, cUnitStateAlive) < 8))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeDragoon, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeDragoon, cUnitStateAlive) >= 8))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeDragoon, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechRGJinetes, getUnit(cUnitTypeStable), cMilitaryEscrowID, 50);
 			return;
@@ -21546,9 +21690,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechRGLifeGuardHussars) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechRGLifeGuardHussars);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeHussar, cUnitStateAlive) < 8))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeHussar, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeHussar, cUnitStateAlive) >= 8))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeHussar, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechRGLifeGuardHussars, getUnit(cUnitTypeStable), cMilitaryEscrowID, 50);
 			return;
@@ -21557,9 +21701,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechRGGardener) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechRGGardener);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeHussar, cUnitStateAlive) < 8))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeHussar, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeHussar, cUnitStateAlive) >= 8))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeHussar, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechRGGardener, getUnit(cUnitTypeStable), cMilitaryEscrowID, 50);
 			return;
@@ -21568,9 +21712,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechRGCzapkaUhlans) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechRGCzapkaUhlans);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeUhlan, cUnitStateAlive) < 8))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeUhlan, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeUhlan, cUnitStateAlive) >= 8))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeUhlan, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechRGCzapkaUhlans, getUnit(cUnitTypeStable), cMilitaryEscrowID, 50);
 			return;
@@ -21581,9 +21725,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechRGBaratcuCorps) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechRGBaratcuCorps);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeGrenadier, cUnitStateAlive) < 8))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeGrenadier, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeGrenadier, cUnitStateAlive) >= 8))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeGrenadier, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechRGBaratcuCorps, getUnit(cUnitTypeArtilleryDepot), cMilitaryEscrowID, 50);
 			return;
@@ -21594,9 +21738,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechRGRedcoats) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechRGRedcoats);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeMusketeer, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeMusketeer, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeMusketeer, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeMusketeer, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechRGRedcoats, getUnit(cUnitTypeBarracks), cMilitaryEscrowID, 50);
 			return;
@@ -21605,9 +21749,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechRGGuerreiros) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechRGGuerreiros);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeMusketeer, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeMusketeer, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeMusketeer, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeMusketeer, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechRGGuerreiros, getUnit(cUnitTypeBarracks), cMilitaryEscrowID, 50);
 			return;
@@ -21616,9 +21760,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechRGVoltigeur) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechRGVoltigeur);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeSkirmisher, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeSkirmisher, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeSkirmisher, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeSkirmisher, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechRGVoltigeur, getUnit(cUnitTypeBarracks), cMilitaryEscrowID, 50);
 			return;
@@ -21627,9 +21771,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechRGPrussianNeedleGun) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechRGPrussianNeedleGun);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeSkirmisher, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeSkirmisher, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeSkirmisher, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeSkirmisher, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechRGPrussianNeedleGun, getUnit(cUnitTypeBarracks), cMilitaryEscrowID, 50);
 			return;
@@ -21638,9 +21782,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechRGNassausLinearTactics) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechRGNassausLinearTactics);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeHalberdier, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeHalberdier, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeHalberdier, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeHalberdier, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechRGNassausLinearTactics, getUnit(cUnitTypeBarracks), cMilitaryEscrowID, 50);
 			return;
@@ -21649,9 +21793,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechRGEspadachins) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechRGEspadachins);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeRodelero, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeRodelero, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeRodelero, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeRodelero, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechRGEspadachins, getUnit(cUnitTypeBarracks), cMilitaryEscrowID, 50);
 			return;
@@ -21660,9 +21804,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechRGTercio) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechRGTercio);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypePikeman, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypePikeman, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypePikeman, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypePikeman, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechRGTercio, getUnit(cUnitTypeBarracks), cMilitaryEscrowID, 50);
 			return;
@@ -21673,7 +21817,7 @@ minInterval 90
 
 rule artilleryUpgradeMonitor
 inactive
-minInterval 90
+minInterval 40
 {
 	int upgradePlanID = -1;
 
@@ -21690,9 +21834,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechFieldGun) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechFieldGun);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeFalconet, cUnitStateAlive) < 4))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeFalconet, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeFalconet, cUnitStateAlive) >= 4))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeFalconet, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechFieldGun, getUnit(cUnitTypeArtilleryDepot), cMilitaryEscrowID, 50);
 			return;
@@ -21701,9 +21845,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechGrapeShot) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechGrapeShot);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeCulverin, cUnitStateAlive) < 4))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeCulverin, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeCulverin, cUnitStateAlive) >= 4))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeCulverin, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechGrapeShot, getUnit(cUnitTypeArtilleryDepot), cMilitaryEscrowID, 50);
 			return;
@@ -21712,9 +21856,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechHeavyHorseArtillery) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechHeavyHorseArtillery);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpHorseArtillery, cUnitStateAlive) < 4))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpHorseArtillery, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpHorseArtillery, cUnitStateAlive) >= 4))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpHorseArtillery, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechHeavyHorseArtillery, getUnit(cUnitTypeArtilleryDepot), cMilitaryEscrowID, 50);
 			return;
@@ -21723,9 +21867,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechRabauld) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechRabauld);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeOrganGun, cUnitStateAlive) < 4))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeOrganGun, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeOrganGun, cUnitStateAlive) >= 4))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeOrganGun, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechRabauld, getUnit(cUnitTypeArtilleryDepot), cMilitaryEscrowID, 50);
 			return;
@@ -21734,9 +21878,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechHowitzer) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechHowitzer);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeMortar, cUnitStateAlive) < 4))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeMortar, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeMortar, cUnitStateAlive) >= 4))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeMortar, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechHowitzer, getUnit(cUnitTypeArtilleryDepot), cMilitaryEscrowID, 50);
 			return;
@@ -21745,9 +21889,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechFieldCannon) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechFieldCannon);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpLightCannon, cUnitStateAlive) < 4))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpLightCannon, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpLightCannon, cUnitStateAlive) >= 4))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpLightCannon, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechFieldCannon, getUnit(cUnitTypeArtilleryDepot), cMilitaryEscrowID, 50);
 			return;
@@ -21758,7 +21902,7 @@ minInterval 90
 
 rule eliteUpgradeMonitor
 inactive
-minInterval 90
+minInterval 40
 {
 	int upgradePlanID = -1;
 
@@ -21776,9 +21920,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechEliteHorsemen) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechEliteHorsemen);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpHorseman, cUnitStateAlive) < 8))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpHorseman, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpHorseman, cUnitStateAlive) >= 8))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpHorseman, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechEliteHorsemen, getUnit(cUnitTypeCorral), cMilitaryEscrowID, 50);
 			return;
@@ -21787,9 +21931,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechEliteAxeRiders) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechEliteAxeRiders);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpAxeRider, cUnitStateAlive) < 8))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpAxeRider, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpAxeRider, cUnitStateAlive) >= 8))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpAxeRider, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechEliteAxeRiders, getUnit(cUnitTypeCorral), cMilitaryEscrowID, 50);
 			return;
@@ -21798,9 +21942,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechEliteBowRider) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechEliteBowRider);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpBowRider, cUnitStateAlive) < 8))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpBowRider, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpBowRider, cUnitStateAlive) >= 8))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpBowRider, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechEliteBowRider, getUnit(cUnitTypeCorral), cMilitaryEscrowID, 50);
 			return;
@@ -21811,9 +21955,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechEliteAennas) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechEliteAennas);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpAenna, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpAenna, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpAenna, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpAenna, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechEliteAennas, getUnit(cUnitTypeWarHut), cMilitaryEscrowID, 50);
 			return;
@@ -21822,9 +21966,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechEliteTomahawks) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechEliteTomahawks);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpTomahawk, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpTomahawk, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpTomahawk, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpTomahawk, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechEliteTomahawks, getUnit(cUnitTypeWarHut), cMilitaryEscrowID, 50);
 			return;
@@ -21833,9 +21977,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechEliteWarBows) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechEliteWarBows);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpWarBow, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpWarBow, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpWarBow, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpWarBow, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechEliteWarBows, getUnit(cUnitTypeWarHut), cMilitaryEscrowID, 50);
 			return;
@@ -21844,9 +21988,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechEliteWarClubs) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechEliteWarClubs);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpWarClub, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpWarClub, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpWarClub, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpWarClub, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechEliteWarClubs, getUnit(cUnitTypeWarHut), cMilitaryEscrowID, 50);
 			return;
@@ -21855,9 +21999,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechEliteCoyotemen) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechEliteCoyotemen);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpCoyoteMan, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpCoyoteMan, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpCoyoteMan, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpCoyoteMan, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechEliteCoyotemen, getUnit(cUnitTypeWarHut), cMilitaryEscrowID, 50);
 			return;
@@ -21866,9 +22010,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechEliteMacehualtins) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechEliteMacehualtins);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpMacehualtin, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpMacehualtin, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpMacehualtin, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpMacehualtin, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechEliteMacehualtins, getUnit(cUnitTypeWarHut), cMilitaryEscrowID, 50);
 			return;
@@ -21877,9 +22021,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechElitePumaMen) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechElitePumaMen);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpPumaMan, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpPumaMan, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpPumaMan, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpPumaMan, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechElitePumaMen, getUnit(cUnitTypeWarHut), cMilitaryEscrowID, 50);
 			return;
@@ -21890,7 +22034,7 @@ minInterval 90
 
 rule championUpgradeMonitor
 inactive
-minInterval 90
+minInterval 40
 {
 	int upgradePlanID = -1;
 
@@ -21908,9 +22052,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechChampionMusketRiders) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechChampionMusketRiders);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpMusketRider, cUnitStateAlive) < 8))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpMusketRider, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpMusketRider, cUnitStateAlive) >= 8))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpMusketRider, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechChampionMusketRiders, getUnit(cUnitTypeCorral), cMilitaryEscrowID, 50);
 			return;
@@ -21919,9 +22063,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechChampionRifleRiders) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechChampionRifleRiders);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpRifleRider, cUnitStateAlive) < 8))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpRifleRider, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpRifleRider, cUnitStateAlive) >= 8))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpRifleRider, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechChampionRifleRiders, getUnit(cUnitTypeCorral), cMilitaryEscrowID, 50);
 			return;
@@ -21930,9 +22074,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechChampionHorsemen) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechChampionHorsemen);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpHorseman, cUnitStateAlive) < 8))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpHorseman, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpHorseman, cUnitStateAlive) >= 8))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpHorseman, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechChampionHorsemen, getUnit(cUnitTypeCorral), cMilitaryEscrowID, 50);
 			return;
@@ -21941,9 +22085,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechChampionAxeRiders) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechChampionAxeRiders);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpAxeRider, cUnitStateAlive) < 8))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpAxeRider, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpAxeRider, cUnitStateAlive) >= 8))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpAxeRider, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechChampionAxeRiders, getUnit(cUnitTypeCorral), cMilitaryEscrowID, 50);
 			return;
@@ -21952,9 +22096,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechChampionBowRider) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechChampionBowRider);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpBowRider, cUnitStateAlive) < 8))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpBowRider, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpBowRider, cUnitStateAlive) >= 8))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpBowRider, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechChampionBowRider, getUnit(cUnitTypeCorral), cMilitaryEscrowID, 50);
 			return;
@@ -21963,9 +22107,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechChampionCoupRiders) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechChampionCoupRiders);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpCoupRider, cUnitStateAlive) < 8))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpCoupRider, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpCoupRider, cUnitStateAlive) >= 8))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpCoupRider, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechChampionCoupRiders, getUnit(cUnitTypeCorral), cMilitaryEscrowID, 50);
 			return;
@@ -21976,9 +22120,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechChampionWarRifles) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechChampionWarRifles);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpWarRifle, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpWarRifle, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpWarRifle, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpWarRifle, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechChampionWarRifles, getUnit(cUnitTypeWarHut), cMilitaryEscrowID, 50);
 			return;
@@ -21987,9 +22131,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechChampionMusketWarriors) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechChampionMusketWarriors);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpMusketWarrior, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpMusketWarrior, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpMusketWarrior, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpMusketWarrior, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechChampionMusketWarriors, getUnit(cUnitTypeWarHut), cMilitaryEscrowID, 50);
 			return;
@@ -21998,9 +22142,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechChampionAennas) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechChampionAennas);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpAenna, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpAenna, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpAenna, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpAenna, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechChampionAennas, getUnit(cUnitTypeWarHut), cMilitaryEscrowID, 50);
 			return;
@@ -22009,9 +22153,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechChampionTomahawk) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechChampionTomahawk);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpTomahawk, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpTomahawk, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpTomahawk, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpTomahawk, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechChampionTomahawk, getUnit(cUnitTypeWarHut), cMilitaryEscrowID, 50);
 			return;
@@ -22020,9 +22164,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechChampionWarBows) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechChampionWarBows);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpWarBow, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpWarBow, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpWarBow, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpWarBow, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechChampionWarBows, getUnit(cUnitTypeWarHut), cMilitaryEscrowID, 50);
 			return;
@@ -22031,9 +22175,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechChampionWarClubs) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechChampionWarClubs);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpWarClub, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpWarClub, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpWarClub, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpWarClub, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechChampionWarClubs, getUnit(cUnitTypeWarHut), cMilitaryEscrowID, 50);
 			return;
@@ -22042,9 +22186,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechChampionCoyotemen) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechChampionCoyotemen);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpCoyoteMan, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpCoyoteMan, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpCoyoteMan, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpCoyoteMan, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechChampionCoyotemen, getUnit(cUnitTypeWarHut), cMilitaryEscrowID, 50);
 			return;
@@ -22053,9 +22197,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechChampionMacehualtins) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechChampionMacehualtins);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpMacehualtin, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpMacehualtin, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpMacehualtin, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpMacehualtin, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechChampionMacehualtins, getUnit(cUnitTypeWarHut), cMilitaryEscrowID, 50);
 			return;
@@ -22064,9 +22208,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechChampionPumaMen) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechChampionPumaMen);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpPumaMan, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpPumaMan, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpPumaMan, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpPumaMan, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechChampionPumaMen, getUnit(cUnitTypeWarHut), cMilitaryEscrowID, 50);
 			return;
@@ -22077,9 +22221,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechChampionMantlets) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechChampionMantlets);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpMantlet, cUnitStateAlive) < 8))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpMantlet, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpMantlet, cUnitStateAlive) >= 8))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpMantlet, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechChampionMantlets, getUnit(cUnitTypeArtilleryDepot), cMilitaryEscrowID, 50);
 			return;
@@ -22088,9 +22232,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechChampionRams) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechChampionRams);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpRam, cUnitStateAlive) < 8))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpRam, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpRam, cUnitStateAlive) >= 8))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpRam, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechChampionRams, getUnit(cUnitTypeArtilleryDepot), cMilitaryEscrowID, 50);
 			return;
@@ -22101,9 +22245,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechChampionJaguarKnight) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechChampionJaguarKnight);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpJaguarKnight, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpJaguarKnight, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpJaguarKnight, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpJaguarKnight, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechChampionJaguarKnight, getUnit(cUnitTypeNoblesHut), cMilitaryEscrowID, 50);
 			return;
@@ -22112,9 +22256,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechChampionArrowKnight) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechChampionArrowKnight);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpArrowKnight, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpArrowKnight, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpArrowKnight, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpArrowKnight, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechChampionArrowKnight, getUnit(cUnitTypeNoblesHut), cMilitaryEscrowID, 50);
 			return;
@@ -22123,9 +22267,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechChampionEagleKnight) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechChampionEagleKnight);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpEagleKnight, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypexpEagleKnight, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpEagleKnight, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypexpEagleKnight, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechChampionEagleKnight, getUnit(cUnitTypeNoblesHut), cMilitaryEscrowID, 50);
 			return;
@@ -22136,7 +22280,7 @@ minInterval 90
 
 rule disciplinedUpgradeMonitor
 inactive
-minInterval 90
+minInterval 40
 {
 	int upgradePlanID = -1;
 
@@ -22154,9 +22298,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechYPDisciplinedChuKoNu) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechYPDisciplinedChuKoNu);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypChuKoNu, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypChuKoNu, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypChuKoNu, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypChuKoNu, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechYPDisciplinedChuKoNu, getUnit(cUnitTypeypWarAcademy), cMilitaryEscrowID, 50);
 			return;
@@ -22165,9 +22309,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechYPDisciplinedQiangPikeman) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechYPDisciplinedQiangPikeman);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypQiangPikeman, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypQiangPikeman, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypQiangPikeman, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypQiangPikeman, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechYPDisciplinedQiangPikeman, getUnit(cUnitTypeypWarAcademy), cMilitaryEscrowID, 50);
 			return;
@@ -22176,9 +22320,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechYPDisciplinedSteppeRider) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechYPDisciplinedSteppeRider);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypSteppeRider, cUnitStateAlive) < 10))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypSteppeRider, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypSteppeRider, cUnitStateAlive) >= 10))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypSteppeRider, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechYPDisciplinedSteppeRider, getUnit(cUnitTypeypWarAcademy), cMilitaryEscrowID, 50);
 			return;
@@ -22187,9 +22331,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechYPDisciplinedKeshik) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechYPDisciplinedKeshik);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypKeshik, cUnitStateAlive) < 10))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypKeshik, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypKeshik, cUnitStateAlive) >= 10))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypKeshik, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechYPDisciplinedKeshik, getUnit(cUnitTypeypWarAcademy), cMilitaryEscrowID, 50);
 			return;
@@ -22200,9 +22344,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechYPDisciplinedCamel) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechYPDisciplinedCamel);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeAbstractSowar, cUnitStateAlive) < 8))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeAbstractSowar, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractSowar, cUnitStateAlive) >= 8))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractSowar, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechYPDisciplinedCamel, getUnit(cUnitTypeypCaravanserai), cMilitaryEscrowID, 50);
 			return;
@@ -22211,9 +22355,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechYPDisciplinedCamelGun) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechYPDisciplinedCamelGun);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeAbstractZamburak, cUnitStateAlive) < 8))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeAbstractZamburak, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractZamburak, cUnitStateAlive) >= 8))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractZamburak, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechYPDisciplinedCamelGun, getUnit(cUnitTypeypCaravanserai), cMilitaryEscrowID, 50);
 			return;
@@ -22224,9 +22368,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechYPDisciplinedNaginataRider) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechYPDisciplinedNaginataRider);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypNaginataRider, cUnitStateAlive) < 8))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypNaginataRider, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypNaginataRider, cUnitStateAlive) >= 8))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypNaginataRider, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechYPDisciplinedNaginataRider, getUnit(cUnitTypeypStableJapanese), cMilitaryEscrowID, 50);
 			return;
@@ -22237,9 +22381,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechYPDisciplinedSepoy) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechYPDisciplinedSepoy);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeAbstractSepoy, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeAbstractSepoy, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractSepoy, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractSepoy, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechYPDisciplinedSepoy, getUnit(cUnitTypeYPBarracksIndian), cMilitaryEscrowID, 50);
 			return;
@@ -22248,9 +22392,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechYPDisciplinedGurkha) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechYPDisciplinedGurkha);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeAbstractGurkha, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeAbstractGurkha, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractGurkha, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractGurkha, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechYPDisciplinedGurkha, getUnit(cUnitTypeYPBarracksIndian), cMilitaryEscrowID, 50);
 			return;
@@ -22259,9 +22403,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechYPDisciplinedRajput) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechYPDisciplinedRajput);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeAbstractRajput, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeAbstractRajput, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractRajput, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractRajput, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechYPDisciplinedRajput, getUnit(cUnitTypeYPBarracksIndian), cMilitaryEscrowID, 50);
 			return;
@@ -22272,9 +22416,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechYPDisciplinedAshigaru) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechYPDisciplinedAshigaru);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypAshigaru, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypAshigaru, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypAshigaru, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypAshigaru, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechYPDisciplinedAshigaru, getUnit(cUnitTypeypBarracksJapanese), cMilitaryEscrowID, 50);
 			return;
@@ -22283,9 +22427,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechYPDisciplinedYumi) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechYPDisciplinedYumi);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypYumi, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypYumi, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypYumi, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypYumi, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechYPDisciplinedYumi, getUnit(cUnitTypeypBarracksJapanese), cMilitaryEscrowID, 50);
 			return;
@@ -22294,9 +22438,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechYPDisciplinedSamurai) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechYPDisciplinedSamurai);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypKensei, cUnitStateAlive) < 8))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypKensei, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypKensei, cUnitStateAlive) >= 8))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypKensei, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechYPDisciplinedSamurai, getUnit(cUnitTypeypBarracksJapanese), cMilitaryEscrowID, 50);
 			return;
@@ -22307,9 +22451,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechYPDisciplinedFlameThrower) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechYPDisciplinedFlameThrower);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypFlameThrower, cUnitStateAlive) < 4))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypFlameThrower, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypFlameThrower, cUnitStateAlive) >= 4))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypFlameThrower, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechYPDisciplinedFlameThrower, getUnit(cUnitTypeypCastle), cMilitaryEscrowID, 50);
 			return;
@@ -22318,9 +22462,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechYPDisciplinedFlailElephant) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechYPDisciplinedFlailElephant);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeAbstractMercFlailiphant, cUnitStateAlive) < 4))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeAbstractMercFlailiphant, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractMercFlailiphant, cUnitStateAlive) >= 4))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractMercFlailiphant, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechYPDisciplinedFlailElephant, getUnit(cUnitTypeypCastle), cMilitaryEscrowID, 50);
 			return;
@@ -22331,7 +22475,7 @@ minInterval 90
 
 rule honoredUpgradeMonitor
 inactive
-minInterval 90
+minInterval 40
 {
 	int upgradePlanID = -1;
 
@@ -22349,9 +22493,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechYPHonoredIronFlail) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechYPHonoredIronFlail);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypIronFlail, cUnitStateAlive) < 8))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypIronFlail, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypIronFlail, cUnitStateAlive) >= 8))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypIronFlail, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechYPHonoredIronFlail, getUnit(cUnitTypeypWarAcademy), cMilitaryEscrowID, 50);
 			return;
@@ -22360,9 +22504,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechYPHonoredMeteorHammer) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechYPHonoredMeteorHammer);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypMeteorHammer, cUnitStateAlive) < 8))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypMeteorHammer, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypMeteorHammer, cUnitStateAlive) >= 8))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypMeteorHammer, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechYPHonoredMeteorHammer, getUnit(cUnitTypeypWarAcademy), cMilitaryEscrowID, 50);
 			return;
@@ -22371,9 +22515,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechYPHonoredArquebusier) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechYPHonoredArquebusier);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypArquebusier, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypArquebusier, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypArquebusier, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypArquebusier, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechYPHonoredArquebusier, getUnit(cUnitTypeypWarAcademy), cMilitaryEscrowID, 50);
 			return;
@@ -22382,9 +22526,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechYPHonoredChangdao) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechYPHonoredChangdao);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypChangdao, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypChangdao, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypChangdao, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypChangdao, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechYPHonoredChangdao, getUnit(cUnitTypeypWarAcademy), cMilitaryEscrowID, 50);
 			return;
@@ -22393,9 +22537,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechYPHonoredChuKoNu) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechYPHonoredChuKoNu);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypChuKoNu, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypChuKoNu, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypChuKoNu, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypChuKoNu, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechYPHonoredChuKoNu, getUnit(cUnitTypeypWarAcademy), cMilitaryEscrowID, 50);
 			return;
@@ -22404,9 +22548,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechYPHonoredQiangPikeman) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechYPHonoredQiangPikeman);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypQiangPikeman, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypQiangPikeman, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypQiangPikeman, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypQiangPikeman, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechYPHonoredQiangPikeman, getUnit(cUnitTypeypWarAcademy), cMilitaryEscrowID, 50);
 			return;
@@ -22415,9 +22559,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechYPHonoredSteppeRider) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechYPHonoredSteppeRider);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypSteppeRider, cUnitStateAlive) < 10))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypSteppeRider, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypSteppeRider, cUnitStateAlive) >= 10))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypSteppeRider, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechYPHonoredSteppeRider, getUnit(cUnitTypeypWarAcademy), cMilitaryEscrowID, 50);
 			return;
@@ -22426,9 +22570,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechYPHonoredKeshik) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechYPHonoredKeshik);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypKeshik, cUnitStateAlive) < 10))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypKeshik, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypKeshik, cUnitStateAlive) >= 10))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypKeshik, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechYPHonoredKeshik, getUnit(cUnitTypeypWarAcademy), cMilitaryEscrowID, 50);
 			return;
@@ -22439,9 +22583,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechYPHonoredCamel) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechYPHonoredCamel);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeAbstractSowar, cUnitStateAlive) < 8))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeAbstractSowar, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractSowar, cUnitStateAlive) >= 8))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractSowar, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechYPHonoredCamel, getUnit(cUnitTypeypCaravanserai), cMilitaryEscrowID, 50);
 			return;
@@ -22450,9 +22594,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechYPHonoredCamelGun) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechYPHonoredCamelGun);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeAbstractZamburak, cUnitStateAlive) < 8))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeAbstractZamburak, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractZamburak, cUnitStateAlive) >= 8))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractZamburak, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechYPHonoredCamelGun, getUnit(cUnitTypeypCaravanserai), cMilitaryEscrowID, 50);
 			return;
@@ -22461,9 +22605,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechYPHonoredMahout) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechYPHonoredMahout);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeAbstractMahout, cUnitStateAlive) < 4))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeAbstractMahout, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractMahout, cUnitStateAlive) >= 4))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractMahout, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechYPHonoredMahout, getUnit(cUnitTypeypCaravanserai), cMilitaryEscrowID, 50);
 			return;
@@ -22472,9 +22616,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechYPHonoredHowdah) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechYPHonoredHowdah);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeAbstractHowdah, cUnitStateAlive) < 4))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeAbstractHowdah, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractHowdah, cUnitStateAlive) >= 4))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractHowdah, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechYPHonoredHowdah, getUnit(cUnitTypeypCaravanserai), cMilitaryEscrowID, 50);
 			return;
@@ -22485,9 +22629,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechYPHonoredNaginataRider) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechYPHonoredNaginataRider);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypNaginataRider, cUnitStateAlive) < 8))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypNaginataRider, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypNaginataRider, cUnitStateAlive) >= 8))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypNaginataRider, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechYPHonoredNaginataRider, getUnit(cUnitTypeypStableJapanese), cMilitaryEscrowID, 50);
 			return;
@@ -22496,9 +22640,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechYPHonoredYabusame) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechYPHonoredYabusame);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypYabusame, cUnitStateAlive) < 8))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypYabusame, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypYabusame, cUnitStateAlive) >= 8))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypYabusame, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechYPHonoredYabusame, getUnit(cUnitTypeypStableJapanese), cMilitaryEscrowID, 50);
 			return;
@@ -22509,9 +22653,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechYPHonoredSepoy) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechYPHonoredSepoy);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeAbstractSepoy, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeAbstractSepoy, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractSepoy, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractSepoy, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechYPHonoredSepoy, getUnit(cUnitTypeYPBarracksIndian), cMilitaryEscrowID, 50);
 			return;
@@ -22520,9 +22664,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechYPHonoredGurkha) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechYPHonoredGurkha);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeAbstractGurkha, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeAbstractGurkha, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractGurkha, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractGurkha, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechYPHonoredGurkha, getUnit(cUnitTypeYPBarracksIndian), cMilitaryEscrowID, 50);
 			return;
@@ -22531,9 +22675,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechYPHonoredRajput) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechYPHonoredRajput);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeAbstractRajput, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeAbstractRajput, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractRajput, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractRajput, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechYPHonoredRajput, getUnit(cUnitTypeYPBarracksIndian), cMilitaryEscrowID, 50);
 			return;
@@ -22544,9 +22688,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechYPHonoredAshigaru) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechYPHonoredAshigaru);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypAshigaru, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypAshigaru, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypAshigaru, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypAshigaru, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechYPHonoredAshigaru, getUnit(cUnitTypeypBarracksJapanese), cMilitaryEscrowID, 50);
 			return;
@@ -22555,9 +22699,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechYPHonoredYumi) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechYPHonoredYumi);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypYumi, cUnitStateAlive) < 12))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypYumi, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypYumi, cUnitStateAlive) >= 12))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypYumi, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechYPHonoredYumi, getUnit(cUnitTypeypBarracksJapanese), cMilitaryEscrowID, 50);
 			return;
@@ -22566,9 +22710,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechYPHonoredSamurai) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechYPHonoredSamurai);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypKensei, cUnitStateAlive) < 8))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypKensei, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypKensei, cUnitStateAlive) >= 8))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypKensei, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechYPHonoredSamurai, getUnit(cUnitTypeypBarracksJapanese), cMilitaryEscrowID, 50);
 			return;
@@ -22579,9 +22723,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechYPHonoredFlameThrower) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechYPHonoredFlameThrower);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypFlameThrower, cUnitStateAlive) < 4))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypFlameThrower, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypFlameThrower, cUnitStateAlive) >= 4))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypFlameThrower, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechYPHonoredFlameThrower, getUnit(cUnitTypeypCastle), cMilitaryEscrowID, 50);
 			return;
@@ -22590,9 +22734,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechYPHonoredHandMortar) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechYPHonoredHandMortar);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypHandMortar, cUnitStateAlive) < 6))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypHandMortar, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypHandMortar, cUnitStateAlive) >= 6))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypHandMortar, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechYPHonoredHandMortar, getUnit(cUnitTypeypCastle), cMilitaryEscrowID, 50);
 			return;
@@ -22601,9 +22745,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechYPHonoredFlailElephant) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechYPHonoredFlailElephant);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeAbstractMercFlailiphant, cUnitStateAlive) < 4))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeAbstractMercFlailiphant, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractMercFlailiphant, cUnitStateAlive) >= 4))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractMercFlailiphant, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechYPHonoredFlailElephant, getUnit(cUnitTypeypCastle), cMilitaryEscrowID, 50);
 			return;
@@ -22612,9 +22756,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechYPHonoredSiegeElephant) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechYPHonoredSiegeElephant);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeAbstractSiegeElephant, cUnitStateAlive) < 4))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeAbstractSiegeElephant, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractSiegeElephant, cUnitStateAlive) >= 4))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeAbstractSiegeElephant, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechYPHonoredSiegeElephant, getUnit(cUnitTypeypCastle), cMilitaryEscrowID, 50);
 			return;
@@ -22623,9 +22767,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechYPHonoredFlamingArrow) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechYPHonoredFlamingArrow);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypFlamingArrow, cUnitStateAlive) < 4))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypFlamingArrow, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypFlamingArrow, cUnitStateAlive) >= 4))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypFlamingArrow, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechYPHonoredFlamingArrow, getUnit(cUnitTypeypCastle), cMilitaryEscrowID, 50);
 			return;
@@ -22634,9 +22778,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechYPHonoredMorutaru) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechYPHonoredMorutaru);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypMorutaru, cUnitStateAlive) < 4))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypMorutaru, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypMorutaru, cUnitStateAlive) >= 4))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeypMorutaru, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechYPHonoredMorutaru, getUnit(cUnitTypeypCastle), cMilitaryEscrowID, 50);
 			return;
@@ -22647,7 +22791,7 @@ minInterval 90
 
 rule warriorSocietyUpgradeMonitor
 inactive
-minInterval 90
+minInterval 40
 {
 	int upgradePlanID = -1;
 
@@ -22657,9 +22801,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechWarriorSocietyAztecs) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechWarriorSocietyAztecs);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatJaguarWarrior, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatEagleWarrior, cUnitStateAlive) < 10))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatJaguarWarrior, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatEagleWarrior, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeNatJaguarWarrior, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatEagleWarrior, cUnitStateAlive) >= 10)))
+		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeNatJaguarWarrior, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatEagleWarrior, cUnitStateAlive) >= 2)))
 		{
 			createSimpleResearchPlan(cTechWarriorSocietyAztecs, getUnitByTech(cUnitTypeTradingPost, cTechWarriorSocietyAztecs), cMilitaryEscrowID, 50);
 			return;
@@ -22668,9 +22812,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechWarriorSocietyCaribs) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechWarriorSocietyCaribs);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatBlowgunWarrior, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercBlowgunWarrior, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatBlowgunAmbusher, cUnitStateAlive) < 10))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatBlowgunWarrior, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercBlowgunWarrior, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatBlowgunAmbusher, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeNatBlowgunWarrior, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercBlowgunWarrior, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatBlowgunAmbusher, cUnitStateAlive) >= 10)))
+		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeNatBlowgunWarrior, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercBlowgunWarrior, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatBlowgunAmbusher, cUnitStateAlive) >= 2)))
 		{
 			createSimpleResearchPlan(cTechWarriorSocietyCaribs, getUnitByTech(cUnitTypeTradingPost, cTechWarriorSocietyCaribs), cMilitaryEscrowID, 50);
 			return;
@@ -22679,9 +22823,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechWarriorSocietyCherokee) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechWarriorSocietyCherokee);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatRifleman, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercRifleman, cUnitStateAlive) < 10))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatRifleman, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercRifleman, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeNatRifleman, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercRifleman, cUnitStateAlive) >= 10)))
+		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeNatRifleman, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercRifleman, cUnitStateAlive) >= 2)))
 		{
 			createSimpleResearchPlan(cTechWarriorSocietyCherokee, getUnitByTech(cUnitTypeTradingPost, cTechWarriorSocietyCherokee), cMilitaryEscrowID, 50);
 			return;
@@ -22690,9 +22834,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechWarriorSocietyComanche) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechWarriorSocietyComanche);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatHorseArcher, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercHorseArcher, cUnitStateAlive) < 6))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatHorseArcher, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercHorseArcher, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeNatHorseArcher, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercHorseArcher, cUnitStateAlive) >= 6)))
+		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeNatHorseArcher, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercHorseArcher, cUnitStateAlive) >= 2)))
 		{
 			createSimpleResearchPlan(cTechWarriorSocietyComanche, getUnitByTech(cUnitTypeTradingPost, cTechWarriorSocietyComanche), cMilitaryEscrowID, 50);
 			return;
@@ -22701,9 +22845,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechWarriorSocietyCree) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechWarriorSocietyCree);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatTracker, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercTracker, cUnitStateAlive) < 10))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatTracker, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercTracker, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeNatTracker, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercTracker, cUnitStateAlive) >= 10)))
+		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeNatTracker, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercTracker, cUnitStateAlive) >= 2)))
 		{
 			createSimpleResearchPlan(cTechWarriorSocietyCree, getUnitByTech(cUnitTypeTradingPost, cTechWarriorSocietyCree), cMilitaryEscrowID, 50);
 			return;
@@ -22712,9 +22856,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechWarriorSocietyInca) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechWarriorSocietyInca);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatBolasWarrior, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatHuaminca, cUnitStateAlive) < 10))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatBolasWarrior, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatHuaminca, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeNatBolasWarrior, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatHuaminca, cUnitStateAlive) >= 10)))
+		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeNatBolasWarrior, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatHuaminca, cUnitStateAlive) >= 2)))
 		{
 			createSimpleResearchPlan(cTechWarriorSocietyInca, getUnitByTech(cUnitTypeTradingPost, cTechWarriorSocietyInca), cMilitaryEscrowID, 50);
 			return;
@@ -22723,9 +22867,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechWarriorSocietyIroquois) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechWarriorSocietyIroquois);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatTomahawk, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMantlet, cUnitStateAlive) < 10))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatTomahawk, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMantlet, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeNatTomahawk, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMantlet, cUnitStateAlive) >= 10)))
+		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeNatTomahawk, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMantlet, cUnitStateAlive) >= 2)))
 		{
 			createSimpleResearchPlan(cTechWarriorSocietyIroquois, getUnitByTech(cUnitTypeTradingPost, cTechWarriorSocietyIroquois), cMilitaryEscrowID, 50);
 			return;
@@ -22734,9 +22878,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechWarriorSocietyLakota) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechWarriorSocietyLakota);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatAxeRider, cUnitStateAlive) < 6))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatAxeRider, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeNatAxeRider, cUnitStateAlive) >= 6))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeNatAxeRider, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechWarriorSocietyLakota, getUnitByTech(cUnitTypeTradingPost, cTechWarriorSocietyLakota), cMilitaryEscrowID, 50);
 			return;
@@ -22745,9 +22889,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechWarriorSocietyMaya) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechWarriorSocietyMaya);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatHolcanSpearman, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercHolcanSpearman, cUnitStateAlive) < 10))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatHolcanSpearman, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercHolcanSpearman, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeNatHolcanSpearman, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercHolcanSpearman, cUnitStateAlive) >= 10)))
+		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeNatHolcanSpearman, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercHolcanSpearman, cUnitStateAlive) >= 2)))
 		{
 			createSimpleResearchPlan(cTechWarriorSocietyMaya, getUnitByTech(cUnitTypeTradingPost, cTechWarriorSocietyMaya), cMilitaryEscrowID, 50);
 			return;
@@ -22756,9 +22900,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechWarriorSocietyNootka) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechWarriorSocietyNootka);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatClubman, cUnitStateAlive) < 10))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatClubman, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeNatClubman, cUnitStateAlive) >= 10))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeNatClubman, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechWarriorSocietyNootka, getUnitByTech(cUnitTypeTradingPost, cTechWarriorSocietyNootka), cMilitaryEscrowID, 50);
 			return;
@@ -22767,9 +22911,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechWarriorSocietySeminoles) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechWarriorSocietySeminoles);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatSharktoothBowman, cUnitStateAlive) < 10))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatSharktoothBowman, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeNatSharktoothBowman, cUnitStateAlive) >= 10))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeNatSharktoothBowman, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechWarriorSocietySeminoles, getUnitByTech(cUnitTypeTradingPost, cTechWarriorSocietySeminoles), cMilitaryEscrowID, 50);
 			return;
@@ -22778,9 +22922,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechWarriorSocietyTupi) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechWarriorSocietyTupi);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatBlackwoodArcher, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercBlackwoodArcher, cUnitStateAlive) < 10))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatBlackwoodArcher, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercBlackwoodArcher, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeNatBlackwoodArcher, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercBlackwoodArcher, cUnitStateAlive) >= 10)))
+		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeNatBlackwoodArcher, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercBlackwoodArcher, cUnitStateAlive) >= 2)))
 		{
 			createSimpleResearchPlan(cTechWarriorSocietyTupi, getUnitByTech(cUnitTypeTradingPost, cTechWarriorSocietyTupi), cMilitaryEscrowID, 50);
 			return;
@@ -22789,9 +22933,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechWarriorSocietyHuron) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechWarriorSocietyHuron);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatHuronMantlet, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercHuronMantlet, cUnitStateAlive) < 10))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatHuronMantlet, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercHuronMantlet, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeNatHuronMantlet, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercHuronMantlet, cUnitStateAlive) >= 10)))
+		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeNatHuronMantlet, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercHuronMantlet, cUnitStateAlive) >= 2)))
 		{
 			createSimpleResearchPlan(cTechWarriorSocietyHuron, getUnitByTech(cUnitTypeTradingPost, cTechWarriorSocietyHuron), cMilitaryEscrowID, 50);
 			return;
@@ -22800,9 +22944,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechWarriorSocietyZapotec) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechWarriorSocietyZapotec);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatLightningWarrior, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercLightningWarrior, cUnitStateAlive) < 10))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatLightningWarrior, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercLightningWarrior, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeNatLightningWarrior, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercLightningWarrior, cUnitStateAlive) >= 10)))
+		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeNatLightningWarrior, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercLightningWarrior, cUnitStateAlive) >= 2)))
 		{
 			createSimpleResearchPlan(cTechWarriorSocietyZapotec, getUnitByTech(cUnitTypeTradingPost, cTechWarriorSocietyZapotec), cMilitaryEscrowID, 50);
 			return;
@@ -22811,9 +22955,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechWarriorSocietyKlamath) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechWarriorSocietyKlamath);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatKlamathRifleman, cUnitStateAlive) < 10))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatKlamathRifleman, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeNatKlamathRifleman, cUnitStateAlive) >= 10))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeNatKlamathRifleman, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechWarriorSocietyKlamath, getUnitByTech(cUnitTypeTradingPost, cTechWarriorSocietyKlamath), cMilitaryEscrowID, 50);
 			return;
@@ -22822,9 +22966,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechWarriorSocietyApache) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechWarriorSocietyApache);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatApacheCavalry, cUnitStateAlive) < 10))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatApacheCavalry, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeNatApacheCavalry, cUnitStateAlive) >= 10))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeNatApacheCavalry, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechWarriorSocietyApache, getUnitByTech(cUnitTypeTradingPost, cTechWarriorSocietyApache), cMilitaryEscrowID, 50);
 			return;
@@ -22833,9 +22977,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechWarriorSocietyNavajo) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechWarriorSocietyNavajo);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatNavajoRifleman, cUnitStateAlive) < 10))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatNavajoRifleman, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeNatNavajoRifleman, cUnitStateAlive) >= 10))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeNatNavajoRifleman, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechWarriorSocietyNavajo, getUnitByTech(cUnitTypeTradingPost, cTechWarriorSocietyNavajo), cMilitaryEscrowID, 50);
 			return;
@@ -22844,9 +22988,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechWarriorSocietyCheyenne) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechWarriorSocietyCheyenne);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatCheyenneRider, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercCheyenneRider, cUnitStateAlive) < 6))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatCheyenneRider, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercCheyenneRider, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeNatCheyenneRider, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercCheyenneRider, cUnitStateAlive) >= 6)))
+		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeNatCheyenneRider, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercCheyenneRider, cUnitStateAlive) >= 2)))
 		{
 			createSimpleResearchPlan(cTechWarriorSocietyCheyenne, getUnitByTech(cUnitTypeTradingPost, cTechWarriorSocietyCheyenne), cMilitaryEscrowID, 50);
 			return;
@@ -22855,9 +22999,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechWarriorSocietyMapuche) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechWarriorSocietyMapuche);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatMapucheClubman, cUnitStateAlive) < 10))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatMapucheClubman, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeNatMapucheClubman, cUnitStateAlive) >= 10))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeNatMapucheClubman, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechWarriorSocietyMapuche, getUnitByTech(cUnitTypeTradingPost, cTechWarriorSocietyMapuche), cMilitaryEscrowID, 50);
 			return;
@@ -22868,7 +23012,7 @@ minInterval 90
 
 rule minorNativeChampionUpgradeMonitor
 inactive
-minInterval 90
+minInterval 40
 {
 	int upgradePlanID = -1;
 
@@ -22878,9 +23022,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechChampionAztecs) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechChampionAztecs);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatJaguarWarrior, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatEagleWarrior, cUnitStateAlive) < 10))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatJaguarWarrior, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatEagleWarrior, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeNatJaguarWarrior, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatEagleWarrior, cUnitStateAlive) >= 10)))
+		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeNatJaguarWarrior, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatEagleWarrior, cUnitStateAlive) >= 2)))
 		{
 			createSimpleResearchPlan(cTechChampionAztecs, getUnitByTech(cUnitTypeTradingPost, cTechChampionAztecs), cMilitaryEscrowID, 50);
 			return;
@@ -22889,9 +23033,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechChampionCaribs) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechChampionCaribs);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatBlowgunWarrior, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercBlowgunWarrior, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatBlowgunAmbusher, cUnitStateAlive) < 10))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatBlowgunWarrior, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercBlowgunWarrior, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatBlowgunAmbusher, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeNatBlowgunWarrior, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercBlowgunWarrior, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatBlowgunAmbusher, cUnitStateAlive) >= 10)))
+		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeNatBlowgunWarrior, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercBlowgunWarrior, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatBlowgunAmbusher, cUnitStateAlive) >= 2)))
 		{
 			createSimpleResearchPlan(cTechChampionCaribs, getUnitByTech(cUnitTypeTradingPost, cTechChampionCaribs), cMilitaryEscrowID, 50);
 			return;
@@ -22900,9 +23044,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechChampionCherokee) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechChampionCherokee);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatRifleman, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercRifleman, cUnitStateAlive) < 10))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatRifleman, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercRifleman, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeNatRifleman, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercRifleman, cUnitStateAlive) >= 10)))
+		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeNatRifleman, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercRifleman, cUnitStateAlive) >= 2)))
 		{
 			createSimpleResearchPlan(cTechChampionCherokee, getUnitByTech(cUnitTypeTradingPost, cTechChampionCherokee), cMilitaryEscrowID, 50);
 			return;
@@ -22911,9 +23055,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechChampionComanche) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechChampionComanche);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatHorseArcher, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercHorseArcher, cUnitStateAlive) < 6))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatHorseArcher, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercHorseArcher, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeNatHorseArcher, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercHorseArcher, cUnitStateAlive) >= 6)))
+		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeNatHorseArcher, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercHorseArcher, cUnitStateAlive) >= 2)))
 		{
 			createSimpleResearchPlan(cTechChampionComanche, getUnitByTech(cUnitTypeTradingPost, cTechChampionComanche), cMilitaryEscrowID, 50);
 			return;
@@ -22922,9 +23066,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechChampionCree) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechChampionCree);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatTracker, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercTracker, cUnitStateAlive) < 10))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatTracker, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercTracker, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeNatTracker, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercTracker, cUnitStateAlive) >= 10)))
+		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeNatTracker, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercTracker, cUnitStateAlive) >= 2)))
 		{
 			createSimpleResearchPlan(cTechChampionCree, getUnitByTech(cUnitTypeTradingPost, cTechChampionCree), cMilitaryEscrowID, 50);
 			return;
@@ -22933,9 +23077,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechChampionInca) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechChampionInca);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatBolasWarrior, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatHuaminca, cUnitStateAlive) < 10))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatBolasWarrior, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatHuaminca, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeNatBolasWarrior, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatHuaminca, cUnitStateAlive) >= 10)))
+		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeNatBolasWarrior, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatHuaminca, cUnitStateAlive) >= 2)))
 		{
 			createSimpleResearchPlan(cTechChampionInca, getUnitByTech(cUnitTypeTradingPost, cTechChampionInca), cMilitaryEscrowID, 50);
 			return;
@@ -22944,9 +23088,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechChampionIroquois) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechChampionIroquois);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatTomahawk, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMantlet, cUnitStateAlive) < 10))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatTomahawk, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMantlet, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeNatTomahawk, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMantlet, cUnitStateAlive) >= 10)))
+		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeNatTomahawk, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMantlet, cUnitStateAlive) >= 2)))
 		{
 			createSimpleResearchPlan(cTechChampionIroquois, getUnitByTech(cUnitTypeTradingPost, cTechChampionIroquois), cMilitaryEscrowID, 50);
 			return;
@@ -22955,9 +23099,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechChampionLakota) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechChampionLakota);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatAxeRider, cUnitStateAlive) < 6))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatAxeRider, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeNatAxeRider, cUnitStateAlive) >= 6))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeNatAxeRider, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechChampionLakota, getUnitByTech(cUnitTypeTradingPost, cTechChampionLakota), cMilitaryEscrowID, 50);
 			return;
@@ -22966,9 +23110,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechChampionMaya) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechChampionMaya);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatHolcanSpearman, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercHolcanSpearman, cUnitStateAlive) < 10))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatHolcanSpearman, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercHolcanSpearman, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeNatHolcanSpearman, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercHolcanSpearman, cUnitStateAlive) >= 10)))
+		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeNatHolcanSpearman, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercHolcanSpearman, cUnitStateAlive) >= 2)))
 		{
 			createSimpleResearchPlan(cTechChampionMaya, getUnitByTech(cUnitTypeTradingPost, cTechChampionMaya), cMilitaryEscrowID, 50);
 			return;
@@ -22977,9 +23121,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechChampionNootka) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechChampionNootka);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatClubman, cUnitStateAlive) < 10))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatClubman, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeNatClubman, cUnitStateAlive) >= 10))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeNatClubman, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechChampionNootka, getUnitByTech(cUnitTypeTradingPost, cTechChampionNootka), cMilitaryEscrowID, 50);
 			return;
@@ -22988,9 +23132,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechChampionSeminoles) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechChampionSeminoles);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatSharktoothBowman, cUnitStateAlive) < 10))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatSharktoothBowman, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeNatSharktoothBowman, cUnitStateAlive) >= 10))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeNatSharktoothBowman, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechChampionSeminoles, getUnitByTech(cUnitTypeTradingPost, cTechChampionSeminoles), cMilitaryEscrowID, 50);
 			return;
@@ -22999,9 +23143,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechChampionTupi) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechChampionTupi);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatBlackwoodArcher, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercBlackwoodArcher, cUnitStateAlive) < 10))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatBlackwoodArcher, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercBlackwoodArcher, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeNatBlackwoodArcher, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercBlackwoodArcher, cUnitStateAlive) >= 10)))
+		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeNatBlackwoodArcher, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercBlackwoodArcher, cUnitStateAlive) >= 2)))
 		{
 			createSimpleResearchPlan(cTechChampionTupi, getUnitByTech(cUnitTypeTradingPost, cTechChampionTupi), cMilitaryEscrowID, 50);
 			return;
@@ -23010,9 +23154,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechChampionHuron) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechChampionHuron);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatHuronMantlet, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercHuronMantlet, cUnitStateAlive) < 10))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatHuronMantlet, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercHuronMantlet, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeNatHuronMantlet, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercHuronMantlet, cUnitStateAlive) >= 10)))
+		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeNatHuronMantlet, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercHuronMantlet, cUnitStateAlive) >= 2)))
 		{
 			createSimpleResearchPlan(cTechChampionHuron, getUnitByTech(cUnitTypeTradingPost, cTechChampionHuron), cMilitaryEscrowID, 50);
 			return;
@@ -23021,9 +23165,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechChampionZapotec) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechChampionZapotec);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatLightningWarrior, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercLightningWarrior, cUnitStateAlive) < 10))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatLightningWarrior, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercLightningWarrior, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeNatLightningWarrior, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercLightningWarrior, cUnitStateAlive) >= 10)))
+		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeNatLightningWarrior, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercLightningWarrior, cUnitStateAlive) >= 2)))
 		{
 			createSimpleResearchPlan(cTechChampionZapotec, getUnitByTech(cUnitTypeTradingPost, cTechChampionZapotec), cMilitaryEscrowID, 50);
 			return;
@@ -23032,9 +23176,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechChampionKlamath) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechChampionKlamath);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatKlamathRifleman, cUnitStateAlive) < 10))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatKlamathRifleman, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeNatKlamathRifleman, cUnitStateAlive) >= 10))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeNatKlamathRifleman, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechChampionKlamath, getUnitByTech(cUnitTypeTradingPost, cTechChampionKlamath), cMilitaryEscrowID, 50);
 			return;
@@ -23043,9 +23187,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechChampionApache) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechChampionApache);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatApacheCavalry, cUnitStateAlive) < 10))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatApacheCavalry, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeNatApacheCavalry, cUnitStateAlive) >= 10))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeNatApacheCavalry, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechChampionApache, getUnitByTech(cUnitTypeTradingPost, cTechChampionApache), cMilitaryEscrowID, 50);
 			return;
@@ -23054,9 +23198,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechChampionNavajo) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechChampionNavajo);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatNavajoRifleman, cUnitStateAlive) < 10))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatNavajoRifleman, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeNatNavajoRifleman, cUnitStateAlive) >= 10))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeNatNavajoRifleman, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechChampionNavajo, getUnitByTech(cUnitTypeTradingPost, cTechChampionNavajo), cMilitaryEscrowID, 50);
 			return;
@@ -23065,9 +23209,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechChampionCheyenne) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechChampionCheyenne);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatCheyenneRider, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercCheyenneRider, cUnitStateAlive) < 6))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatCheyenneRider, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercCheyenneRider, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeNatCheyenneRider, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercCheyenneRider, cUnitStateAlive) >= 6)))
+		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeNatCheyenneRider, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeNatMercCheyenneRider, cUnitStateAlive) >= 2)))
 		{
 			createSimpleResearchPlan(cTechChampionCheyenne, getUnitByTech(cUnitTypeTradingPost, cTechChampionCheyenne), cMilitaryEscrowID, 50);
 			return;
@@ -23076,9 +23220,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechChampionMapuche) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechChampionMapuche);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatMapucheClubman, cUnitStateAlive) < 10))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeNatMapucheClubman, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeNatMapucheClubman, cUnitStateAlive) >= 10))
+		if ((upgradePlanID < 0) && (kbUnitCount(cMyID, cUnitTypeNatMapucheClubman, cUnitStateAlive) >= 2))
 		{
 			createSimpleResearchPlan(cTechChampionMapuche, getUnitByTech(cUnitTypeTradingPost, cTechChampionMapuche), cMilitaryEscrowID, 50);
 			return;
@@ -23089,7 +23233,7 @@ minInterval 90
 
 rule minorAsianDisciplinedUpgradeMonitor
 inactive
-minInterval 90
+minInterval 40
 {
 	int upgradePlanID = -1;
 
@@ -23099,9 +23243,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechypNatDisciplinedBhakti) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechypNatDisciplinedBhakti);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypNatTigerClaw, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeypNatMercTigerClaw, cUnitStateAlive) < 10))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypNatTigerClaw, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeypNatMercTigerClaw, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeypNatTigerClaw, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeypNatMercTigerClaw, cUnitStateAlive) >= 10)))
+		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeypNatTigerClaw, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeypNatMercTigerClaw, cUnitStateAlive) >= 2)))
 		{
 			createSimpleResearchPlan(cTechypNatDisciplinedBhakti, getUnitByTech(cUnitTypeypTradingPostAsian, cTechypNatDisciplinedBhakti), cMilitaryEscrowID, 50);
 			return;
@@ -23110,9 +23254,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechypNatDisciplinedJesuit) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechypNatDisciplinedJesuit);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypNatConquistador, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeypNatMercConquistador, cUnitStateAlive) < 10))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypNatConquistador, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeypNatMercConquistador, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeypNatConquistador, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeypNatMercConquistador, cUnitStateAlive) >= 10)))
+		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeypNatConquistador, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeypNatMercConquistador, cUnitStateAlive) >= 2)))
 		{
 			createSimpleResearchPlan(cTechypNatDisciplinedJesuit, getUnitByTech(cUnitTypeypTradingPostAsian, cTechypNatDisciplinedJesuit), cMilitaryEscrowID, 50);
 			return;
@@ -23121,9 +23265,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechypNatDisciplinedShaolin) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechypNatDisciplinedShaolin);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypNatRattanShield, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeypNatMercRattanShield, cUnitStateAlive) < 10))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypNatRattanShield, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeypNatMercRattanShield, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeypNatRattanShield, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeypNatMercRattanShield, cUnitStateAlive) >= 10)))
+		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeypNatRattanShield, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeypNatMercRattanShield, cUnitStateAlive) >= 2)))
 		{
 			createSimpleResearchPlan(cTechypNatDisciplinedShaolin, getUnitByTech(cUnitTypeypTradingPostAsian, cTechypNatDisciplinedShaolin), cMilitaryEscrowID, 50);
 			return;
@@ -23132,9 +23276,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechypNatDisciplinedSufi) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechypNatDisciplinedSufi);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypNatWarElephant, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeypNatMercWarElephant, cUnitStateAlive) < 4))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypNatWarElephant, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeypNatMercWarElephant, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeypNatWarElephant, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeypNatMercWarElephant, cUnitStateAlive) >= 4)))
+		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeypNatWarElephant, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeypNatMercWarElephant, cUnitStateAlive) >= 2)))
 		{
 			createSimpleResearchPlan(cTechypNatDisciplinedSufi, getUnitByTech(cUnitTypeypTradingPostAsian, cTechypNatDisciplinedSufi), cMilitaryEscrowID, 50);
 			return;
@@ -23143,9 +23287,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechypNatDisciplinedUdasi) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechypNatDisciplinedUdasi);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypNatChakram, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeypNatMercChakram, cUnitStateAlive) < 10))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypNatChakram, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeypNatMercChakram, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeypNatChakram, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeypNatMercChakram, cUnitStateAlive) >= 10)))
+		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeypNatChakram, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeypNatMercChakram, cUnitStateAlive) >= 2)))
 		{
 			createSimpleResearchPlan(cTechypNatDisciplinedUdasi, getUnitByTech(cUnitTypeypTradingPostAsian, cTechypNatDisciplinedUdasi), cMilitaryEscrowID, 50);
 			return;
@@ -23154,9 +23298,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechypNatDisciplinedZen) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechypNatDisciplinedZen);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypNatSohei, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeypNatMercSohei, cUnitStateAlive) < 10))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypNatSohei, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeypNatMercSohei, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeypNatSohei, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeypNatMercSohei, cUnitStateAlive) >= 10)))
+		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeypNatSohei, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeypNatMercSohei, cUnitStateAlive) >= 2)))
 		{
 			createSimpleResearchPlan(cTechypNatDisciplinedZen, getUnitByTech(cUnitTypeypTradingPostAsian, cTechypNatDisciplinedZen), cMilitaryEscrowID, 50);
 			return;
@@ -23167,7 +23311,7 @@ minInterval 90
 
 rule minorAsianHonoredUpgradeMonitor
 inactive
-minInterval 90
+minInterval 40
 {
 	int upgradePlanID = -1;
 
@@ -23177,9 +23321,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechypNatHonoredBhakti) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechypNatHonoredBhakti);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypNatTigerClaw, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeypNatMercTigerClaw, cUnitStateAlive) < 10))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypNatTigerClaw, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeypNatMercTigerClaw, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeypNatTigerClaw, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeypNatMercTigerClaw, cUnitStateAlive) >= 10)))
+		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeypNatTigerClaw, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeypNatMercTigerClaw, cUnitStateAlive) >= 2)))
 		{
 			createSimpleResearchPlan(cTechypNatHonoredBhakti, getUnitByTech(cUnitTypeypTradingPostAsian, cTechypNatHonoredBhakti), cMilitaryEscrowID, 50);
 			return;
@@ -23188,9 +23332,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechypNatHonoredJesuit) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechypNatHonoredJesuit);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypNatConquistador, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeypNatMercConquistador, cUnitStateAlive) < 10))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypNatConquistador, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeypNatMercConquistador, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeypNatConquistador, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeypNatMercConquistador, cUnitStateAlive) >= 10)))
+		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeypNatConquistador, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeypNatMercConquistador, cUnitStateAlive) >= 2)))
 		{
 			createSimpleResearchPlan(cTechypNatHonoredJesuit, getUnitByTech(cUnitTypeypTradingPostAsian, cTechypNatHonoredJesuit), cMilitaryEscrowID, 50);
 			return;
@@ -23199,9 +23343,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechypNatHonoredShaolin) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechypNatHonoredShaolin);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypNatRattanShield, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeypNatMercRattanShield, cUnitStateAlive) < 10))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypNatRattanShield, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeypNatMercRattanShield, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeypNatRattanShield, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeypNatMercRattanShield, cUnitStateAlive) >= 10)))
+		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeypNatRattanShield, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeypNatMercRattanShield, cUnitStateAlive) >= 2)))
 		{
 			createSimpleResearchPlan(cTechypNatHonoredShaolin, getUnitByTech(cUnitTypeypTradingPostAsian, cTechypNatHonoredShaolin), cMilitaryEscrowID, 50);
 			return;
@@ -23210,9 +23354,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechypNatHonoredSufi) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechypNatHonoredSufi);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypNatWarElephant, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeypNatMercWarElephant, cUnitStateAlive) < 4))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypNatWarElephant, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeypNatMercWarElephant, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeypNatWarElephant, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeypNatMercWarElephant, cUnitStateAlive) >= 4)))
+		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeypNatWarElephant, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeypNatMercWarElephant, cUnitStateAlive) >= 2)))
 		{
 			createSimpleResearchPlan(cTechypNatHonoredSufi, getUnitByTech(cUnitTypeypTradingPostAsian, cTechypNatHonoredSufi), cMilitaryEscrowID, 50);
 			return;
@@ -23221,9 +23365,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechypNatHonoredUdasi) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechypNatHonoredUdasi);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypNatChakram, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeypNatMercChakram, cUnitStateAlive) < 10))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypNatChakram, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeypNatMercChakram, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeypNatChakram, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeypNatMercChakram, cUnitStateAlive) >= 10)))
+		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeypNatChakram, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeypNatMercChakram, cUnitStateAlive) >= 2)))
 		{
 			createSimpleResearchPlan(cTechypNatHonoredUdasi, getUnitByTech(cUnitTypeypTradingPostAsian, cTechypNatHonoredUdasi), cMilitaryEscrowID, 50);
 			return;
@@ -23232,9 +23376,9 @@ minInterval 90
 	if (kbTechGetStatus(cTechypNatHonoredZen) == cTechStatusObtainable)
 	{
 		upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechypNatHonoredZen);
-		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypNatSohei, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeypNatMercSohei, cUnitStateAlive) < 10))
+		if ((upgradePlanID >= 0) && (kbUnitCount(cMyID, cUnitTypeypNatSohei, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeypNatMercSohei, cUnitStateAlive) < 2))
 			aiPlanDestroy(upgradePlanID);
-		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeypNatSohei, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeypNatMercSohei, cUnitStateAlive) >= 10)))
+		if ((upgradePlanID < 0) && ((kbUnitCount(cMyID, cUnitTypeypNatSohei, cUnitStateAlive) + kbUnitCount(cMyID, cUnitTypeypNatMercSohei, cUnitStateAlive) >= 2)))
 		{
 			createSimpleResearchPlan(cTechypNatHonoredZen, getUnitByTech(cUnitTypeypTradingPostAsian, cTechypNatHonoredZen), cMilitaryEscrowID, 50);
 			return;
@@ -23527,7 +23671,7 @@ minInterval 10
 		      {
 			         ageUpPriority = 50;
 		      }
-		      if ((xsGetTime() > 10 * 60 * 1000) && (kbGetAge() == cAge2))
+		      if ((xsGetTime() > 12 * 55 * 1000) && (kbGetAge() == cAge2))
 		      {
 			         ageUpPriority = 55;
 		      }
@@ -23535,7 +23679,7 @@ minInterval 10
 		      {
 			         ageUpPriority = 50;
 		      }
-		      if ((xsGetTime() > 16 * 60 * 1000) && (kbGetAge() == cAge3))
+		      if ((xsGetTime() > 18 * 60 * 1000) && (kbGetAge() == cAge3))
 		      {
 			         ageUpPriority = 55;
 		      }
@@ -24725,14 +24869,14 @@ void resignHandler(int result = -1)
 		xsEnableRule("resignRetry");
 		return;
 	}
-	xsEnableRule("resignHandlerPre");
+	/*xsEnableRule("resignHandlerPre");
 	aiEcho("Resign handler returned " + result);
 	static int ResignPre = 0;
 	ResignPre = xsGetTime();
 	if (xsGetTime() - ResignPre > 5*1000)
-	{
+	{*/
 	aiResign();
-	}
+	//}
 	return;
 }
 
@@ -28796,7 +28940,7 @@ minInterval 15
       aiPlanSetVariableInt(planID, cAttackPlanRefreshFrequency, 0, 30);
       aiPlanSetNumberVariableValues(planID, cAttackPlanTargetTypeID, 2, true);
       aiPlanSetVariableInt(planID, cAttackPlanTargetTypeID, 0, cUnitTypeUnit);
-      aiPlanSetVariableInt(planID, cAttackPlanTargetTypeID, 1, cUnitTypeBuilding);
+      //aiPlanSetVariableInt(planID, cAttackPlanTargetTypeID, 1, cUnitTypeBuilding);
       aiPlanSetVariableVector(planID, cAttackPlanGatherPoint, 0, gatherPoint);
       aiPlanSetVariableInt(planID, cAttackPlanBaseAttackMode, 0, cAttackPlanBaseAttackModeExplicit);
       aiPlanSetVariableInt(planID, cAttackPlanAttackExplicitBaseID, 0, targetBaseID);
@@ -28839,7 +28983,7 @@ minInterval 15
       aiPlanSetVariableVector(planID, cDefendPlanDefendPoint, 0, kbBaseGetLocation(targetPlayer, targetBaseID));
       aiPlanSetNumberVariableValues(planID, cDefendPlanAttackTypeID, 2, true);
       aiPlanSetVariableInt(planID, cDefendPlanAttackTypeID, 0, cUnitTypeUnit);
-      aiPlanSetVariableInt(planID, cDefendPlanAttackTypeID, 1, cUnitTypeBuilding);
+      //aiPlanSetVariableInt(planID, cDefendPlanAttackTypeID, 1, cUnitTypeBuilding);
       aiPlanSetVariableInt(planID, cDefendPlanRefreshFrequency, 0, 10);
       aiPlanSetVariableBool(planID, cDefendPlanStopTakingUnits, 0, true);
       aiPlanSetOrphan(planID, true);
@@ -29785,7 +29929,7 @@ void main(void)
 	case cDifficultyEasy: // Easiest
 	{
 		if (gSPC == true)
-			kbSetPlayerHandicap(cMyID, startingHandicap * baselineHandicap * 1.0); // minus 50 percent for scenarios
+			kbSetPlayerHandicap(cMyID, startingHandicap * baselineHandicap * 0.5); // minus 50 percent for scenarios
 		else
 			kbSetPlayerHandicap(cMyID, startingHandicap * baselineHandicap * 0.4); // minus 60 percent
 
@@ -29797,7 +29941,7 @@ void main(void)
 	case cDifficultyModerate: // Moderate
 	{
 		if (gSPC == true)
-			kbSetPlayerHandicap(cMyID, startingHandicap * baselineHandicap * 1.5); // minus 25% for scenarios
+			kbSetPlayerHandicap(cMyID, startingHandicap * baselineHandicap * 1.0); // minus 25% for scenarios
 		else
 			kbSetPlayerHandicap(cMyID, startingHandicap * baselineHandicap * 0.65); // minus 35%
 		break;
@@ -29805,7 +29949,7 @@ void main(void)
 	case cDifficultyHard: // Hard
 	{
 		if (gSPC == true)
-			kbSetPlayerHandicap(cMyID, startingHandicap * baselineHandicap * 2.0); // minus 25% for scenarios
+			kbSetPlayerHandicap(cMyID, startingHandicap * baselineHandicap * 1.5); // minus 25% for scenarios
 		else
 		kbSetPlayerHandicap(cMyID, startingHandicap * baselineHandicap * 1.0);    // 1.0 handicap at hard, i.e. no bonus
 		
@@ -29818,7 +29962,7 @@ void main(void)
 	case cDifficultyExpert: // Hardest
 	{
 		if (gSPC == true)
-			kbSetPlayerHandicap(cMyID, startingHandicap * baselineHandicap * 2.5); // minus 25% for scenarios
+			kbSetPlayerHandicap(cMyID, startingHandicap * baselineHandicap * 1.75); // minus 25% for scenarios
 		else
 		kbSetPlayerHandicap(cMyID, startingHandicap * baselineHandicap * 1.2);    // +20% boost.
 		aiSetMicroFlags(cMicroLevelHigh);
@@ -29827,7 +29971,7 @@ void main(void)
 	case cDifficultyExtreme: // Extreme
 	{
 		if (gSPC == true)
-			kbSetPlayerHandicap(cMyID, startingHandicap * baselineHandicap * 3.0); // minus 25% for scenarios
+			kbSetPlayerHandicap(cMyID, startingHandicap * baselineHandicap * 2.0); // minus 25% for scenarios
 		else
 		kbSetPlayerHandicap(cMyID, startingHandicap * baselineHandicap * 1.4);    // +40% boost.
 		aiSetMicroFlags(cMicroLevelHigh);
@@ -30206,7 +30350,7 @@ minInterval 60
 
 rule factoryUpgradeMonitor
 inactive
-minInterval 45
+minInterval 40
 {
 	int upgradePlanID = -1;
 
@@ -30300,7 +30444,7 @@ minInterval 45
 
 rule fortUpgradeMonitor
 inactive
-minInterval 90
+minInterval 40
 {
 	int upgradePlanID = -1;
 
@@ -30337,7 +30481,7 @@ minInterval 90
 
 rule agraFortUpgradeMonitor
 inactive
-minInterval 90
+minInterval 40
 {
 	int upgradePlanID = -1;
 	int agraFortType = -1;
@@ -30393,7 +30537,7 @@ minInterval 90
 
 rule shrineUpgradeMonitor
 inactive
-minInterval 60
+minInterval 40
 {
 	int upgradePlanID = -1;
 	int limit = 0;
@@ -30434,7 +30578,7 @@ minInterval 60
 
 rule dojoUpgradeMonitor
 inactive
-minInterval 60
+minInterval 40
 {
 	int upgradePlanID = -1;
 
@@ -32424,7 +32568,7 @@ minInterval 30
 
 rule capitolUpgradeMonitor
 inactive
-minInterval 30
+minInterval 40
 {
    int upgradePlanID = -1;
 
@@ -32508,7 +32652,7 @@ minInterval 30
 }
 rule autoFeedLowestAlly
 inactive
-mininterval 60
+mininterval 30
 {  
 
 	 
