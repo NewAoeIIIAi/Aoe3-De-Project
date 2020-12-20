@@ -6856,7 +6856,7 @@ minInterval 15
 				kbUnitQuerySetUnitType(fishQuery, cUnitTypeAbstractFish);
 				kbUnitQuerySetState(fishQuery, cUnitStateAny);
 				kbUnitQuerySetPosition(fishQuery, kbUnitGetPosition(flag));
-				kbUnitQuerySetMaximumDistance(fishQuery, 100.0);
+				kbUnitQuerySetMaximumDistance(fishQuery, 2400.0);
 				kbUnitQuerySetAscendingSort(fishQuery, true);
 			}
 			kbUnitQueryResetResults(fishQuery);
@@ -6882,7 +6882,7 @@ minInterval 15
 		aiEcho("*** Starting fishing plan. ***");
 
 		gFishingPlan = aiPlanCreate("Fishing plan", cPlanFish);
-		aiPlanSetDesiredPriority(gFishingPlan, 49);     // Very low
+		aiPlanSetDesiredPriority(gFishingPlan, 55);     // Very low
 		aiPlanAddUnitType(gFishingPlan, gFishingUnit, 1, 10, 200);
 		aiPlanSetEscrowID(gFishingPlan, cEconomyEscrowID);
 		aiPlanSetBaseID(gFishingPlan, kbBaseGetMainID(cMyID));
@@ -6964,7 +6964,7 @@ minInterval 20
 		if (i > 0 && planID < 0)
 		{
 			planID = aiPlanCreate("Fishing plan " + i, cPlanFish);
-			aiPlanSetDesiredPriority(planID, 49);     // Very low
+			aiPlanSetDesiredPriority(planID, 55);     // Very low
 			aiPlanSetEscrowID(planID, cEconomyEscrowID);
 			aiPlanSetBaseID(planID, mainBaseID);
 			aiPlanSetVariableVector(planID, cFishPlanLandPoint, 0, location);
@@ -7977,6 +7977,8 @@ minInterval 30
 	 xsEnableRule("delayWalls"); 
 	 xsEnableRule("delayWallsI"); 
 	 xsEnableRule("delayWallsF"); 
+	 xsEnableRule("upgradeWallConnector"); 
+	 gBuildWalls = true;
 	 xsDisableSelf();
 	}
 }
@@ -7987,6 +7989,7 @@ minInterval 10
 {
 	if ((kbGetPopCap() - kbGetPop()) < 20)
 		return;  // Don't start walls until we have pop room
+		gBuildWalls = true;
 	int wallPlanID = aiPlanCreate("WallInBase", cPlanBuildWall);
 	if (wallPlanID != -1)
 	{
@@ -8115,6 +8118,25 @@ minInterval 10
 	xsDisableSelf();
 }
 
+rule upgradeWallConnector
+inactive
+minInterval 30
+{
+
+   if (kbTechGetStatus(cTechBastion) == cTechStatusActive)
+   {
+      xsDisableSelf();
+      return;
+   }
+   
+   int WallConnector = getUnit(cUnitTypeWallConnector, cMyID, cUnitStateAlive);
+   if (WallConnector >= 0)
+   {
+      createSimpleResearchPlan(cTechBastion,WallConnector,cEconomyEscrowID, 80);
+      xsDisableSelf();	
+   }
+
+} 
 
 /* setUnitPickerPreference()
 
