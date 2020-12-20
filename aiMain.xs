@@ -1525,7 +1525,7 @@ int createSimpleAttackGoal(string name = "BUG", int attackPlayerID = -1,
 		return(-1);
 
 	//Priority.
-	aiPlanSetDesiredPriority(goalID, 90);
+	aiPlanSetDesiredPriority(goalID, 91);
 	//Attack player ID.
 	if (attackPlayerID >= 0)
 		aiPlanSetVariableInt(goalID, cGoalPlanAttackPlayerID, 0, attackPlayerID);
@@ -6754,7 +6754,7 @@ minInterval 10
       kbUnitPickResetAll(gLandUnitPicker);
 	  setUnitPickerPreference(gLandUnitPicker);
 	  xsEnableRule("siegeWeaponMonitor");
-	  xsEnableRule("delayWallsCheck"); 
+	  //xsEnableRule("delayWallsCheck"); 
 	}
 	
 }
