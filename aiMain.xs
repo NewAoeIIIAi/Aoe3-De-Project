@@ -1539,7 +1539,7 @@ int createSimpleAttackGoal(string name = "BUG", int attackPlayerID = -1,
 	//Attack.
 	aiPlanSetAttack(goalID, true);
 	aiPlanSetVariableInt(goalID, cGoalPlanGoalType, 0, cGoalPlanGoalTypeAttack);
-	aiPlanSetVariableInt(goalID, cGoalPlanAttackStartFrequency, 0, 5);
+	aiPlanSetVariableInt(goalID, cGoalPlanAttackStartFrequency, 0, 15);
 
 	//Military.
 	aiPlanSetMilitary(goalID, true);
@@ -3912,8 +3912,6 @@ void updateEscrows(void)
          break;
    }
    }
-   if (econPercent < 1.0)
-      econPercent = 1.0;
    if (econPercent > 1.0)
       econPercent = 1.0;
    if (kbGetAge() == cAge1)
@@ -5237,19 +5235,19 @@ minInterval 30
 
 			// Instead of base ID or areas, use a center position
 			aiPlanSetVariableVector(gForwardBaseBuildPlan, cBuildPlanCenterPosition, 0, location);
-			aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanCenterPositionDistance, 0, 50.0);
+			aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanCenterPositionDistance, 0, 150.0);
 
 			// Weight it to stay very close to center point.
 			aiPlanSetVariableVector(gForwardBaseBuildPlan, cBuildPlanInfluencePosition, 0, location);    // Position influence for center
-			aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluencePositionDistance, 0, 50.0);     // 100m range.
-			aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluencePositionValue, 0, 100.0);        // 100 points for center
+			aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluencePositionDistance, 0, 150.0);     // 100m range.
+			aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluencePositionValue, 0, 150.0);        // 100 points for center
 			aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluencePositionFalloff, 0, cBPIFalloffLinear);  // Linear slope falloff
 
 			// Add position influence for nearby towers
 			aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitTypeID, 0, cUnitTypeFortFrontier);   // Don't build anywhere near another fort.
 			aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitDistance, 0, 32.0);
-			aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitValue, 0, 200.0);        // -20 points per fort
-			aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitFalloff, 0, cBPIFalloffNone);  // Cliff falloff// Add position influence for nearby towers
+			aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitValue, 0, 300.0);        // -20 points per fort
+			aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitFalloff, 0, cBPIFalloffLinear);  // Cliff falloff// Add position influence for nearby towers
 			
 			aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitTypeID, 0, cUnitTypeFortFrontier);   // Don't build anywhere near another fort.
 			aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitDistance, 0, 24.0);
@@ -5668,7 +5666,7 @@ minInterval 5
 
 			// now the goal
 			// wmj -- hard coded for now, but this should most likely ramp up as the ages progress
-			aiSetMinArmySize(15);
+			aiSetMinArmySize(0);
 			/*if (gMainAttackGoal >= 0)
 			{
 				aiPlanSetVariableInt(gMainAttackGoal, cGoalPlanUnitPickerID, 0, gLandUnitPicker);
@@ -5920,7 +5918,7 @@ minInterval 15
 			aiPlanSetVariableInt(attackPlan, cAttackPlanTargetTypeID, 1, gDockUnit);
 			aiPlanSetVariableVector(attackPlan, cAttackPlanGatherPoint, 0, gNavyVec);
 			aiPlanSetVariableFloat(attackPlan, cAttackPlanGatherDistance, 0, 30.0);
-			aiPlanSetVariableInt(attackPlan, cAttackPlanRefreshFrequency, 0, 5);
+			aiPlanSetVariableInt(attackPlan, cAttackPlanRefreshFrequency, 0, 15);
 			aiPlanSetDesiredPriority(attackPlan, 48); // Above defend, fishing.  Below explore.
 			aiPlanAddUnitType(attackPlan, cUnitTypeAbstractWarShip, 1, 10, 200);
 			aiPlanAddUnitType(attackPlan, cUnitTypexpWarCanoe, 1, 10, 200);
@@ -6531,7 +6529,7 @@ minInterval 5
 		gTSFactorPoint = 10.0;
 		gTSFactorTimeToDone = 0.0;
 		gTSFactorBase = 100.0;
-		gTSFactorDanger = -40.0;
+		gTSFactorDanger = -20.0;
 		kbSetTargetSelectorFactor(cTSFactorDistance, gTSFactorDistance);
 		kbSetTargetSelectorFactor(cTSFactorPoint, gTSFactorPoint);
 		kbSetTargetSelectorFactor(cTSFactorTimeToDone, gTSFactorTimeToDone);
@@ -6756,6 +6754,7 @@ minInterval 10
       kbUnitPickResetAll(gLandUnitPicker);
 	  setUnitPickerPreference(gLandUnitPicker);
 	  xsEnableRule("siegeWeaponMonitor");
+	  xsEnableRule("delayWallsCheck"); 
 	}
 	
 }
@@ -7964,7 +7963,23 @@ minInterval 30
 //==============================================================================
 //==============================================================================
 //==============================================================================
+rule delayWallsCheck
+inactive
+minInterval 30
+{
 
+	float woodAmount = 0.0;
+
+	woodAmount = kbResourceGet(cResourceWood);
+	
+	if ((woodAmount > 4000) || (xsGetTime() > 30*60*1000))
+	{
+	 xsEnableRule("delayWalls"); 
+	 xsEnableRule("delayWallsI"); 
+	 xsEnableRule("delayWallsF"); 
+	 xsDisableSelf();
+	}
+}
 
 rule delayWalls
 inactive
@@ -7978,8 +7993,8 @@ minInterval 10
 		aiPlanSetVariableInt(wallPlanID, cBuildWallPlanWallType, 0, cBuildWallPlanWallTypeRing);
 		aiPlanAddUnitType(wallPlanID, gEconUnit, 0, 1, 1);
 		aiPlanSetVariableVector(wallPlanID, cBuildWallPlanWallRingCenterPoint, 0, kbBaseGetLocation(cMyID, kbBaseGetMainID(cMyID)));
-		aiPlanSetVariableFloat(wallPlanID, cBuildWallPlanWallRingRadius, 0, 30.0);
-		aiPlanSetVariableInt(wallPlanID, cBuildWallPlanNumberOfGates, 0, 2);
+		aiPlanSetVariableFloat(wallPlanID, cBuildWallPlanWallRingRadius, 0, 80.0);
+		aiPlanSetVariableInt(wallPlanID, cBuildWallPlanNumberOfGates, 0, 12);
 		aiPlanSetBaseID(wallPlanID, kbBaseGetMainID(cMyID));
 		aiPlanSetEscrowID(wallPlanID, cEconomyEscrowID);
 		aiPlanSetDesiredPriority(wallPlanID, 80);
@@ -7992,6 +8007,57 @@ minInterval 10
 	xsDisableSelf();
 }
 
+rule delayWallsI
+inactive
+minInterval 10
+{
+	if ((kbGetPopCap() - kbGetPop()) < 20)
+		return;  // Don't start walls until we have pop room
+	int wallPlanID = aiPlanCreate("WallInBase", cPlanBuildWall);
+	if (wallPlanID != -1)
+	{
+		aiPlanSetVariableInt(wallPlanID, cBuildWallPlanWallType, 0, cBuildWallPlanWallTypeRing);
+		aiPlanAddUnitType(wallPlanID, gEconUnit, 0, 1, 1);
+		aiPlanSetVariableVector(wallPlanID, cBuildWallPlanWallRingCenterPoint, 0, kbBaseGetLocation(cMyID, kbBaseGetMainID(cMyID)));
+		aiPlanSetVariableFloat(wallPlanID, cBuildWallPlanWallRingRadius, 0, 50.0);
+		aiPlanSetVariableInt(wallPlanID, cBuildWallPlanNumberOfGates, 0, 8);
+		aiPlanSetBaseID(wallPlanID, kbBaseGetMainID(cMyID));
+		aiPlanSetEscrowID(wallPlanID, cEconomyEscrowID);
+		aiPlanSetDesiredPriority(wallPlanID, 80);
+		aiPlanSetActive(wallPlanID, true);
+		sendStatement(cPlayerRelationAlly, cAICommPromptToAllyWhenIWallIn);
+		//Enable our wall gap rule, too.
+		xsEnableRule("fillInWallGapsI");
+		aiEcho("Enabling Wall Plan for Base ID: " + kbBaseGetMainID(cMyID));
+	}
+	xsDisableSelf();
+}
+
+rule delayWallsF
+inactive
+minInterval 10
+{
+	if ((kbGetPopCap() - kbGetPop()) < 20)
+		return;  // Don't start walls until we have pop room
+	int wallPlanID = aiPlanCreate("WallInBase", cPlanBuildWall);
+	if (wallPlanID != -1)
+	{
+		aiPlanSetVariableInt(wallPlanID, cBuildWallPlanWallType, 0, cBuildWallPlanWallTypeRing);
+		aiPlanAddUnitType(wallPlanID, gEconUnit, 0, 1, 1);
+		aiPlanSetVariableVector(wallPlanID, cBuildWallPlanWallRingCenterPoint, 0, gForwardBaseLocation);
+		aiPlanSetVariableFloat(wallPlanID, cBuildWallPlanWallRingRadius, 0, 30.0);
+		aiPlanSetVariableInt(wallPlanID, cBuildWallPlanNumberOfGates, 0, 5);
+		aiPlanSetBaseID(wallPlanID, kbBaseGetMainID(cMyID));
+		aiPlanSetEscrowID(wallPlanID, cEconomyEscrowID);
+		aiPlanSetDesiredPriority(wallPlanID, 80);
+		aiPlanSetActive(wallPlanID, true);
+		sendStatement(cPlayerRelationAlly, cAICommPromptToAllyWhenIWallIn);
+		//Enable our wall gap rule, too.
+		xsEnableRule("fillInWallGapsF");
+		aiEcho("Enabling Wall Plan for Base ID: " + kbBaseGetMainID(cMyID));
+	}
+	xsDisableSelf();
+}
 
 rule turtleUp
 inactive
@@ -8078,6 +8144,8 @@ void setUnitPickerPreference(int upID = -1)
          return;     // This should never happen, it should be set when the unitPickSource is set.
       
       kbUnitPickResetAll(gLandUnitPicker);
+	  
+	  
 	  
 	  if (kbGetCiv() == cCivBritish)
     {      
@@ -8587,10 +8655,22 @@ void setUnitPickerPreference(int upID = -1)
 		  
           case cCivXPAztec:
           {                                      
+             //kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypexpCoyoteMan, heavyCavalryFactor);
+             //kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypexpMacehualtin, lightInfantryFactor);
+			 
+             if (kbGetAge() < cAge5)
+			{                                      
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypexpCoyoteMan, heavyCavalryFactor);
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypexpMacehualtin, lightInfantryFactor);
+			}
+			 else
+			{                                    
+             kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypexpCoyoteMan, heavyCavalryFactor*0);
+             kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypexpMacehualtin, lightInfantryFactor*0);
+             kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypexpEagleKnight, coreUnitFactor);  
+			}			 
 			 
-             if (kbGetAge() == cAge2)
+			 if (kbGetAge() == cAge2)
 			 {  
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypexpPumaMan, TercioFactor);  
 			 }
@@ -9447,7 +9527,7 @@ minInterval 60
          aiPlanSetVariableInt(attackPlan, cAttackPlanTargetTypeID, 2, cUnitTypeBuilding);
          aiPlanSetVariableVector(attackPlan, cAttackPlanGatherPoint, 0, siegeWeaponVec);
          aiPlanSetVariableFloat(attackPlan, cAttackPlanGatherDistance, 0, 100.0);
-         aiPlanSetVariableInt(attackPlan, cAttackPlanRefreshFrequency, 0, 5);
+         aiPlanSetVariableInt(attackPlan, cAttackPlanRefreshFrequency, 0, 15);
          aiPlanSetDesiredPriority(attackPlan, 99);          
          aiPlanAddUnitType(attackPlan, gSiegeWeaponUnit, numUnit, numUnit, numUnit);
          //aiPlanSetUnitStance(attackPlan, cUnitStanceAggressive);
@@ -10146,7 +10226,7 @@ minInterval 30
 		aiPlanSetVariableFloat(healerPlan, cDefendPlanGatherDistance, 0, 10.0);
 		aiPlanSetInitialPosition(healerPlan, kbBaseGetLocation(cMyID, kbBaseGetMainID(cMyID)));
 		aiPlanSetUnitStance(healerPlan, cUnitStanceDefensive);
-		aiPlanSetVariableInt(healerPlan, cDefendPlanRefreshFrequency, 0, 5);
+		aiPlanSetVariableInt(healerPlan, cDefendPlanRefreshFrequency, 0, 15);
 		aiPlanSetVariableInt(healerPlan, cDefendPlanAttackTypeID, 0, cUnitTypeUnit);
 		aiPlanSetDesiredPriority(healerPlan, 95);  // High priority to keep units from being sucked into other plans
 		aiPlanSetActive(healerPlan);
@@ -10180,7 +10260,7 @@ minInterval 30
 // Determine who we should attack, checking control variables
 //==============================================================================
 rule mostHatedEnemy
-minInterval 30
+minInterval 15
 active
 {
    if ((cvPlayerToAttack > 0) && (kbHasPlayerLost(cvPlayerToAttack) == false))
@@ -10239,7 +10319,7 @@ active
           if (aiGetMostHatedPlayerID() != i)
             aiEcho("****  Changing most hated enemy from " + aiGetMostHatedPlayerID() + " to " + i);
           aiSetMostHatedPlayerID(i);
-          if (gLandUnitPicker >= 0)
+          //if (gLandUnitPicker >= 0)
             kbUnitPickSetEnemyPlayerID(gLandUnitPicker, i); // Update the unit picker
         }
       }
@@ -10742,7 +10822,8 @@ void initMil(void)
       gLandSecondaryArmyUnit = cUnitTypedeJungleBowman;
       gLandTertiaryArmyUnit = cUnitTypedeJungleBowman;
 	  gAbstractCounterArtilleryUnit = cUnitTypedeSlinger;
-	  gSiegeWeaponUnit = cUnitTypedeSlinger;
+	  //gSiegeWeaponUnit = cUnitTypedeSlinger;
+	  gSiegeWeaponUnit = -1;
 	  gAbstractArtilleryUnit = -1;
 	  gAbstractAssassinUnit = -1;
       gStableUnit = -1;
@@ -10776,7 +10857,7 @@ minInterval 13
 		aiPlanSetVariableFloat(gLandDefendPlan0, cDefendPlanGatherDistance, 0, 20.0);
 		aiPlanSetInitialPosition(gLandDefendPlan0, kbBaseGetLocation(cMyID, kbBaseGetMainID(cMyID)));
 		aiPlanSetUnitStance(gLandDefendPlan0, cUnitStanceDefensive);
-		aiPlanSetVariableInt(gLandDefendPlan0, cDefendPlanRefreshFrequency, 0, 5);
+		aiPlanSetVariableInt(gLandDefendPlan0, cDefendPlanRefreshFrequency, 0, 15);
 		aiPlanSetVariableInt(gLandDefendPlan0, cDefendPlanAttackTypeID, 0, cUnitTypeUnit); // Only units
 		aiPlanSetDesiredPriority(gLandDefendPlan0, 10);    // Very low priority, don't steal from attack plans
 		aiPlanSetActive(gLandDefendPlan0);
@@ -10797,7 +10878,7 @@ minInterval 13
 		aiPlanSetVariableFloat(gLandReservePlan, cDefendPlanGatherDistance, 0, 20.0);
 		aiPlanSetInitialPosition(gLandReservePlan, kbBaseGetLocation(cMyID, kbBaseGetMainID(cMyID)));
 		aiPlanSetUnitStance(gLandReservePlan, cUnitStanceDefensive);
-		aiPlanSetVariableInt(gLandReservePlan, cDefendPlanRefreshFrequency, 0, 5);
+		aiPlanSetVariableInt(gLandReservePlan, cDefendPlanRefreshFrequency, 0, 15);
 		aiPlanSetVariableInt(gLandReservePlan, cDefendPlanAttackTypeID, 0, cUnitTypeUnit); // Only units
 		aiPlanSetDesiredPriority(gLandReservePlan, 5);    // Very very low priority, gather unused units.
 		aiPlanSetActive(gLandReservePlan);
@@ -11842,9 +11923,9 @@ minInterval 3
 		}
 	}
 	
-	if (kbGetAge() > cAge1)
+	if ((kbGetAge() > cAge1) && (cMyCiv == cCivDESwedish))
 	{
-	if ((cMyCiv == cCivDESwedish) && (kbGetBuildLimit(cMyID, cUnitTypedeTorp) > kbUnitCount(cMyID, cUnitTypedeTorp, cUnitStateAlive)))
+	if ((kbGetBuildLimit(cMyID, cUnitTypedeTorp) > kbUnitCount(cMyID, cUnitTypedeTorp, cUnitStateAlive)) && (kbTechGetStatus(cTechDEHCBlueberries) == cTechStatusActive))
 		{
 		houseBuildPlanID = createSimpleBuildPlan(cUnitTypedeTorp, 1, 60, true, cEconomyEscrowID, kbBaseGetMainID(cMyID), 1);
 		aiEcho("Starting a new house build plan.");
@@ -15490,11 +15571,11 @@ int chooseEuropeanPolitician()
 		for (i = 0; < numChoices)
 		{
 			politician = xsArrayGetInt(gAgeUpPoliticians, i);
-				if ((politician == cTechDEPoliticianMercContractor) && (xsGetTime() > 24 * 60 * 1000))
+				if ((politician == cTechDEPoliticianMercContractor) && (xsGetTime() > 20 * 60 * 1000))
 				{
 					xsArraySetInt(gPoliticianScores, i, xsArrayGetInt(gPoliticianScores, i) + 300);
 				}
-				if ((politician == cTechDEPoliticianMercContractor) && (xsGetTime() < 24 * 60 * 1000))
+				if ((politician == cTechDEPoliticianMercContractor) && (xsGetTime() < 20 * 60 * 1000))
 				{
 					xsArraySetInt(gPoliticianScores, i, xsArrayGetInt(gPoliticianScores, i) + 20);
 				}
@@ -15521,7 +15602,7 @@ int chooseEuropeanPolitician()
 					if (aiTreatyActive() == true)
 					xsArraySetInt(gPoliticianScores, i, xsArrayGetInt(gPoliticianScores, i) - 900);
 					else
-				if (((xsGetTime() <= 24 * 60 * 1000 || gTimeToFarm == true || gTimeForPlantations == true)))
+				if (((xsGetTime() <= 20 * 60 * 1000 || gTimeToFarm == true || gTimeForPlantations == true)))
 					xsArraySetInt(gPoliticianScores, i, xsArrayGetInt(gPoliticianScores, i) + 15);
 					else
 					xsArraySetInt(gPoliticianScores, i, xsArrayGetInt(gPoliticianScores, i) + 0);
@@ -16160,8 +16241,8 @@ minInterval 1
                    (techName == "HCShipWoodCrates3") ||
                    (techName == "HCShipCoinCrates3"))
                   xsArraySetInt(gCardPriorities, i, 10);  // Resource crates, 7 for 700 res shipments for portuguese
-			   else
-                  xsArraySetInt(gCardPriorities, i, 6);  // Resource crates, 6 otherwise
+			   //else
+               //   xsArraySetInt(gCardPriorities, i, 6);  // Resource crates, 6 otherwise
 			   if ((aiHCCardsGetCardAgePrereq(i) >= cAge3) &&
                    (aiHCCardsGetCardCount(i) >= 1))
 			   {  // Demote ifinite age 3+ resource crate shipments to prio 5-6
@@ -16208,7 +16289,7 @@ minInterval 1
                 (techName == "HCRoyalDecreeGerman") ||
                 (techName == "HCRoyalDecreeOttoman") ||
                 (techName == "HCRoyalDecreePortuguese") ||
-                (techName == "HCShipJanissaries1") ||
+                //(techName == "HCShipJanissaries1") ||
                 (techName == "HCRoyalDecreeSpanish") ||
                 (techName == "DEHCRoyalDecreeSwedish") ||
                 (techName == "DEHCPlatoonFire") ||
@@ -16227,8 +16308,8 @@ minInterval 1
                 (techName == "DEHCSveaLifeguard") ||
                 (techName == "DEHCSveaLifeguard") ||
                 (techName == "DEHCCaseShot") ||
-                (techName == "YPHCShipUrumi1") ||
-                (techName == "YPHCShipUrumi2") ||
+                //(techName == "YPHCShipUrumi1") ||
+                //(techName == "YPHCShipUrumi2") ||
                 (techName == "YPHCShipUrumiTeam") ||
                 (techName == "YPHCShipUrumiRegiment") ||
                 (techName == "HCAdvancedArsenal") ||
@@ -16256,6 +16337,8 @@ minInterval 1
                    (techName == "ypHCShipWoodCrates4") ||
                    (techName == "HCXPShipMacehualtins1") ||
                    (techName == "HCXPShipMacehualtins3") ||
+                   (techName == "HCXPOnikare") ||
+                   (techName == "HCXPSiouxNakotaSupport") ||
                 (techName == "HCRidingSchool") ||
                 (techName == "YPHCFencingSchoolIndians") ||
                 (techName == "YPHCRidingSchoolIndians") ||
@@ -16308,7 +16391,7 @@ minInterval 1
                 (techName == "YPHCManchuCombat") ||
 				(techName == "YPHCYumiDamage") ||
 				(techName == "YPHCAshigaruDamage") ||
-				(techName == "YPHCShipAshigaru2") ||
+				//(techName == "YPHCShipAshigaru2") ||
 				(techName == "YPHCAshigaruAntiCavalryDamage") ||
 				(techName == "YPHCYumiRange") ||
 				(techName == "YPHCNaginataAntiInfantryDamage") ||
@@ -16423,8 +16506,8 @@ minInterval 1
                  (techName == "HCXPThoroughbreds") ||
                  (techName == "HCCavalryCombatFrench") ||
                  (techName == "HCHandCavalryDamageFrenchTeam") ||
-                 (techName == "HCXPChinampa2") ||
-		 (techName == "HCXPChinampa1") ||
+                 //(techName == "HCXPChinampa2") ||
+		 //(techName == "HCXPChinampa1") ||
                  (techName == "HCXPKnightCombat") ||
                  (techName == "HCXPWarHutTraining") ||
                  (techName == "HCXPCavalryDamageIroquois") ||
@@ -16461,7 +16544,7 @@ minInterval 1
                  (techName == "HCXPCommandSkill") ||
 		 (techName == "HCXPWarChiefSioux1") ||		 
 		 (techName == "HCXPNewWaysSioux") ||
-		 (techName == "HCXPShipWarHutTravois1") ||
+		 //(techName == "HCXPShipWarHutTravois1") ||
 		 (techName == "HCXPCavalryDamageSioux") ||
 		 (techName == "HCXPCavalryHitpointsSioux") ||
 		 (techName == "HCXPCavalryCombatSioux") ||
@@ -16730,7 +16813,19 @@ minInterval 1
 	           (techName == "YPHCShipMorutaru1") ||
 			   (techName == "HCXPEconomicTheory") ||
 			   (techName == "HCShipFoodCrates1") ||
-			   //(techName == "HCShipCoinCrates1") ||
+			   (techName == "HCShipCoinCrates1") ||
+			   (techName == "HCXPBuffaloTeam") ||
+			   (techName == "HCXPAdoption") ||
+			   (techName == "YPHCSpawnRefugees1") ||
+			   (techName == "YPHCSpawnRefugees2") ||
+			   (techName == "YPHCSpawnMigrants1") ||
+			   (techName == "HCXPShipTradingPostTravois") ||
+			   (techName == "HCXPShipDogsoldiers3") ||
+		       (techName == "HCXPTownDance") ||
+		       (techName == "HCXPShipAxeRidersRepeat") ||
+			   (techName == "HCXPScorchedEarth") ||
+			   (techName == "HCXPRuthlessness") ||
+		       (techName == "HCXPGreatHunter") ||
 	           (techName == "YPHCShipMorutaru2"))))
 	     {  // Decrease priority of specific cards to be avoided.
 		    cardPriority = xsArrayGetInt(gCardPriorities, i);
@@ -16886,7 +16981,7 @@ minInterval 1
 		       xsArraySetInt(gCardPriorities, i, cardPriority);
 		    }
 	     }
-		 else if (btBiasTrade <= -0.5)
+		 else if (btBiasTrade <= 0.0)
 		 {  // Decrease priority of trade related cards when we have a trade aversion.
             if ((xsArrayGetInt(gCardPriorities, i) > 0) &&
 			    (unit == cUnitTypeypTradingPostWagon) ||
@@ -16982,20 +17077,25 @@ minInterval 1
 		      ((techName == "HCRoyalMint") ||
 		       (techName == "HCRoyalMintGerman") ||
 		       (techName == "YPHCRoyalMintIndians") ||
-		       (techName == "HCXPAztecMining") ||
-		       //(techName == "HCXPChinampa1") ||
+		       //(techName == "HCXPAztecMining") ||
+		       (techName == "HCXPChinampa1") ||
 		       (techName == "HCXPChinampa2") ||
-               (techName == "DEHCSveaLifeguard") ||
+		       (techName == "YPHCShipRicePaddyWagon1") ||
+		       (techName == "YPHCShipRicePaddyWagon2") ||
+		       (techName == "YPHCShipRicePaddyWagon3") ||
+		       (techName == "HCFoodSilos") ||
 		       (techName == "HCRefrigeration") ||
-		       (techName == "HCShipCossacks4") ||
+		       (techName == "HCSustainableAgriculture") ||
+               (techName == "DEHCSveaLifeguard") ||
+		       //(techName == "HCShipCossacks4") ||
 		       (techName == "HCXPExtensiveFortifications2") ||
                 (techName == "DEHCSveaLifeguard") ||
-		       (techName == "HCShipStrelets1") ||
+		       //(techName == "HCShipStrelets1") ||
 		       (techName == "HCRefrigerationGerman"))))
 		 {
 		    cardPriority = xsArrayGetInt(gCardPriorities, i);
-		    if (cardPriority < 5)
-		       cardPriority = 5;
+		    if (cardPriority < 7)
+		       cardPriority = 7;
 		    cardPriority = cardPriority + 1;
 		    if (cardPriority > 10)
 		       cardPriority = 10;
@@ -17005,26 +17105,38 @@ minInterval 1
 		 // Raise priority of specific cards important to the AI. Rush version
          if ((aiGetWorldDifficulty() >= cDifficultySandbox) &&
 		     ((xsArrayGetInt(gCardPriorities, i) < 10) &&
-		      ((techName == "YPHCShipQiangPikeman2") ||
-		       (techName == "HCExtensiveFortifications") ||
+		      //((techName == "YPHCShipQiangPikeman2") ||
+		       ((techName == "HCExtensiveFortifications") ||
 		       (techName == "HCXPExtensiveFortifications2") ||
-		       (techName == "YPHCShipChuKoNu1") ||
+		       //(techName == "YPHCShipChuKoNu1") ||
 		       (techName == "YPHCShipMandarinDuckSquad") ||
-		       (techName == "HCShipCrossbowmen1") ||
-		       (techName == "HCShipPikemen1") ||
-		       (techName == "YPHCShipSepoy1") ||
+		       //(techName == "HCShipCrossbowmen1") ||
+		       //(techName == "HCShipPikemen1") ||
+		       //(techName == "YPHCShipSepoy1") ||
                 (techName == "DEHCSveaLifeguard") ||
                (techName == "YPHCShipYumi1") ||
 		       (techName == "YPHCShipAshigaru2") ||
 		       (techName == "HCShipCossacks4") ||
 		       (techName == "HCShipStrelets1") ||
-		       (techName == "HCShipUhlans1") ||
+		       (techName == "HCShipCoinCrates3") ||
+		       (techName == "HCShipWoodCrates3") ||
+		       (techName == "HCShipFoodCrates3") ||
+		       (techName == "HCShipCoinCrates4") ||
+		       (techName == "HCShipWoodCrates4") ||
+		       (techName == "HCShipFoodCrates4") ||
+		       (techName == "HCShipCoinCrates3German") ||
+		       (techName == "HCShipWoodCrates3German") ||
+		       (techName == "HCShipFoodCrates3German") ||
+		       (techName == "HCShipCoinCrates4German") ||
+		       (techName == "HCShipWoodCrates4German") ||
+		       (techName == "HCShipFoodCrates4German") ||
+		       //(techName == "HCShipUhlans1") ||
                 (techName == "DEHCSveaLifeguard") ||
-		       (techName == "HCShipHussars1"))))
+		       (techName == "HCShipCoinCrates4"))))
 		 {
 		    cardPriority = xsArrayGetInt(gCardPriorities, i);
-		    if (cardPriority < 6)
-		       cardPriority = 6;
+		    if (cardPriority < 8)
+		       cardPriority = 8;
 		    cardPriority = cardPriority + 1;
 		    if (cardPriority > 10)
 		       cardPriority = 10;
@@ -17504,7 +17616,7 @@ minInterval 1
       cardsPicked = 0;
       addedVillager = false;
       int addedCrates = 0;
-      toPick = 2; // + ((btRushBoom+1.0) * 1.51);
+      toPick = 3; // + ((btRushBoom+1.0) * 1.51);
       // Next, age 2 non-military cards.  1 for a rusher, up to 4 for a boomer.
       for (i = 0; < toPick)
       {
@@ -23604,7 +23716,7 @@ minInterval 10
 	}
 	else
 	{
-		      if ((xsGetTime() > 10 * 60 * 1000) && (kbGetAge() == cAge2))
+		      if ((xsGetTime() > 12 * 60 * 1000) && (kbGetAge() == cAge2))
 		      {
 			         ageUpPriority = 50;
 		      }
@@ -23612,11 +23724,11 @@ minInterval 10
 		      {
 			         ageUpPriority = 55;
 		      }
-		      if ((xsGetTime() > 14 * 60 * 1000) && (kbGetAge() == cAge3))
+		      if ((xsGetTime() > 18 * 60 * 1000) && (kbGetAge() == cAge3))
 		      {
 			         ageUpPriority = 50;
 		      }
-		      if ((xsGetTime() > 18 * 60 * 1000) && (kbGetAge() == cAge3))
+		      if ((xsGetTime() > 20 * 60 * 1000) && (kbGetAge() == cAge3))
 		      {
 			         ageUpPriority = 55;
 		      }
@@ -23962,8 +24074,8 @@ void shipGrantedHandler(int parm = -1) // Event handler
 		{
 			if ((kbUnitCount(cMyID, cUnitTypeOutpostWagon, cUnitStateABQ) + kbUnitCount(cMyID, cUnitTypeOutpost, cUnitStateAlive)) < gNumTowers)
 				totalValue = 600.0 * qtyAvail;
-			if (homeBaseUnderAttack == true)
-				totalValue = 0.0;
+			//if (homeBaseUnderAttack == true)
+			//	totalValue = 0.0;
 			break;
 		}
 		case cUnitTypeYPCastleWagon:
@@ -23971,7 +24083,7 @@ void shipGrantedHandler(int parm = -1) // Event handler
 			if ((kbUnitCount(cMyID, cUnitTypeYPCastleWagon, cUnitStateABQ) + kbUnitCount(cMyID, cUnitTypeypCastle, cUnitStateAlive)) < gNumTowers)
 				totalValue = 900.0 * qtyAvail;
 			if (homeBaseUnderAttack == true)
-				totalValue = 0.0;
+			//	totalValue = 0.0;
 			break;
 		}
 		case cUnitTypeFortWagon:
@@ -24036,24 +24148,24 @@ void shipGrantedHandler(int parm = -1) // Event handler
 				(unitType == cUnitTypeSettlerNative) ||
 				(unitType == cUnitTypeypSettlerAsian))
 			{  // Handle villagers.
-				totalValue = totalValue * 1.65; // Make sure we send villagers early to get the most value out of them.
+				totalValue = totalValue * 2.5; // Make sure we send villagers early to get the most value out of them.
 				if ((kbGetAge() >= cAge2) || (econBias > 1.0))
 					totalValue = totalValue * econBias; // Boomers prefer this, rushers rather skip (except in age 1).
-				if (homeBaseUnderAttack == true)
-					totalValue = 1.0; // Tiny...ANYTHING else is better
+				//if (homeBaseUnderAttack == true)
+				//	totalValue = 1.0; // Tiny...ANYTHING else is better
 				if (getSettlerShortfall() < qtyAvail)  // We have enough settlers
 					totalValue = 190.0;
 			}
 			if (tech == cTechDEHCBlueberries)
 			{  // Handle villagers.
-				totalValue = totalValue * 1.55;
+				totalValue = totalValue * 3.4+400;
 			}
 			
 			if (tech == cTechDEHCBlackberries)
 			{
 			if (16 < kbUnitCount(cMyID, cUnitTypedeTorp, cUnitStateAlive))
 			{  // Handle villagers.
-				totalValue = totalValue * 1.75;
+				totalValue = totalValue * 1.0;
 			}
 			}
 
@@ -24119,9 +24231,9 @@ void shipGrantedHandler(int parm = -1) // Event handler
 				if ((aiPlanGetIDByTypeAndVariableType(cPlanBuild, cBuildPlanBuildingTypeID, gPlantationUnit) >= 1) ||
 					(kbUnitCount(cMyID, gPlantationUnit, cUnitStateAlive) >= 1))
 					totalValue = 1110.0;
-				else if ((tech != cTechHCRumDistilleryTeam) ||
-					(getAllyCount() <= 0))
-					totalValue = 1.1;
+				//else if ((tech != cTechHCRumDistilleryTeam) ||
+				//	(getAllyCount() <= 0))
+				//	totalValue = 1.1;
 			}
 
 
@@ -24188,11 +24300,12 @@ void shipGrantedHandler(int parm = -1) // Event handler
 				(tech == cTechHCRoyalDecreeRussian) ||
 				(tech == cTechHCRoyalDecreeSpanish))
 			{  // Handle 'Royal Decree'.
-				if ((homeBaseUnderAttack == true) || (kbUnitCount(cMyID, cUnitTypeChurch, cUnitStateAlive) < 1) || (kbGetAge() < cAge2))
-				{
-					totalValue = 1.0;
-				}
-				else if (kbGetAge() >= cAge4)
+				//if ((homeBaseUnderAttack == true) || (kbUnitCount(cMyID, cUnitTypeChurch, cUnitStateAlive) < 1) || (kbGetAge() < cAge2))
+				//{
+				//	totalValue = 1.0;
+				//}
+				//else
+				if (kbGetAge() >= cAge4)
 				{
 					totalValue = 1500.0; // High priority in age4, default otherwise.
 					if (cMyCiv == cCivGermans)
@@ -24203,9 +24316,10 @@ void shipGrantedHandler(int parm = -1) // Event handler
 			if ((tech == cTechHCAdvancedArsenal) ||
 				(tech == cTechHCAdvancedArsenalGerman))
 			{  // Handle 'Advanced Arsenal'.
-				if ((homeBaseUnderAttack == true) || (kbGetAge() == cAge1))
-					totalValue = 1.0;
-				else if (kbUnitCount(cMyID, cUnitTypeArsenal, cUnitStateAlive) < 1)
+				//if ((homeBaseUnderAttack == true) || (kbGetAge() == cAge1))
+				//	totalValue = 1.0;
+				//else
+				if (kbUnitCount(cMyID, cUnitTypeArsenal, cUnitStateAlive) < 1)
 					totalValue = 0.0;
 				else if (kbGetAge() >= cAge4)
 				{
@@ -24217,16 +24331,16 @@ void shipGrantedHandler(int parm = -1) // Event handler
 
 			if (tech == cTechHCXPNewWaysIroquois)
 			{  // Handle 'New Ways' (Iroquois).
-				if ((homeBaseUnderAttack == true) || (kbUnitCount(cMyID, cUnitTypeLonghouse, cUnitStateAlive) < 1) || (kbGetAge() < cAge2))
-					totalValue = 1.0;
-				else if (kbGetAge() >= cAge4)
+				//if ((homeBaseUnderAttack == true) || (kbUnitCount(cMyID, cUnitTypeLonghouse, cUnitStateAlive) < 1) || (kbGetAge() < cAge2))
+				//	totalValue = 1.0;
+				//else if (kbGetAge() >= cAge4)
 					totalValue = 1500.0; // High priority in age4, default otherwise.
 			}
 			if (tech == cTechHCXPNewWaysSioux)
 			{  // Handle 'New Ways' (Sioux).
-				if ((homeBaseUnderAttack == true) || (kbUnitCount(cMyID, cUnitTypeTeepee, cUnitStateAlive) < 1) || (kbGetAge() < cAge2))
-					totalValue = 1.0;
-				else if (kbGetAge() >= cAge4)
+				//if ((homeBaseUnderAttack == true) || (kbUnitCount(cMyID, cUnitTypeTeepee, cUnitStateAlive) < 1) || (kbGetAge() < cAge2))
+				//	totalValue = 1.0;
+				//else if (kbGetAge() >= cAge4)
 					totalValue = 1500.0; // High priority in age4, default otherwise.
 			}
 
@@ -24245,11 +24359,12 @@ void shipGrantedHandler(int parm = -1) // Event handler
 				(tech == cTechHCBanks2)) &&
 				(kbUnitCount(cMyID, cUnitTypeBank, cUnitStateAlive) >= kbGetBuildLimit(cMyID, cUnitTypeBank)))
 				totalValue = 1510.0;
-			else if (((tech == cTechHCBanks1) ||
+			/*else if (((tech == cTechHCBanks1) ||
 				(tech == cTechHCBanks2)) &&
 				((kbUnitCount(cMyID, cUnitTypeBank, cUnitStateAlive) < kbGetBuildLimit(cMyID, cUnitTypeBank)) &&
 				(kbUnitCount(cMyID, cUnitTypeBank, cUnitStateAlive) < 1)))
 				totalValue = 1.0;
+				*/
 
 			if (tech == cTechHCGermantownFarmers && gTimeToFarm == false)
 				totalValue = 1.0;
@@ -24288,19 +24403,19 @@ void shipGrantedHandler(int parm = -1) // Event handler
 						totalValue = 1000.0;
 				}
 				if (tech == cTechDEHCREVTurkuAcademy)
-					totalValue = 1000.0;
+					totalValue = 3000.0;
 				if (tech == cTechDEHCREVBlackberries)
-					totalValue = 115.0 * kbUnitCount(cMyID, gHouseUnit, cUnitStateAlive);
+					totalValue = 150.0 * kbUnitCount(cMyID, gHouseUnit, cUnitStateAlive);
 				if (tech == cTechDEHCREVShipXhosaFoods)
 					totalValue = 900.0; // exclude the herdables
 				if (tech == cTechDEHCREVHuguenots)
-					totalValue = 1000.0; // Allow coureurs to be trained
+					totalValue = 3000.0; // Allow coureurs to be trained
 				if (tech == cTechDEHCREVShipHomesteadWagons)
 				{
 					if ((aiPlanGetIDByTypeAndVariableType(cPlanBuild, cBuildPlanBuildingTypeID, gFarmUnit) >= 0 ||
 						aiPlanGetIDByTypeAndVariableType(cPlanBuild, cBuildPlanBuildingTypeID, gPlantationUnit) >= 0) &&
 						xsArrayGetFloat(gResourceNeeds, cResourceWood) >= 600.0)
-						totalValue = 2000.0;
+						totalValue = 1600.0;
 				}
 			}
 
@@ -24317,17 +24432,17 @@ void shipGrantedHandler(int parm = -1) // Event handler
 					}
 					case cAge2:
 					{
-						totalValue = 300.0;
+						totalValue = 250.0;
 						break;
 					}
 					case cAge3:
 					{
-						totalValue = 400.0;
+						totalValue = 300.0;
 						break;
 					}
 					case cAge4:
 					{
-						totalValue = 500.0;
+						totalValue = 350.0;
 						break;
 					}
 					case cAge5:
@@ -24513,18 +24628,18 @@ void shipGrantedHandler(int parm = -1) // Event handler
 
 		if ((homeBaseUnderAttack == true) &&
 			(isMilitaryUnit == true))
-			totalValue = totalValue * 1.5; // Prioritize military units when under attack.
+			totalValue = totalValue * 1.1; // Prioritize military units when under attack.
 		else if ((isMilitaryUnit == true) &&
-			(aiHCDeckGetCardCount(gDefaultDeck, i) >= 0) &&
+			(aiHCDeckGetCardCount(gDefaultDeck, i) > 2) &&
 			(aiTreatyActive() == false))
-			totalValue = totalValue * 0.9; // Higher preference on limited military unit shipments when fighting is possible.
+			totalValue = totalValue * 0.5; // Higher preference on limited military unit shipments when fighting is possible.
 		//else 
-		if ((aiHCDeckGetCardCount(gDefaultDeck, i) == -1) &&
+		if ((aiHCDeckGetCardCount(gDefaultDeck, i) > 2) &&
 			//(totalValue >= 200.0) &&
 			(kbGetAge() > cAge1) &&
 			(gRevolutionType == 0))
 		{  // Otherwise prefer to get limited shipments before infinite ones.
-			totalValue = ageReq*.5;
+			totalValue = ageReq*.2;
 			if ((flags & cHCCardFlagResourceCrate) == cHCCardFlagResourceCrate)
 			{  // Prioritize inf resource crates vs inf unit shipments.
 				if ((totalResources >= 1600.0) && ((econBias < 1.0) || (totalResources >= 3200.0)))
@@ -24544,7 +24659,7 @@ void shipGrantedHandler(int parm = -1) // Event handler
 	}
 	
 		if (tech == cTechDEHCREVWanderlust)
-			totalValue = totalValue * 1.75;
+			totalValue = totalValue * 1.10;
 
 	if ((agingUp() == true) &&
 		(homeBaseUnderAttack == false) &&
@@ -24563,10 +24678,33 @@ void shipGrantedHandler(int parm = -1) // Event handler
 	//(aiHCCardsGetCardCount(i) < 0)
 	//(aiHCDeckGetCardCount(gDefaultDeck, i) 
    
-   if ((aiHCDeckGetCardCount(gDefaultDeck, i)  == -1) && (kbGetAge() > cAge1))
+   if (aiHCCardsGetCardCount(i) > 0) // && (kbGetAge() >= cAge1))
    {
-   totalValue = totalValue * 0.50;
+   totalValue = 0.0;
    }
+   
+   if (aiHCDeckGetCardCount(gDefaultDeck, i)  > 0) // && (kbGetAge() >= cAge1))
+   {
+   totalValue = 0.0;
+   }
+   
+   if (aiHCCardsGetCardCount(i) == -1) // && (kbGetAge() >= cAge1))
+   {
+   totalValue = 0.0;
+   }
+   
+   if (aiHCDeckGetCardCount(gDefaultDeck, i) == -1) // && (kbGetAge() >= cAge1))
+   {
+   totalValue = 0.0;
+   }
+   
+   if (aiHCDeckGetCardCount(gDefaultDeck, i) == -1) // && (kbGetAge() >= cAge1))
+   {
+   totalValue = 0.0;
+   }
+   
+   if ((tech == cTechYPHCShipFlyingCrow2) || (tech == cTechHCShipWoodCrates1) && (kbGetAge() >= cAge2))
+   totalValue = totalValue * 0.25;
 }
 
 //==============================================================================
@@ -28288,7 +28426,7 @@ void scoreOpportunity(int oppID = -1)
 //==============================================================================
 rule attackManager
 inactive
-minInterval 1
+minInterval 15
 {
    static int baseQuery = -1;
    static int baseEnemyQuery = -1;
@@ -28440,76 +28578,76 @@ minInterval 1
             {
                location = kbUnitGetPosition(unitID);
                if (getUnitByLocation(cUnitTypeNativeSocket, 0, cUnitStateAlive, location, 10.0) >= 0)
-                  baseAssets = baseAssets + 400.0;
+                  baseAssets = baseAssets + 800.0;
                else // trade route trading post
-                  baseAssets = baseAssets + 1600.0;
+                  baseAssets = baseAssets + 2000.0;
                isTradingPost = true;
                break;
             }         
             // buildings generating resources
             case cUnitTypeBank:
             {
-               baseAssets = baseAssets + 1200.0;
+               baseAssets = baseAssets + 2000.0;
                break;
             }
             case cUnitTypeFactory:
             {
-               baseAssets = baseAssets + 1600.0;
+               baseAssets = baseAssets + 2000.0;
                break;
             }
             case cUnitTypeypWCPorcelainTower2:
             {
-               baseAssets = baseAssets + 1200.0;
+               baseAssets = baseAssets + 2000.0;
                break;
             }   
             case cUnitTypeypWCPorcelainTower3:
             {
-               baseAssets = baseAssets + 1200.0;
+               baseAssets = baseAssets + 2000.0;
                break;
             } 
             case cUnitTypeypWCPorcelainTower4:
             {
-               baseAssets = baseAssets + 1600.0;
+               baseAssets = baseAssets + 2000.0;
                break;
             }             
             case cUnitTypeypWCPorcelainTower5:
             {
-               baseAssets = baseAssets + 1600.0;
+               baseAssets = baseAssets + 2000.0;
                break;
             }    
             case cUnitTypeypShrineJapanese:
             {
-               baseAssets = baseAssets + 800.0;
+               baseAssets = baseAssets + 2000.0;
                break;
             }
             case cUnitTypeypWJToshoguShrine2:
             {
-               baseAssets = baseAssets + 1200.0;
+               baseAssets = baseAssets + 2000.0;
                break;
             }
             case cUnitTypeypWJToshoguShrine3:
             {
-               baseAssets = baseAssets + 1200.0;
+               baseAssets = baseAssets + 2000.0;
                break;
             }          
             case cUnitTypeypWJToshoguShrine4:
             {
-               baseAssets = baseAssets + 1200.0;
+               baseAssets = baseAssets + 2000.0;
                break;
             }        
             case cUnitTypeypWJToshoguShrine5:
             {
-               baseAssets = baseAssets + 1200.0;
+               baseAssets = baseAssets + 2000.0;
                break;
             }
             case cUnitTypedeHouseInca:
             {
-               baseAssets = baseAssets + 800.0;
+               baseAssets = baseAssets + 2000.0;
                break;
             }           
             case cUnitTypedeTorp:
             {
-               baseAssets = baseAssets + 800.0;
+               baseAssets = baseAssets + 2000.0;
                break;
             }
             // buildings automatically creating military units
@@ -28730,62 +28868,62 @@ minInterval 1
             {
             case cUnitTypeTownCenter:
             {
-               buildingPower = buildingPower + 10.0;
+               buildingPower = buildingPower + 4.0;
                break;
             }            
             case cUnitTypeFortFrontier:
             {
-               buildingPower = buildingPower + 15.0;
+               buildingPower = buildingPower + 10.0;
                break;
             }
             case cUnitTypeOutpost:
             {
-               buildingPower = buildingPower + 5.0;
+               buildingPower = buildingPower + 3.0;
                break;
             }
             case cUnitTypeBlockhouse:
             {
-               buildingPower = buildingPower + 5.0;
+               buildingPower = buildingPower + 3.0;
                break;
             }
             case cUnitTypeNoblesHut:
             {
-               buildingPower = buildingPower + 5.0;
+               buildingPower = buildingPower + 4.0;
                break;
             }
             case cUnitTypeypWIAgraFort2:
             {
-               buildingPower = buildingPower + 10.0;
+               buildingPower = buildingPower + 4.0;
                break;
             }
             case cUnitTypeypWIAgraFort3:
             {
-               buildingPower = buildingPower + 10.0;
+               buildingPower = buildingPower + 4.0;
                break;
             }
             case cUnitTypeypWIAgraFort4:
             {
-               buildingPower = buildingPower + 10.0;
+               buildingPower = buildingPower + 4.0;
                break;
             }
             case cUnitTypeypWIAgraFort5:
             {
-               buildingPower = buildingPower + 10.0;
+               buildingPower = buildingPower + 4.0;
                break;
             }
             case cUnitTypeypCastle:
             {
-               buildingPower = buildingPower + 7.5;
+               buildingPower = buildingPower + 3.5;
                break;
             }
             case cUnitTypeYPOutpostAsian:
             {
-               buildingPower = buildingPower + 5.0;
+               buildingPower = buildingPower + 3.0;
                break;
             }
             case cUnitTypedeIncaStronghold:
             {
-               buildingPower = buildingPower + 10.0;
+               buildingPower = buildingPower + 4.0;
                break;
             }            
             }
@@ -28878,8 +29016,8 @@ minInterval 1
       
       aiPlanSetVariableInt(planID, cAttackPlanPlayerID, 0, targetPlayer);
       aiPlanSetVariableInt(planID, cAttackPlanRefreshFrequency, 0, 30);
-      aiPlanSetNumberVariableValues(planID, cAttackPlanTargetTypeID, 2, true);
-      aiPlanSetVariableInt(planID, cAttackPlanTargetTypeID, 0, cUnitTypeUnit);
+      //aiPlanSetNumberVariableValues(planID, cAttackPlanTargetTypeID, 2, true);
+      //aiPlanSetVariableInt(planID, cAttackPlanTargetTypeID, 0, cUnitTypeUnit);
       //aiPlanSetVariableInt(planID, cAttackPlanTargetTypeID, 1, cUnitTypeBuilding);
       aiPlanSetVariableVector(planID, cAttackPlanGatherPoint, 0, gatherPoint);
       aiPlanSetVariableInt(planID, cAttackPlanBaseAttackMode, 0, cAttackPlanBaseAttackModeExplicit);
@@ -28901,8 +29039,8 @@ minInterval 1
          aiPlanSetVariableInt(planID, cAttackPlanTargetAreaGroups, 0, baseAreaGroup);
          aiPlanSetVariableInt(planID, cAttackPlanRetreatMode, 0, cAttackPlanRetreatModeNone);
       }
-      if (aiGetWorldDifficulty() >= cDifficultyExpert)
-         aiPlanSetVariableBool(planID, cAttackPlanAllowMoreUnitsDuringAttack, 0, true);
+      if (aiGetWorldDifficulty() >= cDifficultyEasy)
+      aiPlanSetVariableBool(planID, cAttackPlanAllowMoreUnitsDuringAttack, 0, true);
       aiPlanSetBaseID(planID, mainBaseID);
       aiPlanSetInitialPosition(planID, gatherPoint);
       aiPlanSetOrphan(planID, true);
@@ -28921,9 +29059,9 @@ minInterval 1
       aiPlanSetVariableInt(planID, cDefendPlanNoTargetTimeout, 0, 60000);
       aiPlanSetVariableFloat(planID, cDefendPlanEngageRange, 0, kbBaseGetDistance(targetPlayer, targetBaseID));
       aiPlanSetVariableVector(planID, cDefendPlanDefendPoint, 0, kbBaseGetLocation(targetPlayer, targetBaseID));
-      aiPlanSetNumberVariableValues(planID, cDefendPlanAttackTypeID, 2, true);
-      aiPlanSetVariableInt(planID, cDefendPlanAttackTypeID, 0, cUnitTypeUnit);
-      aiPlanSetVariableInt(planID, cDefendPlanAttackTypeID, 1, cUnitTypeBuilding);
+      //aiPlanSetNumberVariableValues(planID, cDefendPlanAttackTypeID, 2, true);
+      //aiPlanSetVariableInt(planID, cDefendPlanAttackTypeID, 0, cUnitTypeUnit);
+      //aiPlanSetVariableInt(planID, cDefendPlanAttackTypeID, 1, cUnitTypeBuilding);
       aiPlanSetVariableInt(planID, cDefendPlanRefreshFrequency, 0, 10);
       aiPlanSetVariableBool(planID, cDefendPlanStopTakingUnits, 0, true);
       aiPlanSetOrphan(planID, true);
@@ -30049,7 +30187,7 @@ minInterval 1
 // RULE fillInWallGaps
 //==============================================================================
 rule fillInWallGaps
-minInterval 31
+minInterval 20
 inactive
 {
 	//If we're not building walls, go away.
@@ -30069,8 +30207,68 @@ if (wallPlanID != -1)
 	  aiPlanSetVariableInt(wallPlanID, cBuildWallPlanWallType, 0, cBuildWallPlanWallTypeRing);
 	  aiPlanAddUnitType(wallPlanID, cUnitTypeSettler, 1, 1, 1);
 	  aiPlanSetVariableVector(wallPlanID, cBuildWallPlanWallRingCenterPoint, 0, kbBaseGetLocation(cMyID, kbBaseGetMainID(cMyID)));
+	  aiPlanSetVariableFloat(wallPlanID, cBuildWallPlanWallRingRadius, 0, 80.0);
+	  aiPlanSetVariableInt(wallPlanID, cBuildWallPlanNumberOfGates, 0, 12);
+	  aiPlanSetBaseID(wallPlanID, kbBaseGetMainID(cMyID));
+	  aiPlanSetEscrowID(wallPlanID, cEconomyEscrowID);
+	  aiPlanSetDesiredPriority(wallPlanID,80);
+	  aiPlanSetActive(wallPlanID, true);
+}
+}
+
+rule fillInWallGapsI
+minInterval 20
+inactive
+{
+	//If we're not building walls, go away.
+	if (gBuildWalls == false)
+	{
+	   xsDisableSelf();
+	   return;
+	}
+
+//If we already have a build wall plan, don't make another one.
+if (aiPlanGetIDByTypeAndVariableType(cPlanBuildWall, cBuildWallPlanWallType, cBuildWallPlanWallTypeRing, true) >= 0)
+   return;
+
+int wallPlanID = aiPlanCreate("FillInWallGaps", cPlanBuildWall);
+if (wallPlanID != -1)
+{
+	  aiPlanSetVariableInt(wallPlanID, cBuildWallPlanWallType, 0, cBuildWallPlanWallTypeRing);
+	  aiPlanAddUnitType(wallPlanID, cUnitTypeSettler, 1, 1, 1);
+	  aiPlanSetVariableVector(wallPlanID, cBuildWallPlanWallRingCenterPoint, 0, kbBaseGetLocation(cMyID, kbBaseGetMainID(cMyID)));
+	  aiPlanSetVariableFloat(wallPlanID, cBuildWallPlanWallRingRadius, 0, 5.0);
+	  aiPlanSetVariableInt(wallPlanID, cBuildWallPlanNumberOfGates, 0, 8);
+	  aiPlanSetBaseID(wallPlanID, kbBaseGetMainID(cMyID));
+	  aiPlanSetEscrowID(wallPlanID, cEconomyEscrowID);
+	  aiPlanSetDesiredPriority(wallPlanID,80);
+	  aiPlanSetActive(wallPlanID, true);
+}
+}
+
+rule fillInWallGapsF
+minInterval 20
+inactive
+{
+	//If we're not building walls, go away.
+	if (gBuildWalls == false)
+	{
+	   xsDisableSelf();
+	   return;
+	}
+
+//If we already have a build wall plan, don't make another one.
+if (aiPlanGetIDByTypeAndVariableType(cPlanBuildWall, cBuildWallPlanWallType, cBuildWallPlanWallTypeRing, true) >= 0)
+   return;
+
+int wallPlanID = aiPlanCreate("FillInWallGaps", cPlanBuildWall);
+if (wallPlanID != -1)
+{
+	  aiPlanSetVariableInt(wallPlanID, cBuildWallPlanWallType, 0, cBuildWallPlanWallTypeRing);
+	  aiPlanAddUnitType(wallPlanID, cUnitTypeSettler, 1, 1, 1);
+	  aiPlanSetVariableVector(wallPlanID, cBuildWallPlanWallRingCenterPoint, 0, gForwardBaseLocation);
 	  aiPlanSetVariableFloat(wallPlanID, cBuildWallPlanWallRingRadius, 0, 30.0);
-	  aiPlanSetVariableInt(wallPlanID, cBuildWallPlanNumberOfGates, 0, 2);
+	  aiPlanSetVariableInt(wallPlanID, cBuildWallPlanNumberOfGates, 0, 5);
 	  aiPlanSetBaseID(wallPlanID, kbBaseGetMainID(cMyID));
 	  aiPlanSetEscrowID(wallPlanID, cEconomyEscrowID);
 	  aiPlanSetDesiredPriority(wallPlanID,80);
@@ -32079,7 +32277,7 @@ void autoCreatePlanHandler(int planID = -1)
 void revoltedHandler(int techID = -1)
 {
 	xsDisableRule("ageUpgradeMonitor");
-	xsDisableRule("age5Monitor");
+	//xsDisableRule("age5Monitor");
 
 	if (techID == cTechDERevolutionSouthAfrica ||
 		techID == cTechDERevolutionCanadaBritish ||
@@ -32592,7 +32790,7 @@ minInterval 40
 }
 rule autoFeedLowestAlly
 inactive
-mininterval 30
+mininterval 60
 {  
 
 	 
