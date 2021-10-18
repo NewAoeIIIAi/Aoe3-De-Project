@@ -7173,10 +7173,26 @@ minInterval 28
          kbUnitPickSetDesiredNumberUnitTypes(gLandUnitPicker, gNumArmyUnitTypes, 1, true);
       }
 	  
+	  
+	  int TowerBuildPlanID = aiPlanGetIDByTypeAndVariableType(cPlanBuild, cBuildPlanBuildingTypeID, gTowerUnit);
+ 
+      if ((TowerBuildPlanID < 0) && (kbUnitCount(cMyID, gTowerUnit, cUnitStateABQ) < gNumTowers) && (cvOkToFortify == true))
+   {                                            
+	  if ((kbGetAge() == cvMaxAge) || (gRevolutionType != 0))
+	  {
+	  gNumTowers = kbGetBuildLimit(cMyID, gTowerUnit);
+      TowerBuildPlanID = createSimpleBuildPlan(gTowerUnit, 1, 95, true, cEconomyEscrowID, kbBaseGetMainID(cMyID), 1);
+      aiEcho("Starting a new house build plan.");
+      aiPlanSetDesiredResourcePriority(TowerBuildPlanID, 40);
+	  }
+   }
+  
+  
 	  if (kbGetAge() == cvMaxAge)
       xsEnableRule("turtleUp");
       if (gRevolutionType != 0)
       xsEnableRule("turtleUp");
+  
 
       /*
        if(kbGetAge() == cAge3)
@@ -10088,8 +10104,8 @@ minInterval 10
       return;
   
   
-      if (kbUnitCount(cMyID, gTowerUnit, cUnitStateABQ) < gNumTowers)
-      createSimpleBuildPlan(gTowerUnit, 10, 99, true, cEconomyEscrowID, kbBaseGetMainID(cMyID), 1);
+      //if (kbUnitCount(cMyID, gTowerUnit, cUnitStateABQ) < gNumTowers)
+      //createSimpleBuildPlan(gTowerUnit, 10, 99, true, cEconomyEscrowID, kbBaseGetMainID(cMyID), 1);
 
    float odds = btOffenseDefense * -1.0;
    odds = odds + 0.5;             // Range -0.5 to +1.5
@@ -11007,7 +11023,7 @@ void setUnitPickerPreference(int upID = -1)
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeRuyter, lightCavalryFactor*2);          
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeHussar, OttoHussarFactor*0);           
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeHussar, heavyCavalryFactor);
-			 if (kbUnitCount(cMyID, gAbstractArtilleryUnit, cUnitStateABQ) < 10)
+			 if (kbUnitCount(cMyID, gAbstractArtilleryUnit, cUnitStateABQ) < 7)
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, gAbstractArtilleryUnit, artilleryFactor);
 		     else
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, gAbstractArtilleryUnit, artilleryFactor*0);
@@ -11114,7 +11130,7 @@ void setUnitPickerPreference(int upID = -1)
 			 else
 			 {
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeAbusGun, AbusGunFactor*0);
-			 if (kbUnitCount(cMyID, gAbstractArtilleryUnit, cUnitStateABQ) < 10)
+			 if (kbUnitCount(cMyID, gAbstractArtilleryUnit, cUnitStateABQ) < 7)
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, gAbstractArtilleryUnit, artilleryFactor);
 		     else
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, gAbstractArtilleryUnit, artilleryFactor*0);
@@ -32509,10 +32525,16 @@ mininterval 10
        if ((kbResourceGet(cResourceFood) < (totalResources / 10.0)) || (kbResourceGet(cResourceFood) < 4000))
           aiUnitSetTactic(kbUnitQueryGetResult(factoryQueryID, index), cTacticFood);
 		else
+       if ((kbResourceGet(cResourceGold) < (totalResources / 10.0)) || (kbResourceGet(cResourceGold) < 4000))
+          aiUnitSetTactic(kbUnitQueryGetResult(factoryQueryID, index), cTacticNormal);
+		else
        if ((kbResourceGet(cResourceWood) < (totalResources / 10.0)) || (kbResourceGet(cResourceWood) < 2000))
           aiUnitSetTactic(kbUnitQueryGetResult(factoryQueryID, index), cTacticWood);
 		else
+			if (kbUnitCount(cMyID, cUnitTypeAbstractArtillery, cUnitStateABQ) < 12)
 	      aiUnitSetTactic(kbUnitQueryGetResult(factoryQueryID, index), cTacticCannon);
+	  else
+          aiUnitSetTactic(kbUnitQueryGetResult(factoryQueryID, index), cTacticWood);
    }
 }
 
