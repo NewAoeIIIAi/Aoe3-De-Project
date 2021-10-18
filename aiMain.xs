@@ -6653,6 +6653,11 @@ minInterval 30
    int numberMilitaryBuildings = 0;
    int buildingID = -1;
 
+         vector location = cInvalidVector;
+
+         //if (btOffenseDefense >= 0.0)
+            location = selectForwardBaseLocation();
+		
    switch (gForwardBaseState)
    {
    case cForwardBaseStateNone:
@@ -6661,10 +6666,6 @@ minInterval 30
       if (kbUnitCount(cMyID, cUnitTypeFortWagon, cUnitStateAlive) > 0)
       { // Yes.
          // get the fort wagon, start a build plan, keep it defended
-         vector location = cInvalidVector;
-
-         //if (btOffenseDefense >= 0.0)
-            location = selectForwardBaseLocation();
 
          if (location == cInvalidVector)
          {
@@ -6833,6 +6834,62 @@ minInterval 30
       break;
    }
    }
+   
+   if (kbUnitCount(cMyID, cUnitTypeFortWagon, cUnitStateAlive) > 0)
+      { // Yes.
+         // get the fort wagon, start a build plan, keep it defended
+         if (location == cInvalidVector)
+         {
+            createSimpleBuildPlan(cUnitTypeFortFrontier, 1, 87, true, cMilitaryEscrowID, kbBaseGetMainID(cMyID), 1);
+            return;
+         }
+
+         gForwardBaseLocation = location;
+         gForwardBaseBuildPlan = aiPlanCreate("Fort build plan ", cPlanBuild);
+         aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanBuildingTypeID, 0, cUnitTypeFortFrontier);
+         aiPlanSetDesiredPriority(gForwardBaseBuildPlan, 87);
+         // Military
+         aiPlanSetMilitary(gForwardBaseBuildPlan, true);
+         aiPlanSetEconomy(gForwardBaseBuildPlan, false);
+         aiPlanSetEscrowID(gForwardBaseBuildPlan, cMilitaryEscrowID);
+         aiPlanAddUnitType(gForwardBaseBuildPlan, cUnitTypeFortWagon, 1, 1, 1);
+
+         // Instead of base ID or areas, use a center position
+         aiPlanSetVariableVector(gForwardBaseBuildPlan, cBuildPlanCenterPosition, 0, location);
+         aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanCenterPositionDistance, 0, 50.0);
+
+         // Weight it to stay very close to center point.
+         aiPlanSetVariableVector(gForwardBaseBuildPlan, cBuildPlanInfluencePosition, 0,
+                                 location); // Position influence for center
+         aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluencePositionDistance, 0, 50.0); // 100m range.
+         aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluencePositionValue, 0,
+                                100.0); // 100 points for center
+         aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluencePositionFalloff, 0,
+                              cBPIFalloffLinear); // Linear slope falloff
+
+         // Add position influence for nearby towers
+         aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitTypeID, 0,
+                              cUnitTypeFortFrontier); // Don't build anywhere near another fort.
+         aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitDistance, 0, 50.0);
+         aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitValue, 0, -200.0); // -20 points per fort
+         aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitFalloff, 0,
+                              cBPIFalloffNone); // Cliff falloff
+
+         aiPlanSetActive(gForwardBaseBuildPlan);
+
+         // Chat to my allies
+         sendStatement(cPlayerRelationAlly, cAICommPromptToAllyIWillBuildMilitaryBase, gForwardBaseLocation);
+
+         gForwardBaseState = cForwardBaseStateBuilding;
+
+         aiEcho(" ");
+         aiEcho("    BUILDING FORWARD BASE, MOVING DEFEND PLANS TO COVER.");
+         aiEcho("    PLANNED LOCATION IS " + gForwardBaseLocation);
+         aiEcho(" ");
+
+         if (gDefenseReflex == false)
+            endDefenseReflex(); // Causes it to move to the new location
+      }
 }
 
 
@@ -11188,7 +11245,7 @@ void setUnitPickerPreference(int upID = -1)
 			 if (kbTechGetStatus(cTechDEHCLegionHungarian) == cTechStatusActive)
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypedeLegionMagyarHussar, heavyCavalryFactor*2);
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypedeStateMilitia, lightInfantryFactor);  
-             kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeAbstractOutlaw, coreUnitFactor*0.5);  
+             kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeAbstractOutlaw, 0.1);  
 			 
 			 
              if (kbGetAge() < cAge3)
@@ -13286,9 +13343,18 @@ void initMil(void)
 
    if ( (kbGetCiv() == cCivChinese) || (kbGetCiv() == cCivSPCChinese) )
    {
+	  if (kbGetAge() <= cAge2)
+	  {
       gLandPrimaryArmyUnit = cUnitTypeypOldHanArmy; // + cUnitTypeypTerritorialArmy + cUnitTypeypForbiddenArmy;
       gLandSecondaryArmyUnit = cUnitTypeypOldHanArmy; // + cUnitTypeypOldHanArmy + cUnitTypeypForbiddenArmy;
       gLandTertiaryArmyUnit = cUnitTypeypOldHanArmy; // + cUnitTypeypTerritorialArmy + cUnitTypeypOldHanArmy;
+	  }
+	  else
+	  {
+      gLandPrimaryArmyUnit = cUnitTypeypTerritorialArmy;
+      gLandSecondaryArmyUnit = cUnitTypeypTerritorialArmy;
+      gLandTertiaryArmyUnit = cUnitTypeypTerritorialArmy; 
+	  }
       //gLandSecondaryArmyUnit = cUnitTypeypTerritorialArmy; // + cUnitTypeypOldHanArmy + cUnitTypeypForbiddenArmy;
       //gLandTertiaryArmyUnit = cUnitTypeypForbiddenArmy; // + cUnitTypeypTerritorialArmy + cUnitTypeypOldHanArmy;
       gAbstractArtilleryUnit = cUnitTypeypFlameThrower;
@@ -14439,6 +14505,12 @@ minInterval 10
 		case cUnitTypedeRedSeaWagon:
 		{
 			buildingType = cUnitTypedeWarCamp;
+         break;
+      }
+		case cUnitTypeFortWagon:
+		{
+			if (cMyCiv == cCivChinese)
+			buildingType = cUnitTypeFortFrontier;
          break;
       }
 		}
