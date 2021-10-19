@@ -3197,6 +3197,22 @@ bool addBuilderToPlan(int planID = -1, int puid = -1, int numberBuilders = 1)
 		 }
     }
    else
+   if (puid == cUnitTypeFortFrontier)
+   {
+      if (kbUnitCount(cMyID, cUnitTypeFortWagon, cUnitStateAlive) > 0)
+            aiPlanAddUnitType(planID, cUnitTypeFortWagon, 1, 1, 1);
+		else
+	  if ((cMyCiv == cCivDEAmericans) && (kbGetAge() >= cAge3))
+            aiPlanAddUnitType(planID, cUnitTypedeGeneral, 1, 1, 1);
+		else
+	  if (kbTechGetStatus(cTechHCXPNationalRedoubt) == cTechStatusActive)
+         aiPlanAddUnitType(planID, cUnitTypeMusketeer, 1, 8, 8);
+	 else
+	  if ((kbTechGetStatus(cTechHCXPUnlockFort2) == cTechStatusActive) || 
+      (kbTechGetStatus(cTechHCXPUnlockFort2German) == cTechStatusActive))
+         aiPlanAddUnitType(planID, cUnitTypeExplorer, 1, 1, 1);
+   }
+   else
       if (numberBuilders > 1)
       {
          aiPlanAddUnitType(planID, builderType, numberBuilders, numberBuilders, numberBuilders);
@@ -3410,7 +3426,7 @@ bool selectBuildPlanPosition(int planID = -1, int puid = -1, int baseID = -1)
       // Base ID.
       aiPlanSetBaseID(planID, baseID);
       break;
-   }                      
+   }                        
    default:
    {
       // Base ID.
@@ -4580,7 +4596,10 @@ minInterval 30
          aiPlanSetEscrowID(gEconUpgradePlan, cEconomyEscrowID);
          aiPlanSetBaseID(gEconUpgradePlan, kbBaseGetMainID(cMyID));
          //if ((xsGetTime() > 12 * 60 * 1000) || (btRushBoom < 0.0) || (agingUp() == true) || (kbGetAge() >= cAge3))
-            aiPlanSetDesiredResourcePriority(gEconUpgradePlan, 60); // Above average
+			 if (kbGetAge() == cvMaxAge)
+         aiPlanSetDesiredResourcePriority(gEconUpgradePlan, 75);
+	 else
+         aiPlanSetDesiredResourcePriority(gEconUpgradePlan, 60); // Above average
          aiPlanSetActive(gEconUpgradePlan);
          startTime = xsGetTime();
 
@@ -6652,11 +6671,16 @@ minInterval 30
    int numberFound = 0;
    int numberMilitaryBuildings = 0;
    int buildingID = -1;
+   int numFortresses = kbUnitCount(cMyID, cUnitTypeFortFrontier, cUnitStateABQ);
 
          vector location = cInvalidVector;
 
          //if (btOffenseDefense >= 0.0)
             location = selectForwardBaseLocation();
+		
+   int planID = -1;
+   planID = aiPlanGetIDByTypeAndVariableType(cPlanBuild, cBuildPlanBuildingTypeID, cUnitTypeFortFrontier);
+   
 		
    switch (gForwardBaseState)
    {
@@ -6664,26 +6688,38 @@ minInterval 30
    {
       // Check if we should go to state Building
       if (kbUnitCount(cMyID, cUnitTypeFortWagon, cUnitStateAlive) > 0)
+		  //if (numFortresses < kbGetBuildLimit(cMyID, cUnitTypeFortFrontier))
       { // Yes.
          // get the fort wagon, start a build plan, keep it defended
 
          if (location == cInvalidVector)
          {
-            createSimpleBuildPlan(cUnitTypeFortFrontier, 1, 87, true, cMilitaryEscrowID, kbBaseGetMainID(cMyID), 1);
+            createSimpleBuildPlan(cUnitTypeFortFrontier, 1, 99, true, cMilitaryEscrowID, kbBaseGetMainID(cMyID), 1);
             return;
          }
 
          gForwardBaseLocation = location;
          gForwardBaseBuildPlan = aiPlanCreate("Fort build plan ", cPlanBuild);
          aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanBuildingTypeID, 0, cUnitTypeFortFrontier);
-         aiPlanSetDesiredPriority(gForwardBaseBuildPlan, 87);
+         aiPlanSetDesiredPriority(gForwardBaseBuildPlan, 99);
+		 
          // Military
          aiPlanSetMilitary(gForwardBaseBuildPlan, true);
          aiPlanSetEconomy(gForwardBaseBuildPlan, false);
          aiPlanSetEscrowID(gForwardBaseBuildPlan, cMilitaryEscrowID);
+		 //if (kbUnitCount(cMyID, cUnitTypeFortWagon, cUnitStateAlive) > 0)
          aiPlanAddUnitType(gForwardBaseBuildPlan, cUnitTypeFortWagon, 1, 1, 1);
-
-         // Instead of base ID or areas, use a center position
+	     /*else 
+	     if ((cMyCiv == cCivDEAmericans) && (kbGetAge() >= cAge3)) 
+         aiPlanAddUnitType(gForwardBaseBuildPlan, cUnitTypedeGeneral, 1, 1, 1);
+	     else 
+	     if (kbTechGetStatus(cTechHCXPNationalRedoubt) == cTechStatusActive)
+         aiPlanAddUnitType(gForwardBaseBuildPlan, cUnitTypeMusketeer, 1, 8, 8);
+	     else	 
+		 if ((kbTechGetStatus(cTechHCXPUnlockFort2) == cTechStatusActive) || (kbTechGetStatus(cTechHCXPUnlockFort2German) == cTechStatusActive))
+         aiPlanAddUnitType(gForwardBaseBuildPlan, cUnitTypeExplorer, 1, 1, 1);*/
+         
+		 // Instead of base ID or areas, use a center position
          aiPlanSetVariableVector(gForwardBaseBuildPlan, cBuildPlanCenterPosition, 0, location);
          aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanCenterPositionDistance, 0, 50.0);
 
@@ -6697,12 +6733,15 @@ minInterval 30
                               cBPIFalloffLinear); // Linear slope falloff
 
          // Add position influence for nearby towers
-         aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitTypeID, 0,
-                              cUnitTypeFortFrontier); // Don't build anywhere near another fort.
-         aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitDistance, 0, 50.0);
-         aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitValue, 0, -200.0); // -20 points per fort
-         aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitFalloff, 0,
-                              cBPIFalloffNone); // Cliff falloff
+            aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitTypeID, 0, cUnitTypeFortFrontier);   // Don't build anywhere near another fort.
+			aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitDistance, 0, 32.0);
+			aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitValue, 0, 300.0);        // -20 points per fort
+			aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitFalloff, 0, cBPIFalloffLinear);  // Cliff falloff// Add position influence for nearby towers
+			
+			aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitTypeID, 0, cUnitTypeFortFrontier);   // Don't build anywhere near another fort.
+			aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitDistance, 0, 18.0);
+			aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitValue, 0, -200.0);        // -20 points per fort
+			aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitFalloff, 0, cBPIFalloffNone);
 
          aiPlanSetActive(gForwardBaseBuildPlan);
 
@@ -6719,6 +6758,209 @@ minInterval 30
          if (gDefenseReflex == false)
             endDefenseReflex(); // Causes it to move to the new location
       }
+	  else
+		  if (numFortresses < kbGetBuildLimit(cMyID, cUnitTypeFortFrontier) && (planID < 0))
+		  {
+	  if ((cMyCiv == cCivDEAmericans) && (kbGetAge() >= cAge3))
+	  {
+		  
+		   if (location == cInvalidVector)
+         {
+            createSimpleBuildPlan(cUnitTypeFortFrontier, 1, 99, true, cMilitaryEscrowID, kbBaseGetMainID(cMyID), 1);
+            return;
+         }
+
+         gForwardBaseLocation = location;
+         gForwardBaseBuildPlan = aiPlanCreate("Fort build plan ", cPlanBuild);
+         aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanBuildingTypeID, 0, cUnitTypeFortFrontier);
+         if ((kbGetAge() == cvMaxAge) || (gRevolutionType != 0))
+		 {
+         aiPlanSetDesiredPriority(gForwardBaseBuildPlan, 95);
+		 }
+		 else
+		 {
+         aiPlanSetDesiredPriority(gForwardBaseBuildPlan, 40);
+		 }
+		 
+         // Military
+         aiPlanSetMilitary(gForwardBaseBuildPlan, true);
+         aiPlanSetEconomy(gForwardBaseBuildPlan, false);
+         aiPlanSetEscrowID(gForwardBaseBuildPlan, cMilitaryEscrowID);
+         aiPlanAddUnitType(gForwardBaseBuildPlan, cUnitTypedeGeneral, 1, 1, 1);
+
+         // Instead of base ID or areas, use a center position
+         aiPlanSetVariableVector(gForwardBaseBuildPlan, cBuildPlanCenterPosition, 0, location);
+         aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanCenterPositionDistance, 0, 50.0);
+
+         // Weight it to stay very close to center point.
+         aiPlanSetVariableVector(gForwardBaseBuildPlan, cBuildPlanInfluencePosition, 0,
+                                 location); // Position influence for center
+         aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluencePositionDistance, 0, 50.0); // 100m range.
+         aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluencePositionValue, 0,
+                                100.0); // 100 points for center
+         aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluencePositionFalloff, 0,
+                              cBPIFalloffLinear); // Linear slope falloff
+
+         // Add position influence for nearby towers
+            aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitTypeID, 0, cUnitTypeFortFrontier);   // Don't build anywhere near another fort.
+			aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitDistance, 0, 32.0);
+			aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitValue, 0, 300.0);        // -20 points per fort
+			aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitFalloff, 0, cBPIFalloffLinear);  // Cliff falloff// Add position influence for nearby towers
+			
+			aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitTypeID, 0, cUnitTypeFortFrontier);   // Don't build anywhere near another fort.
+			aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitDistance, 0, 18.0);
+			aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitValue, 0, -200.0);        // -20 points per fort
+			aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitFalloff, 0, cBPIFalloffNone);
+
+         aiPlanSetActive(gForwardBaseBuildPlan);
+
+         // Chat to my allies
+         sendStatement(cPlayerRelationAlly, cAICommPromptToAllyIWillBuildMilitaryBase, gForwardBaseLocation);
+
+         gForwardBaseState = cForwardBaseStateBuilding;
+
+         aiEcho(" ");
+         aiEcho("    BUILDING FORWARD BASE, MOVING DEFEND PLANS TO COVER.");
+         aiEcho("    PLANNED LOCATION IS " + gForwardBaseLocation);
+         aiEcho(" ");
+
+         if (gDefenseReflex == false)
+            endDefenseReflex(); // Causes it to move to the new location
+      }
+	  else
+	  if (kbTechGetStatus(cTechHCXPNationalRedoubt) == cTechStatusActive)
+	  {
+		  
+		   if (location == cInvalidVector)
+         {
+            createSimpleBuildPlan(cUnitTypeFortFrontier, 1, 99, true, cMilitaryEscrowID, kbBaseGetMainID(cMyID), 1);
+            return;
+         }
+
+         gForwardBaseLocation = location;
+         gForwardBaseBuildPlan = aiPlanCreate("Fort build plan ", cPlanBuild);
+         aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanBuildingTypeID, 0, cUnitTypeFortFrontier);
+        if ((kbGetAge() == cvMaxAge) || (gRevolutionType != 0))
+		 {
+         aiPlanSetDesiredPriority(gForwardBaseBuildPlan, 95);
+		 }
+		 else
+		 {
+         aiPlanSetDesiredPriority(gForwardBaseBuildPlan, 40);
+		 }
+		 
+         // Military
+         aiPlanSetMilitary(gForwardBaseBuildPlan, true);
+         aiPlanSetEconomy(gForwardBaseBuildPlan, false);
+         aiPlanSetEscrowID(gForwardBaseBuildPlan, cMilitaryEscrowID);
+         aiPlanAddUnitType(gForwardBaseBuildPlan, cUnitTypeMusketeer, 1, 8, 8);
+
+         // Instead of base ID or areas, use a center position
+         aiPlanSetVariableVector(gForwardBaseBuildPlan, cBuildPlanCenterPosition, 0, location);
+         aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanCenterPositionDistance, 0, 50.0);
+
+         // Weight it to stay very close to center point.
+         aiPlanSetVariableVector(gForwardBaseBuildPlan, cBuildPlanInfluencePosition, 0,
+                                 location); // Position influence for center
+         aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluencePositionDistance, 0, 50.0); // 100m range.
+         aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluencePositionValue, 0,
+                                100.0); // 100 points for center
+         aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluencePositionFalloff, 0,
+                              cBPIFalloffLinear); // Linear slope falloff
+
+         // Add position influence for nearby towers
+            aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitTypeID, 0, cUnitTypeFortFrontier);   // Don't build anywhere near another fort.
+			aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitDistance, 0, 32.0);
+			aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitValue, 0, 300.0);        // -20 points per fort
+			aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitFalloff, 0, cBPIFalloffLinear);  // Cliff falloff// Add position influence for nearby towers
+			
+			aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitTypeID, 0, cUnitTypeFortFrontier);   // Don't build anywhere near another fort.
+			aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitDistance, 0, 18.0);
+			aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitValue, 0, -200.0);        // -20 points per fort
+			aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitFalloff, 0, cBPIFalloffNone);
+
+         aiPlanSetActive(gForwardBaseBuildPlan);
+
+         // Chat to my allies
+         sendStatement(cPlayerRelationAlly, cAICommPromptToAllyIWillBuildMilitaryBase, gForwardBaseLocation);
+
+         gForwardBaseState = cForwardBaseStateBuilding;
+
+         aiEcho(" ");
+         aiEcho("    BUILDING FORWARD BASE, MOVING DEFEND PLANS TO COVER.");
+         aiEcho("    PLANNED LOCATION IS " + gForwardBaseLocation);
+         aiEcho(" ");
+
+         if (gDefenseReflex == false)
+            endDefenseReflex(); // Causes it to move to the new location
+      }
+	  else
+	  if ((kbTechGetStatus(cTechHCXPUnlockFort2) == cTechStatusActive) || (kbTechGetStatus(cTechHCXPUnlockFort2German) == cTechStatusActive))
+	  {
+		  
+		  if (location == cInvalidVector)
+         {
+            createSimpleBuildPlan(cUnitTypeFortFrontier, 1, 99, true, cMilitaryEscrowID, kbBaseGetMainID(cMyID), 1);
+            return;
+         }
+
+         gForwardBaseLocation = location;
+         gForwardBaseBuildPlan = aiPlanCreate("Fort build plan ", cPlanBuild);
+         aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanBuildingTypeID, 0, cUnitTypeFortFrontier);
+         if ((kbGetAge() == cvMaxAge) || (gRevolutionType != 0))
+		 {
+         aiPlanSetDesiredPriority(gForwardBaseBuildPlan, 95);
+		 }
+		 else
+		 {
+         aiPlanSetDesiredPriority(gForwardBaseBuildPlan, 40);
+		 }
+         // Military
+         aiPlanSetMilitary(gForwardBaseBuildPlan, true);
+         aiPlanSetEconomy(gForwardBaseBuildPlan, false);
+         aiPlanSetEscrowID(gForwardBaseBuildPlan, cMilitaryEscrowID);
+         aiPlanAddUnitType(gForwardBaseBuildPlan, cUnitTypeExplorer, 1, 1, 1);
+
+         // Instead of base ID or areas, use a center position
+         aiPlanSetVariableVector(gForwardBaseBuildPlan, cBuildPlanCenterPosition, 0, location);
+         aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanCenterPositionDistance, 0, 50.0);
+
+         // Weight it to stay very close to center point.
+         aiPlanSetVariableVector(gForwardBaseBuildPlan, cBuildPlanInfluencePosition, 0,
+                                 location); // Position influence for center
+         aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluencePositionDistance, 0, 50.0); // 100m range.
+         aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluencePositionValue, 0,
+                                100.0); // 100 points for center
+         aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluencePositionFalloff, 0,
+                              cBPIFalloffLinear); // Linear slope falloff
+
+         // Add position influence for nearby towers
+            aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitTypeID, 0, cUnitTypeFortFrontier);   // Don't build anywhere near another fort.
+			aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitDistance, 0, 32.0);
+			aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitValue, 0, 300.0);        // -20 points per fort
+			aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitFalloff, 0, cBPIFalloffLinear);  // Cliff falloff// Add position influence for nearby towers
+			
+			aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitTypeID, 0, cUnitTypeFortFrontier);   // Don't build anywhere near another fort.
+			aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitDistance, 0, 18.0);
+			aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitValue, 0, -200.0);        // -20 points per fort
+			aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitFalloff, 0, cBPIFalloffNone);
+
+         aiPlanSetActive(gForwardBaseBuildPlan);
+
+         // Chat to my allies
+         sendStatement(cPlayerRelationAlly, cAICommPromptToAllyIWillBuildMilitaryBase, gForwardBaseLocation);
+
+         gForwardBaseState = cForwardBaseStateBuilding;
+
+         aiEcho(" ");
+         aiEcho("    BUILDING FORWARD BASE, MOVING DEFEND PLANS TO COVER.");
+         aiEcho("    PLANNED LOCATION IS " + gForwardBaseLocation);
+         aiEcho(" ");
+
+         if (gDefenseReflex == false)
+            endDefenseReflex(); // Causes it to move to the new location
+      }
+   }
       break;
    }
    case cForwardBaseStateBuilding:
@@ -6835,19 +7077,23 @@ minInterval 30
    }
    }
    
-   if (kbUnitCount(cMyID, cUnitTypeFortWagon, cUnitStateAlive) > 0)
+   
+	  if (((gForwardBaseState == cForwardBaseStateActive) || (gForwardBaseState == cForwardBaseStateBuilding)) && (numFortresses < kbGetBuildLimit(cMyID, cUnitTypeFortFrontier)))
+		  {
+			  if (kbUnitCount(cMyID, cUnitTypeFortWagon, cUnitStateAlive) > 0)
       { // Yes.
          // get the fort wagon, start a build plan, keep it defended
+
          if (location == cInvalidVector)
          {
-            createSimpleBuildPlan(cUnitTypeFortFrontier, 1, 87, true, cMilitaryEscrowID, kbBaseGetMainID(cMyID), 1);
+            createSimpleBuildPlan(cUnitTypeFortFrontier, 1, 99, true, cMilitaryEscrowID, kbBaseGetMainID(cMyID), 1);
             return;
          }
 
          gForwardBaseLocation = location;
          gForwardBaseBuildPlan = aiPlanCreate("Fort build plan ", cPlanBuild);
          aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanBuildingTypeID, 0, cUnitTypeFortFrontier);
-         aiPlanSetDesiredPriority(gForwardBaseBuildPlan, 87);
+         aiPlanSetDesiredPriority(gForwardBaseBuildPlan, 99);
          // Military
          aiPlanSetMilitary(gForwardBaseBuildPlan, true);
          aiPlanSetEconomy(gForwardBaseBuildPlan, false);
@@ -6868,12 +7114,15 @@ minInterval 30
                               cBPIFalloffLinear); // Linear slope falloff
 
          // Add position influence for nearby towers
-         aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitTypeID, 0,
-                              cUnitTypeFortFrontier); // Don't build anywhere near another fort.
-         aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitDistance, 0, 50.0);
-         aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitValue, 0, -200.0); // -20 points per fort
-         aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitFalloff, 0,
-                              cBPIFalloffNone); // Cliff falloff
+            aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitTypeID, 0, cUnitTypeFortFrontier);   // Don't build anywhere near another fort.
+			aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitDistance, 0, 32.0);
+			aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitValue, 0, 300.0);        // -20 points per fort
+			aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitFalloff, 0, cBPIFalloffLinear);  // Cliff falloff// Add position influence for nearby towers
+			
+			aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitTypeID, 0, cUnitTypeFortFrontier);   // Don't build anywhere near another fort.
+			aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitDistance, 0, 18.0);
+			aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitValue, 0, -200.0);        // -20 points per fort
+			aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitFalloff, 0, cBPIFalloffNone);
 
          aiPlanSetActive(gForwardBaseBuildPlan);
 
@@ -6890,6 +7139,169 @@ minInterval 30
          if (gDefenseReflex == false)
             endDefenseReflex(); // Causes it to move to the new location
       }
+	  else
+	  if ((cMyCiv == cCivDEAmericans) && (kbGetAge() >= cAge3) && (planID < 0))
+	  {
+		  
+		   if (location == cInvalidVector)
+         {
+            createSimpleBuildPlan(cUnitTypeFortFrontier, 1, 99, true, cMilitaryEscrowID, kbBaseGetMainID(cMyID), 1);
+            return;
+         }
+
+         gForwardBaseLocation = location;
+         gForwardBaseBuildPlan = aiPlanCreate("Fort build plan ", cPlanBuild);
+         aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanBuildingTypeID, 0, cUnitTypeFortFrontier);
+         if ((kbGetAge() == cvMaxAge) || (gRevolutionType != 0))
+		 {
+         aiPlanSetDesiredPriority(gForwardBaseBuildPlan, 95);
+		 }
+		 else
+		 {
+         aiPlanSetDesiredPriority(gForwardBaseBuildPlan, 40);
+		 }
+         // Military
+         aiPlanSetMilitary(gForwardBaseBuildPlan, true);
+         aiPlanSetEconomy(gForwardBaseBuildPlan, false);
+         aiPlanSetEscrowID(gForwardBaseBuildPlan, cMilitaryEscrowID);
+         aiPlanAddUnitType(gForwardBaseBuildPlan, cUnitTypedeGeneral, 1, 1, 1);
+
+         // Instead of base ID or areas, use a center position
+         aiPlanSetVariableVector(gForwardBaseBuildPlan, cBuildPlanCenterPosition, 0, location);
+         aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanCenterPositionDistance, 0, 50.0);
+
+         // Weight it to stay very close to center point.
+         aiPlanSetVariableVector(gForwardBaseBuildPlan, cBuildPlanInfluencePosition, 0,
+                                 location); // Position influence for center
+         aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluencePositionDistance, 0, 50.0); // 100m range.
+         aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluencePositionValue, 0,
+                                100.0); // 100 points for center
+         aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluencePositionFalloff, 0,
+                              cBPIFalloffLinear); // Linear slope falloff
+
+         // Add position influence for nearby towers
+            aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitTypeID, 0, cUnitTypeFortFrontier);   // Don't build anywhere near another fort.
+			aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitDistance, 0, 32.0);
+			aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitValue, 0, 300.0);        // -20 points per fort
+			aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitFalloff, 0, cBPIFalloffLinear);  // Cliff falloff// Add position influence for nearby towers
+			
+			aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitTypeID, 0, cUnitTypeFortFrontier);   // Don't build anywhere near another fort.
+			aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitDistance, 0, 18.0);
+			aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitValue, 0, -200.0);        // -20 points per fort
+			aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitFalloff, 0, cBPIFalloffNone);
+
+         aiPlanSetActive(gForwardBaseBuildPlan);
+      }
+	  else
+	  if (kbTechGetStatus(cTechHCXPNationalRedoubt) == cTechStatusActive && (planID < 0))
+	  {
+		  
+		   if (location == cInvalidVector)
+         {
+            createSimpleBuildPlan(cUnitTypeFortFrontier, 1, 99, true, cMilitaryEscrowID, kbBaseGetMainID(cMyID), 1);
+            return;
+         }
+
+         gForwardBaseLocation = location;
+         gForwardBaseBuildPlan = aiPlanCreate("Fort build plan ", cPlanBuild);
+         aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanBuildingTypeID, 0, cUnitTypeFortFrontier);
+         if ((kbGetAge() == cvMaxAge) || (gRevolutionType != 0))
+		 {
+         aiPlanSetDesiredPriority(gForwardBaseBuildPlan, 95);
+		 }
+		 else
+		 {
+         aiPlanSetDesiredPriority(gForwardBaseBuildPlan, 40);
+		 }
+         // Military
+         aiPlanSetMilitary(gForwardBaseBuildPlan, true);
+         aiPlanSetEconomy(gForwardBaseBuildPlan, false);
+         aiPlanSetEscrowID(gForwardBaseBuildPlan, cMilitaryEscrowID);
+         aiPlanAddUnitType(gForwardBaseBuildPlan, cUnitTypeMusketeer, 1, 8, 8);
+
+         // Instead of base ID or areas, use a center position
+         aiPlanSetVariableVector(gForwardBaseBuildPlan, cBuildPlanCenterPosition, 0, location);
+         aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanCenterPositionDistance, 0, 50.0);
+
+         // Weight it to stay very close to center point.
+         aiPlanSetVariableVector(gForwardBaseBuildPlan, cBuildPlanInfluencePosition, 0,
+                                 location); // Position influence for center
+         aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluencePositionDistance, 0, 50.0); // 100m range.
+         aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluencePositionValue, 0,
+                                100.0); // 100 points for center
+         aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluencePositionFalloff, 0,
+                              cBPIFalloffLinear); // Linear slope falloff
+
+         // Add position influence for nearby towers
+            aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitTypeID, 0, cUnitTypeFortFrontier);   // Don't build anywhere near another fort.
+			aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitDistance, 0, 32.0);
+			aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitValue, 0, 300.0);        // -20 points per fort
+			aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitFalloff, 0, cBPIFalloffLinear);  // Cliff falloff// Add position influence for nearby towers
+			
+			aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitTypeID, 0, cUnitTypeFortFrontier);   // Don't build anywhere near another fort.
+			aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitDistance, 0, 18.0);
+			aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitValue, 0, -200.0);        // -20 points per fort
+			aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitFalloff, 0, cBPIFalloffNone);
+
+         aiPlanSetActive(gForwardBaseBuildPlan);
+      }
+	  else
+		  if (planID < 0)
+		  {
+	  if ((kbTechGetStatus(cTechHCXPUnlockFort2) == cTechStatusActive) || (kbTechGetStatus(cTechHCXPUnlockFort2German) == cTechStatusActive))
+	  {
+		  
+		  if (location == cInvalidVector)
+         {
+            createSimpleBuildPlan(cUnitTypeFortFrontier, 1, 99, true, cMilitaryEscrowID, kbBaseGetMainID(cMyID), 1);
+            return;
+         }
+
+         gForwardBaseLocation = location;
+         gForwardBaseBuildPlan = aiPlanCreate("Fort build plan ", cPlanBuild);
+         aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanBuildingTypeID, 0, cUnitTypeFortFrontier);
+         if ((kbGetAge() == cvMaxAge) || (gRevolutionType != 0))
+		 {
+         aiPlanSetDesiredPriority(gForwardBaseBuildPlan, 95);
+		 }
+		 else
+		 {
+         aiPlanSetDesiredPriority(gForwardBaseBuildPlan, 40);
+		 }
+         // Military
+         aiPlanSetMilitary(gForwardBaseBuildPlan, true);
+         aiPlanSetEconomy(gForwardBaseBuildPlan, false);
+         aiPlanSetEscrowID(gForwardBaseBuildPlan, cMilitaryEscrowID);
+         aiPlanAddUnitType(gForwardBaseBuildPlan, cUnitTypeExplorer, 1, 1, 1);
+
+         // Instead of base ID or areas, use a center position
+         aiPlanSetVariableVector(gForwardBaseBuildPlan, cBuildPlanCenterPosition, 0, location);
+         aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanCenterPositionDistance, 0, 50.0);
+
+         // Weight it to stay very close to center point.
+         aiPlanSetVariableVector(gForwardBaseBuildPlan, cBuildPlanInfluencePosition, 0,
+                                 location); // Position influence for center
+         aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluencePositionDistance, 0, 50.0); // 100m range.
+         aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluencePositionValue, 0,
+                                100.0); // 100 points for center
+         aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluencePositionFalloff, 0,
+                              cBPIFalloffLinear); // Linear slope falloff
+
+         // Add position influence for nearby towers
+            aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitTypeID, 0, cUnitTypeFortFrontier);   // Don't build anywhere near another fort.
+			aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitDistance, 0, 32.0);
+			aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitValue, 0, 300.0);        // -20 points per fort
+			aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitFalloff, 0, cBPIFalloffLinear);  // Cliff falloff// Add position influence for nearby towers
+			
+			aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitTypeID, 0, cUnitTypeFortFrontier);   // Don't build anywhere near another fort.
+			aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitDistance, 0, 18.0);
+			aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitValue, 0, -200.0);        // -20 points per fort
+			aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitFalloff, 0, cBPIFalloffNone);
+
+         aiPlanSetActive(gForwardBaseBuildPlan);
+      }
+		  }
+   }
 }
 
 
@@ -7564,9 +7976,9 @@ minInterval 28
 
                   // below default priority if we do not have enough units.
                   if (totalValue < 1000.0)
-                     aiPlanSetDesiredResourcePriority(upgradePlanID, 45 - (5 - totalValue / 200));
+                     aiPlanSetDesiredResourcePriority(upgradePlanID, 50 - (5 - totalValue / 200));
                   else
-                     aiPlanSetDesiredResourcePriority(upgradePlanID, 50);
+                     aiPlanSetDesiredResourcePriority(upgradePlanID, 55);
                   xsArraySetInt(unitsNotMaintainedUpgrade, i, upgradePlanID);
                }
             }
@@ -14511,6 +14923,8 @@ minInterval 10
 		{
 			if (cMyCiv == cCivChinese)
 			buildingType = cUnitTypeFortFrontier;
+		else
+			buildingType = -1;
          break;
       }
 		}
@@ -14740,11 +15154,11 @@ minInterval 2
    // true);
    // If we have a negative bias, don't claim trade route TPs until 10 minutes.
    if (btBiasTrade < 0.0)
-      gLastClaimTradeMissionTime = xsGetTime() + 600000;
+      gLastClaimTradeMissionTime = xsGetTime() + 5*60*1000;
    else
       gLastClaimTradeMissionTime = xsGetTime() - (1.0 - btBiasTrade) * gClaimTradeMissionInterval;
    // Don't claim native TPs until 15 minutes.
-   gLastClaimNativeMissionTime = xsGetTime() + 900000;
+      gLastClaimNativeMissionTime = xsGetTime() + 10*60*1000;
 }
 
 void selectTCBuildPlanPosition(int buildPlan = -1, int baseID = -1)
@@ -15947,7 +16361,7 @@ minInterval 5
             {
                planID = aiPlanCreate("Forward " + kbGetUnitTypeName(buildingPUID) + " build plan ", cPlanBuild);
                aiPlanSetVariableInt(planID, cBuildPlanBuildingTypeID, 0, buildingPUID);
-               aiPlanSetDesiredPriority(planID, 87);
+               aiPlanSetDesiredPriority(planID, 95);
                // Military
                aiPlanSetMilitary(planID, true);
                aiPlanSetEconomy(planID, false);
@@ -15967,11 +16381,15 @@ minInterval 5
                                        cBPIFalloffLinear); // Linear slope falloff
 
                   // Add position influence for nearby towers
-                  aiPlanSetVariableInt(planID, cBuildPlanInfluenceUnitTypeID, 0,
-                                       cUnitTypeFortFrontier); // Don't build anywhere near another fort.
-                  aiPlanSetVariableFloat(planID, cBuildPlanInfluenceUnitDistance, 0, 50.0);
-                  aiPlanSetVariableFloat(planID, cBuildPlanInfluenceUnitValue, 0, -200.0); // -20 points per fort
-                  aiPlanSetVariableInt(planID, cBuildPlanInfluenceUnitFalloff, 0, cBPIFalloffNone); // Cliff falloff
+		    aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitTypeID, 0, cUnitTypeFortFrontier);   // Don't build anywhere near another fort.
+			aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitDistance, 0, 32.0);
+			aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitValue, 0, 300.0);        // -20 points per fort
+			aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitFalloff, 0, cBPIFalloffLinear);  // Cliff falloff// Add position influence for nearby towers
+			
+			aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitTypeID, 0, cUnitTypeFortFrontier);   // Don't build anywhere near another fort.
+			aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitDistance, 0, 18.0);
+			aiPlanSetVariableFloat(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitValue, 0, -200.0);        // -20 points per fort
+			aiPlanSetVariableInt(gForwardBaseBuildPlan, cBuildPlanInfluenceUnitFalloff, 0, cBPIFalloffNone);
 
                   aiPlanSetActive(planID);
 
@@ -26183,6 +26601,9 @@ void shipGrantedHandler(int parm = -1) // Event handler
                totalValue = 2500.0; // Big, but smaller than fort wagon.
 
 
+            if (tech == cTechHCXPNationalRedoubt)
+               totalValue = 2500.0; // Big, but smaller than fort wagon.
+
             if (tech == cTechHCXPAztecMining)
                totalValue = 2500.0; // Big, but smaller than fort wagon.
 		   
@@ -34211,6 +34632,10 @@ void autoCreatePlanHandler(int planID = -1)
    {
       if (parentPlanID == gEconUpgradePlan)// &&
           //((xsGetTime() > 12 * 60 * 1000) || (btRushBoom < 0.0) || (agingUp() == true) || (kbGetAge() >= cAge3)))
+		  
+		 if (kbGetAge() == cvMaxAge)
+         aiPlanSetDesiredResourcePriority(planID, 75);
+		 else
          aiPlanSetDesiredResourcePriority(planID, 60);
    }
    }
