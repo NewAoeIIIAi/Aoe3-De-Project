@@ -773,77 +773,77 @@ minInterval 15
             // buildings generating resources
             case cUnitTypeBank:
             {
-               baseAssets = baseAssets + 800.0;
+               baseAssets = baseAssets + 2500.0;
                break;
             }
             case cUnitTypeFactory:
             {
-               baseAssets = baseAssets + 1600.0;
+               baseAssets = baseAssets + 5000.0;
                break;
             }
             case cUnitTypeypWCPorcelainTower2:
             {
-               baseAssets = baseAssets + 800.0;
+               baseAssets = baseAssets + 2500.0;
                break;
             }
             case cUnitTypeypWCPorcelainTower3:
             {
-               baseAssets = baseAssets + 1200.0;
+               baseAssets = baseAssets + 2500.0;
                break;
             }
             case cUnitTypeypWCPorcelainTower4:
             {
-               baseAssets = baseAssets + 1600.0;
+               baseAssets = baseAssets + 2500.0;
                break;
             }
             case cUnitTypeypWCPorcelainTower5:
             {
-               baseAssets = baseAssets + 1600.0;
+               baseAssets = baseAssets + 2500.0;
                break;
             }
             case cUnitTypeypShrineJapanese:
             {
-               baseAssets = baseAssets + 200.0;
+               baseAssets = baseAssets + 1000.0;
                break;
             }
             case cUnitTypeypWJToshoguShrine2:
             {
-               baseAssets = baseAssets + 400.0;
+               baseAssets = baseAssets + 2500.0;
                break;
             }
             case cUnitTypeypWJToshoguShrine3:
             {
-               baseAssets = baseAssets + 400.0;
+               baseAssets = baseAssets + 5000.0;
                break;
             }
             case cUnitTypeypWJToshoguShrine4:
             {
-               baseAssets = baseAssets + 400.0;
+               baseAssets = baseAssets + 5000.0;
                break;
             }
             case cUnitTypeypWJToshoguShrine5:
             {
-               baseAssets = baseAssets + 400.0;
+               baseAssets = baseAssets + 5000.0;
                break;
             }
             case cUnitTypedeHouseInca:
             {
-               baseAssets = baseAssets + 200.0;
+               baseAssets = baseAssets + 2500.0;
                break;
             }
             case cUnitTypedeTorp:
             {
-               baseAssets = baseAssets + 200.0;
+               baseAssets = baseAssets + 1000.0;
                break;
             }
             case cUnitTypedeMountainMonastery:
             {
-               baseAssets = baseAssets + 300.0;
+               baseAssets = baseAssets + 2500.0;
                break;
             }
             case cUnitTypedeUniversity:
             {
-               baseAssets = baseAssets + 300.0;
+               baseAssets = baseAssets + 2500.0;
                break;
             }
             // buildings automatically creating military units
@@ -936,62 +936,62 @@ minInterval 15
             // military buildings
             case cUnitTypeBarracks:
             {
-               baseAssets = baseAssets + 100.0;
+               baseAssets = baseAssets + 1000.0;
                break;
             }
             case cUnitTypeStable:
             {
-               baseAssets = baseAssets + 100.0;
+               baseAssets = baseAssets + 1000.0;
                break;
             }
             case cUnitTypeArtilleryDepot:
             {
-               baseAssets = baseAssets + 100.0;
+               baseAssets = baseAssets + 1000.0;
                break;
             }
             case cUnitTypeCorral:
             {
-               baseAssets = baseAssets + 100.0;
+               baseAssets = baseAssets + 1000.0;
                break;
             }
             case cUnitTypeypWarAcademy:
             {
-               baseAssets = baseAssets + 100.0;
+               baseAssets = baseAssets + 1000.0;
                break;
             }
             case cUnitTypeYPBarracksIndian:
             {
-               baseAssets = baseAssets + 100.0;
+               baseAssets = baseAssets + 1000.0;
                break;
             }
             case cUnitTypeypCaravanserai:
             {
-               baseAssets = baseAssets + 100.0;
+               baseAssets = baseAssets + 1000.0;
                break;
             }
             case cUnitTypeypBarracksJapanese:
             {
-               baseAssets = baseAssets + 100.0;
+               baseAssets = baseAssets + 1000.0;
                break;
             }
             case cUnitTypeypStableJapanese:
             {
-               baseAssets = baseAssets + 100.0;
+               baseAssets = baseAssets + 1000.0;
                break;
             }
             case cUnitTypedeKallanka:
             {
-               baseAssets = baseAssets + 100.0;
+               baseAssets = baseAssets + 1000.0;
                break;
             }
             case cUnitTypedeWarCamp:
             {
-               baseAssets = baseAssets + 100.0;
+               baseAssets = baseAssets + 1000.0;
                break;
             }
             case cUnitTypedePalace:
             {
-               baseAssets = baseAssets + 200.0;
+               baseAssets = baseAssets + 2500.0;
                break;
             }
             // villagers
@@ -1002,17 +1002,17 @@ minInterval 15
             }
             case cUnitTypeSettlerWagon:
             {
-               baseAssets = baseAssets + 2000.0;
+               baseAssets = baseAssets + 4000.0;
                break;
             }
             case cUnitTypeCoureur:
             {
-               baseAssets = baseAssets + 1400.0;
+               baseAssets = baseAssets + 1500.0;
                break;
             }
             case cUnitTypeCoureurCree:
             {
-               baseAssets = baseAssets + 1400.0;
+               baseAssets = baseAssets + 1500.0;
                break;
             }
             case cUnitTypeSettlerNative:
@@ -1173,7 +1173,9 @@ minInterval 15
             militaryPower = 1.0;
             buildingPower = 0.0;
          }
-
+		 
+		 if ((kbGetAge() < cvMaxAge) || (gRevolutionType == 0))
+		 {
          if (isEnemy == true)
          {
             // do we have enough power to defeat the target base?
@@ -1191,6 +1193,7 @@ minInterval 15
          // prioritize defending allies.
          if (isEnemy == true && targetIsEnemy == false)
             shouldAttack = false;
+		 }
 
          /*if (aiGetWorldDifficulty() >= gDifficultyExpert)
          {
@@ -1215,6 +1218,12 @@ minInterval 15
             affordable = armyPower / (militaryPower + buildingPower);
          else
             affordable = (armyPower + militaryPower + buildingPower) / enemyMilitaryPower;
+		
+		if ((kbGetAge() >= cvMaxAge) || (gRevolutionType != 0))
+		 {
+			 if (affordable > 0.4)
+				 affordable = 1.0;
+		 }
 
          // Adjust for distance. If < 100m, leave as is.  Over 100m to 400m, penalize 10% per 100m.
          distancePenalty = distance(mainBaseLocation, baseLocation) / 1000.0;
@@ -1309,8 +1318,12 @@ minInterval 15
          if (difficulty >= cDifficultyModerate)
             aiPlanSetVariableBool(planID, cCombatPlanAllowMoreUnitsDuringAttack, 0, true);
          aiPlanSetVariableInt(planID, cCombatPlanRefreshFrequency, 0, 300);
+		 if ((kbGetAge() < cvMaxAge) || (gRevolutionType == 0))
          aiPlanSetVariableInt(planID, cCombatPlanDoneMode, 0, cCombatPlanDoneModeRetreat | cCombatPlanDoneModeBaseGone);
+		 if ((kbGetAge() < cvMaxAge) || (gRevolutionType == 0))
+		 {
          aiPlanSetVariableInt(planID, cCombatPlanRetreatMode, 0, cCombatPlanRetreatModeOutnumbered);
+		 }
          updateMilitaryTrainPlanBuildings(gForwardBaseID);
       }
       else
@@ -1345,8 +1358,10 @@ minInterval 15
       aiPlanSetVariableInt(planID, cCombatPlanTargetPlayerID, 0, targetPlayer);
       aiPlanSetVariableVector(planID, cCombatPlanTargetPoint, 0, baseLocation);
       aiPlanSetVariableInt(planID, cCombatPlanRefreshFrequency, 0, difficulty >= cDifficultyModerate ? 300 : 1000);
+	  if ((kbGetAge() < cvMaxAge) || (gRevolutionType == 0))
       aiPlanSetVariableInt(planID, cCombatPlanDoneMode, 0, cCombatPlanDoneModeNoTarget | cCombatPlanDoneModeRetreat);
       aiPlanSetVariableInt(planID, cCombatPlanNoTargetTimeout, 0, 1000);
+	  if ((kbGetAge() < cvMaxAge) || (gRevolutionType == 0))
       aiPlanSetVariableInt(planID, cCombatPlanRetreatMode, 0, cCombatPlanRetreatModeOutnumbered);
       aiPlanSetOrphan(planID, true);
 
@@ -2628,6 +2643,24 @@ void setUnitPickerPreference(int upID = -1)
 			 }
              break;
            }
+		   case cCivDEMexicans:
+           {         
+             kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypedeSoldado, heavyInfantryFactor); 
+             kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypedeChinaco, OttoHussarFactor);  
+             kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypedeEmboscador, lightInfantryFactor);  
+             kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeAbstractOutlaw, 0.1);  
+             if (kbGetAge() < cAge3)
+			 {      
+             kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypedeInsurgente, lightCavalryFactor);  
+			 }
+			 else
+			 {
+			 kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypedeInsurgente, lightCavalryFactor*0);  
+             kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeDragoon, lightCavalryFactor); 
+			 }
+             //kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypedeUSCavalry, lightCavalryFactor);  
+             break;
+           }
 		   case cCivDEEthiopians:
            {         
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypedeGascenya, heavyInfantryFactor); 
@@ -3566,6 +3599,7 @@ minInterval 13
       if (difficulty >= cDifficultyModerate)
       {
          aiPlanSetVariableInt(gLandDefendPlan0, cCombatPlanRefreshFrequency, 0, 300);
+		 if ((kbGetAge() < cvMaxAge) || (gRevolutionType == 0))
          aiPlanSetVariableInt(gLandDefendPlan0, cCombatPlanRetreatMode, 0, cCombatPlanRetreatModeOutnumbered);
       }
       else
@@ -3611,6 +3645,7 @@ minInterval 13
       if (difficulty >= cDifficultyModerate)
       {
          aiPlanSetVariableInt(gLandReservePlan, cCombatPlanRefreshFrequency, 0, 300);
+		 if ((kbGetAge() < cvMaxAge) || (gRevolutionType == 0))
          aiPlanSetVariableInt(gLandReservePlan, cCombatPlanRetreatMode, 0, cCombatPlanRetreatModeOutnumbered);
       }
       else

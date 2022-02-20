@@ -923,7 +923,11 @@ minInterval 20
    }
    if (bestTacticPriority >= cMinDancePriorityVillager && (time - lastVillagerTime) >= 60000)
    {
-      numEconUnits = kbUnitCount(cMyID, gEconUnit, cUnitStateAlive) / 10;
+      numEconUnits = ((kbUnitCount(cMyID, gEconUnit, cUnitStateAlive) * 0.10) - totalBonusDancers);// 10;
+	  if (numEconUnits > 25)
+            numEconUnits = 25;
+         if (numEconUnits < 0)
+            numEconUnits = 0;
       switch (bestTacticID)
       {
       case cTacticWarDance:
@@ -933,7 +937,7 @@ minInterval 20
          if (maxMilitaryPop > 0)
             militaryPercentage =
                 kbGetPopulationSlotsByUnitTypeID(cMyID, cUnitTypeLogicalTypeLandMilitary) / maxMilitaryPop;
-         numEconUnits = militaryPercentage * numEconUnits * 2 - totalBonusDancers;
+         numEconUnits = ((kbUnitCount(cMyID, gEconUnit, cUnitStateAlive) * 0.26) - totalBonusDancers);
          if (numEconUnits > 25)
             numEconUnits = 25;
          if (numEconUnits < 0)
@@ -956,7 +960,7 @@ minInterval 20
       {
          // Add a number of dancers equivalent to 1/10 of settler pop, rounded down
          // Make sure no more than 25 units are assigned in total
-         numEconUnits = numEconUnits - totalBonusDancers;
+         numEconUnits = ((kbUnitCount(cMyID, gEconUnit, cUnitStateAlive) * 0.10) - totalBonusDancers);
          if (numEconUnits > 25)
             numEconUnits = 25;
          if (numEconUnits < 0)
@@ -2588,7 +2592,7 @@ minInterval 10
 			gAbstractArtilleryUnit = cUnitTypexpHorseArtillery;
 		}
 		
-	  xsEnableRule("delayWalls");
+	  //xsEnableRule("delayWalls");
 
       xsEnableRule("age5Monitor");
       xsDisableSelf();
@@ -2712,7 +2716,7 @@ minInterval 10
    }
 }
 
-rule brigadeMonitor
+rule brigadeMonitors
 inactive
 mininterval 10
 {

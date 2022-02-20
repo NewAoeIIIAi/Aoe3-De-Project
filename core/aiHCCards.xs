@@ -294,7 +294,9 @@ highFrequency
                 (techName == "DEHCHandCavalryDamageHausa") ||
                 (techName == "DEHCHandCavalryHitpointsHausa") ||
                 (techName == "DEHCFulaniArcherCombat") ||
-                (techName == "DEHCSveaLifeguard") ||
+                (techName == "DEHCFirearmsBritish") ||
+                (techName == "DEHCFirearmsItalian") ||
+                (techName == "DEHCKingslayer") ||
                 (techName == "DEHCSveaLifeguard") ||
                 (techName == "DEHCSveaLifeguard") ||
                 (techName == "DEHCSveaLifeguard") ||
@@ -510,8 +512,8 @@ highFrequency
                  (techName == "YPHCGurkhaAid") ||                
                  (techName == "YPHCEastIndiaCompany") ||
                  (techName == "YPHCCamelFrightening") ||
-                 (getAllyCount() > 0) && ((techName == "YPHCRainbowTrickleTeam") ||
-                 (techName == "YPHCInfantrySpeedHitpointsTeam")) ||
+                 //(getAllyCount() > 0) && ((techName == "YPHCRainbowTrickleTeam") ||
+         (techName == "YPHCInfantrySpeedHitpointsTeam") ||
 		 (techName == "YPHCElephantCombatIndians") ||
 		 (techName == "YPHCElephantTrampling") ||
 		 (techName == "YPHCCamelDamageIndians") ||
@@ -575,7 +577,7 @@ highFrequency
 		 (techName == "HCUniqueCombatRussian") ||
                  (techName == "HCXPIndustrialRevolution") ||
                  //((gNavyMap == false) && (techName == "HCXPSevastopol")) ||
-                 ((getAllyCount() > 0) && (techName == "HCDuelingSchoolTeam")) ||
+                 (techName == "HCDuelingSchoolTeam") ||
                  ((getAllyCount() > 0) && (techName == "HCArchaicTrainingTeam")) ||
 		 (techName == "HCDuelingSchoolTeam") ||   
 		 //(techName == "HCHandInfantryHitpointsSpanish")) ||   
@@ -604,8 +606,8 @@ highFrequency
          ((getAllyCount() > 0) && (techName == "DEHCFalunMineTeam")) ||
 		 //(techName == "HCSilkRoadTeam") ||
 		 (techName == "HCXPAztecMining") ||
-		       (techName == "YPHCShipBerryWagon2") ||
-		       (techName == "YPHCShipGroveWagonIndians2") ||
+		       //(techName == "YPHCShipBerryWagon2") ||
+		       //(techName == "YPHCShipGroveWagonIndians2") ||
 		       (techName == "DEHCKosciuszkoFortifications") ||
 		       (techName == "DEHCShipCapturedRockets") ||
 		       (techName == "DEHCImmigrantsDutch") ||
@@ -635,6 +637,11 @@ highFrequency
                    (techName == "DEHCShipJanissariesRepeat") ||
                 (techName == "HCUnlockFactory") ||
                 (techName == "HCRobberBarons") ||
+		       (techName == "DEHCChapultepecCastle") ||
+		       (techName == "DEHCManOfDestiny") ||
+		       (techName == "DEHCGuerillaTactics") ||
+		       (techName == "DEHCPresidios") ||
+		       (techName == "DEHCSPCLiberationMarch") ||
 				//(techName == "DEHCShipLeatherCannons1") ||
                  ((gNavyMap == true) && (techName == "HCSchooners")) ||
                  ((gNavyMap == true) && (techName == "YPHCSchoonersIndians")) ||
@@ -644,7 +651,7 @@ highFrequency
                  ((gNavyMap == true) && (techName == "HCCavalryDamageGermanTeam")))  
             xsArraySetInt(gCardPriorities, i, 10);
 			
-			
+			/*
 			// Raise priority of specific cards important to the AI. Rush version
          if (((xsArrayGetInt(gCardPriorities, i) < 5) &&
 		      ((techName == "YPHCShipQiangPikeman2") ||
@@ -715,6 +722,7 @@ highFrequency
 		       cardPriority = 5;
 		    xsArraySetInt(gCardPriorities, i, cardPriority);
 		 }
+		 */
 			if (getAllyCount() > 0)
          { // Raise priority of TEAM cards when we have an ally.
             if ((xsArrayGetInt(gCardPriorities, i) < 10) && ((flags & cHCCardFlagTeam) == cHCCardFlagTeam))
@@ -745,24 +753,24 @@ highFrequency
 			 {
 			 if ((techName == "YPHCShipQiangPikeman2") ||
 			   (techName == "HCXPShipTomahawk1") ||
-		       (techName == "HCXPShipAennas2") ||
+		       //(techName == "HCXPShipAennas2") ||
 		       (techName == "HCXPShipAennas5") ||
-		       (techName == "HCShipCrossbowmen3German") ||
-               (techName == "HCXPShipMacehualtins1") ||
+		       //(techName == "HCShipCrossbowmen3German") ||
+               //(techName == "HCXPShipMacehualtins1") ||
                (techName == "HCXPShipMacehualtins3") ||
 			   (techName == "DEHCShipLeatherCannons1") ||
 		       //(techName == "HCExtensiveFortifications") ||
 		       //(techName == "HCXPExtensiveFortifications2") ||
-		       (techName == "YPHCShipChuKoNu1") ||
+		       //(techName == "YPHCShipChuKoNu1") ||
 		       (techName == "YPHCShipMandarinDuckSquad") ||
-		       (techName == "HCShipCrossbowmen1") ||
+		       //(techName == "HCShipCrossbowmen1") ||
 		       //(techName == "HCShipPikemen1") ||
 		       (techName == "YPHCShipSepoy1") ||
-               //(techName == "DEHCSveaLifeguard") ||
+               (techName == "HCXPShipLightCannon2") ||
                (techName == "DEHCShipSudaneseAllies1") ||
                (techName == "DEHCShipSudaneseAllies2") ||
                (techName == "DEHCShipSebastopolMortarTeam") ||
-               (techName == "DEHCShipSebastopolMortar1") ||
+               //(techName == "DEHCShipSebastopolMortar1") ||
                (techName == "DEHCShipSebastopolMortar2") ||
                (techName == "DEHCMercsSennarHorsemen") ||
                (techName == "DEHCMercsDahomeyAmazons") ||
@@ -815,7 +823,7 @@ highFrequency
 			 
 			 if (aiTreatyActive() == true)
 			 {
-			 if ((techName == "YPHCShipQiangPikeman2") ||
+			 if /*((techName == "YPHCShipQiangPikeman2") ||
 			   (techName == "HCXPShipTomahawk1") ||
 		       (techName == "HCXPShipAennas2") ||
 		       (techName == "HCXPShipAennas5") ||
@@ -829,26 +837,26 @@ highFrequency
 		       (techName == "YPHCShipMandarinDuckSquad") ||
 		       (techName == "HCShipCrossbowmen1") ||
 		       //(techName == "HCShipPikemen1") ||
-		       (techName == "YPHCShipSepoy1") ||
+		       (techName == "YPHCShipSepoy1") ||*/
                //(techName == "DEHCSveaLifeguard") ||
-               (techName == "DEHCShipSudaneseAllies1") ||
-               (techName == "DEHCShipSudaneseAllies2") ||
-               (techName == "DEHCShipSebastopolMortarTeam") ||
-               (techName == "DEHCShipSebastopolMortar1") ||
-               (techName == "DEHCShipSebastopolMortar2") ||
-               (techName == "DEHCMercsSennarHorsemen") ||
-               (techName == "DEHCMercsDahomeyAmazons") ||
-               (techName == "DEHCMercsCannoneers") ||
-               (techName == "YPHCShipYumi1") ||
-		       (techName == "YPHCShipAshigaru2") ||
-		       (techName == "HCShipCossacks4") ||
-		       (techName == "HCShipStrelets1") ||
-		       (techName == "HCShipUhlans1") ||
-		 (techName == "HCShipSpahis3") ||
-		 (techName == "HCXPShipMixedCrates2") ||
+               //(techName == "DEHCShipSudaneseAllies1") ||
+               //(techName == "DEHCShipSudaneseAllies2") ||
+               //(techName == "DEHCShipSebastopolMortarTeam") ||
+               //(techName == "DEHCShipSebastopolMortar1") ||
+               //(techName == "DEHCShipSebastopolMortar2") ||
+               //(techName == "DEHCMercsSennarHorsemen") ||
+               //(techName == "DEHCMercsDahomeyAmazons") ||
+               //(techName == "DEHCMercsCannoneers") ||
+               //(techName == "YPHCShipYumi1") ||
+		       //(techName == "YPHCShipAshigaru2") ||
+		       //(techName == "HCShipCossacks4") ||
+		       //(techName == "HCShipStrelets1") ||
+		       //(techName == "HCShipUhlans1") ||
+		 //((techName == "HCShipSpahis3") ||
+		 ((techName == "HCXPShipMixedCrates2") ||
 		 (techName == "YPHCShipWoodCrates2Indians") ||
                  (techName == "HCXPCapitalism") ||
-				(techName == "HCShipFalconets3") ||
+				(techName == "HCXPShipLightCannon2") ||
                    (techName == "HCShipWoodCrates3") ||
                    (techName == "ypHCShipWoodCrates2") ||
                    (techName == "ypHCShipWoodCrates4") ||
@@ -909,7 +917,7 @@ highFrequency
 		       (techName == "HCCigarRollerGerman") ||
 		       (techName == "DEHCKilishiJerky") ||
 		       (techName == "DEHCHegemony") ||
-		       (techName == "DEHCShipInfluenceInfinite") ||
+		       (techName == "DEHCShipInfluenceInfinite2") ||
 		       (techName == "cTechDEHCCequeSystem") ||
 		       (techName == "YPHCShipRicePaddyWagon1") ||
 		       (techName == "YPHCShipRicePaddyWagon2") ||
@@ -928,10 +936,11 @@ highFrequency
 		       (techName == "DEHCSPCShipSebastopolMortarRepeat1") ||
 		       (techName == "HCMercenaryCombatGerman") ||
 		       (techName == "HCXPShipCannonsRepeat") ||
-		       (techName == "HCXPAdvancedScouts") ||
+		       (techName == "DEHCShipSebastopolMortarRepeat") ||
 		       (techName == "HCXPTupiAlliesRepeat") ||
 		       (techName == "YPHCMercsWarElephant1") ||
 		       (techName == "YPHCShipUrumi2") ||
+		       (techName == "YPHCEngineeringSchoolTeam") ||
 		       (techName == "YPHCShipNaginataRider1") ||
 		       (techName == "DEHCComancheAlliesRepeat") ||
 		       (techName == "DEHCCreeAlliesRepeat") ||
@@ -947,6 +956,8 @@ highFrequency
 		       (techName == "HCXPExtensiveFortifications2") ||
                (techName == "DEHCSveaLifeguard") ||
 		       (techName == "HCRefrigeration") ||
+		       (techName == "DEHCAltaCalifornia") ||
+		       //(techName == "DEHCHidalgoLand") ||
 		       (techName == "HCRefrigerationGerman"))
 		 {
 		    cardPriority = xsArrayGetInt(gCardPriorities, i);
@@ -982,7 +993,7 @@ highFrequency
 		       (techName == "HCCigarRollerGerman") ||
 		       (techName == "DEHCKilishiJerky") ||
 		       (techName == "DEHCHegemony") ||
-		       (techName == "DEHCShipInfluenceInfinite") ||
+		       (techName == "DEHCShipInfluenceInfinite2") ||
 		       (techName == "cTechDEHCCequeSystem") ||
 		       (techName == "YPHCShipRicePaddyWagon1") ||
 		       (techName == "YPHCShipRicePaddyWagon2") ||
@@ -1001,10 +1012,11 @@ highFrequency
 		       (techName == "DEHCSPCShipSebastopolMortarRepeat1") ||
 		       (techName == "HCMercenaryCombatGerman") ||
 		       (techName == "HCXPShipCannonsRepeat") ||
-		       (techName == "HCXPAdvancedScouts") ||
+		       (techName == "DEHCShipSebastopolMortarRepeat") ||
 		       (techName == "HCXPTupiAlliesRepeat") ||
 		       (techName == "YPHCMercsWarElephant1") ||
 		       (techName == "YPHCShipUrumi2") ||
+		       (techName == "YPHCEngineeringSchoolTeam") ||
 		       (techName == "YPHCShipNaginataRider1") ||
 		       (techName == "DEHCComancheAlliesRepeat") ||
 		       (techName == "DEHCCreeAlliesRepeat") ||
@@ -1020,6 +1032,8 @@ highFrequency
 		       (techName == "HCXPExtensiveFortifications2") ||
                (techName == "DEHCSveaLifeguard") ||
 		       (techName == "HCRefrigeration") ||
+		       (techName == "DEHCAltaCalifornia") ||
+		       //(techName == "DEHCHidalgoLand") ||
 		       (techName == "HCRefrigerationGerman"))
 		 {
 		    cardPriority = xsArrayGetInt(gCardPriorities, i);
@@ -1385,8 +1399,8 @@ highFrequency
               ((tech == cTechHCXPEconomicTheory) || (tech == cTechYPHCEconomicTheoryAsia) ||
                (tech == cTechHCAdvancedArsenal) || (tech == cTechHCAdvancedArsenalGerman) ||
                (tech == cTechHCXPNewWaysIroquois) || (tech == cTechHCXPNewWaysSioux) ||
-               (tech == cTechYPHCSpawnRefugees1) || (tech == cTechYPHCShipBerryWagon2) ||
-               (tech == cTechYPHCShipGroveWagonIndians2) || (tech == cTechYPHCShipShogunate))))
+               /*(tech == cTechYPHCSpawnRefugees1) || (tech == cTechYPHCShipBerryWagon2) ||
+               (tech == cTechYPHCShipGroveWagonIndians2) ||*/ (tech == cTechYPHCShipShogunate))))
          {
             cardPriority = xsArrayGetInt(gCardPriorities, i);
             if (cardPriority < 5)
@@ -2678,7 +2692,7 @@ void shipGrantedHandler(int parm = -1) // Event handler
                int tcTarget = 1;
                if (kbGetAge() >= cAge3)
                {
-                  tcTarget = 2;
+                  tcTarget = 3;
                   if (cMyCiv == cCivOttomans)
                   {
                      tcTarget = 3;
@@ -2735,12 +2749,12 @@ void shipGrantedHandler(int parm = -1) // Event handler
                totalValue = 2000.0 * qtyAvail; // Big, but smaller than TC wagon.
             break;
          }
-         //case cUnitTypeYPDojoWagon:
-         //{
-         //   if ((cvOkToBuild == true) && (homeBaseUnderAttack == false))
-         //      totalValue = 1500.0; // Big, but smaller than TC wagon.
-         //   break;
-         //}
+         case cUnitTypeYPDojoWagon:
+         {
+           if ((cvOkToBuild == true) && (homeBaseUnderAttack == false))
+               totalValue = 1500.0; // Big, but smaller than TC wagon.
+            break;
+         }
          case cUnitTypedeREVStarTrekWagon:
          {
             // Disable South Africa trek wagons, the AI doesn't know to handle them.
@@ -2928,6 +2942,31 @@ void shipGrantedHandler(int parm = -1) // Event handler
                  (tech == cTechHCSpanishGalleons)) &&
                 (kbUnitCount(cMyID, cUnitTypeDock, cUnitStateAlive) < 1))
                totalValue = 1.0; // Handle shipments which rely on a Dock.
+			   
+               totalValue = 1.0; // Handle shipments which rely on a Dock.
+            if ((tech == cTechHCRoyalDecreeBritish) || (tech == cTechHCRoyalDecreeDutch) ||
+                (tech == cTechHCRoyalDecreeFrench) || (tech == cTechHCRoyalDecreeGerman) ||
+                (tech == cTechHCRoyalDecreeOttoman) || (tech == cTechHCRoyalDecreePortuguese) ||
+                (tech == cTechHCRoyalDecreeRussian) || (tech == cTechHCRoyalDecreeSpanish))
+            { // Handle 'Royal Decree'.
+               if ((homeBaseUnderAttack == true) || (kbUnitCount(cMyID, cUnitTypeChurch, cUnitStateAlive) < 1) ||
+                   (kbGetAge() < cAge3))
+               {
+                  totalValue = 100.0;
+               }
+               else if (kbGetAge() == cAge3)
+               {
+                  totalValue = 1000.0; // High priority in age4, default otherwise.
+                  if (cMyCiv == cCivGermans)
+                     totalValue = 1450.0; // Necessary to cope with uhlans being included in calculation
+               }
+               else if (kbGetAge() > cAge3)
+               {
+                  totalValue = 2500.0; // High priority in age4, default otherwise.
+                  if (cMyCiv == cCivGermans)
+                     totalValue = 3100.0; // Necessary to cope with uhlans being included in calculation
+               }
+            }
 
             if ((tech == cTechHCAdvancedArsenal) || (tech == cTechHCAdvancedArsenalGerman))
             { // Handle 'Advanced Arsenal'.
@@ -2970,12 +3009,12 @@ void shipGrantedHandler(int parm = -1) // Event handler
 
             if (((tech == cTechHCBanks1) || (tech == cTechHCBanks2)) &&
                 (kbUnitCount(cMyID, cUnitTypeBank, cUnitStateAlive) >= kbGetBuildLimit(cMyID, cUnitTypeBank)))
-               totalValue = 1510.0;
+               totalValue = 1600.0;
             else if (
                 ((tech == cTechHCBanks1) || (tech == cTechHCBanks2)) &&
                 ((kbUnitCount(cMyID, cUnitTypeBank, cUnitStateAlive) < kbGetBuildLimit(cMyID, cUnitTypeBank)) &&
                  (kbUnitCount(cMyID, cUnitTypeBank, cUnitStateAlive) < 1)))
-               totalValue = 1.0;
+               totalValue = 800.0;
 
             if ((tech == cTechHCGermantownFarmers || tech == cTechDEHCImmigrantsGerman) && gTimeToFarm == false)
                totalValue = 1.0;
@@ -3027,12 +3066,12 @@ void shipGrantedHandler(int parm = -1) // Event handler
                       tech == cTechDEHCREVAcehExports || tech == cTechDEHCREVMinasGerais || tech == cTechDEHCREVSalitrera)
                   {
                      // we are running out of resources, send the citizenship shipment to restore our economy.
-                     if (xsArrayGetFloat(gResourceNeeds, cResourceFood) > -1000.0 ||
-                         xsArrayGetFloat(gResourceNeeds, cResourceWood) > -1000.0 ||
-                         xsArrayGetFloat(gResourceNeeds, cResourceGold) > -1000.0)
+                     //if (xsArrayGetFloat(gResourceNeeds, cResourceFood) > -1000.0 ||
+                     //    xsArrayGetFloat(gResourceNeeds, cResourceWood) > -1000.0 ||
+                     //   xsArrayGetFloat(gResourceNeeds, cResourceGold) > -1000.0)
                         totalValue = 3000.0;
-                     else
-                        totalValue = 1.0;
+                     //else
+                     //   totalValue = 1.0;
                   }
                }
                if (tech == cTechDEHCREVNothernWilderness)
@@ -3044,14 +3083,12 @@ void shipGrantedHandler(int parm = -1) // Event handler
                   else
                      totalValue = 1.0;
                }
-               if (tech == cTechDEHCREVTurkuAcademy)
-                  totalValue = 1.0;
                if (tech == cTechDEHCREVBlackberries)
                   totalValue = 115.0 * kbUnitCount(cMyID, gHouseUnit, cUnitStateAlive);
                if (tech == cTechDEHCREVShipXhosaFoods)
                   totalValue = 900.0; // exclude the herdables
-               if (tech == cTechDEHCREVHuguenots)
-                  totalValue = 1.0; // Allow coureurs to be trained
+               //if (tech == cTechDEHCREVHuguenots)
+                //  totalValue = 1.0; // Allow coureurs to be trained
                if (tech == cTechDEHCREVShipHomesteadWagons)
                {
                   if ((aiPlanGetIDByTypeAndVariableType(cPlanBuild, cBuildPlanBuildingTypeID, gFarmUnit) >= 0 ||

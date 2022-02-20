@@ -4078,7 +4078,7 @@ minInterval 15
    bool homeBaseUnderAttack = false;
    if (gDefenseReflexBaseID == kbBaseGetMainID(cMyID))
       homeBaseUnderAttack = true;
-  if ((homeBaseUnderAttack == true) || (kbGetAge() > cAge3))
+  if ((homeBaseUnderAttack == true) || (kbGetAge() > cvMaxAge))
   {
    int numberResults = 0;
    int trainUnitID = -1;

@@ -2825,6 +2825,14 @@ void initMil(void)
       gAbstractArtilleryUnit = cUnitTypexpGatlingGun;
 	  //gAbstractArtilleryUnit = cUnitTypedeLeatherCannon;
    }
+   if (kbGetCiv() == cCivDEMexicans)
+   {
+      gLandPrimaryArmyUnit = cUnitTypedeEmboscador;
+      gLandSecondaryArmyUnit = cUnitTypedeChinaco;
+      gLandTertiaryArmyUnit =  cUnitTypedeSoldado;
+      //gAbstractArtilleryUnit = cUnitTypexpGatlingGun;
+	  //gAbstractArtilleryUnit = cUnitTypedeLeatherCannon;
+   }
    if (kbGetCiv() == cCivDEEthiopians)
    {
       gLandPrimaryArmyUnit = cUnitTypedeJavelinRider;

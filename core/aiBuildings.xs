@@ -1133,6 +1133,7 @@ bool addBuilderToPlan(int planID = -1, int puid = -1, int numberBuilders = 1)
    }
    if (puid == cUnitTypeTownCenter)
    {
+	   numberBuilders = round(kbProtoUnitGetBuildPoints(puid) / 30.0);
       // US hero cannot build town centers.
       if (cMyCiv != cCivDEAmericans)
          numberFound = kbUnitQueryExecute(heroQuery);
