@@ -1133,7 +1133,7 @@ bool addBuilderToPlan(int planID = -1, int puid = -1, int numberBuilders = 1)
    }
    if (puid == cUnitTypeTownCenter)
    {
-	   numberBuilders = round(kbProtoUnitGetBuildPoints(puid) / 30.0);
+	   numberBuilders = 8; //round(kbProtoUnitGetBuildPoints(puid) / 30.0);
       // US hero cannot build town centers.
       if (cMyCiv != cCivDEAmericans)
          numberFound = kbUnitQueryExecute(heroQuery);
@@ -1149,14 +1149,14 @@ bool addBuilderToPlan(int planID = -1, int puid = -1, int numberBuilders = 1)
       }
       else
       {
-         numberBuilders = round(kbProtoUnitGetBuildPoints(puid) / 30.0);
+         numberBuilders = 8; //round(kbProtoUnitGetBuildPoints(puid) / 30.0);
          if (numberFound > 0)
          {
             aiPlanAddUnitType(planID, cUnitTypeHero, 1, 1, 1);
             numberBuilders = numberBuilders - 1;
          }
          if (numberBuilders > 0)
-            aiPlanAddUnitType(planID, gEconUnit, 1, numberBuilders, numberBuilders);
+            aiPlanAddUnitType(planID, gEconUnit, numberBuilders, numberBuilders, numberBuilders);
       }
    }
    else
@@ -3504,7 +3504,210 @@ minInterval 5
       if ((civIsEuropean() == true) || (cMyCiv == cCivDEMexicans) || (cMyCiv == cCivDEAmericans))
         xsEnableRule("spiesMonitor");
 	else
-        xsEnableRule("spiesNativeMonitor");  					  
+        xsEnableRule("spiesNativeMonitor"); 
+	
+	if ((civIsEuropean() == true) && (cMyCiv != cCivDEAmericans))	
+        xsEnableRule("ImmigrantsMonitor"); 
+	
+	if (cMyCiv == cCivDEAmericans)
+        xsEnableRule("ImmigrantsAmericanMonitor"); 
+	
+	if (civIsAsian() == true)
+        xsEnableRule("ImmigrantsAsianMonitor"); 
+	
+	if (civIsAfrican() == true)
+        xsEnableRule("ImmigrantsAfricanMonitor"); 
+
+      if ((civIsEuropean() == true) && (cMyCiv != cCivDEMexicans) && (cMyCiv != cCivDEAmericans))	
+        xsEnableRule("capitolUpgradeMonitor"); 
+	
+	
+}
+
+rule capitolUpgradeMonitor
+inactive
+minInterval 40
+{
+   int upgradePlanID = -1;
+   // Disable rule for native or Asian civs
+   if (civIsEuropean() == false)
+   {
+      xsDisableSelf();
+      return;
+   }
+   
+   if (cMyCiv == cCivDEMexicans)
+   {
+      xsDisableSelf();
+      return;
+   }
+   
+   if (cMyCiv == cCivDEAmericans)
+   {
+      xsDisableSelf();
+      return;
+   }
+   // Disable rule once all upgrades are available
+   if ((kbTechGetStatus(cTechImpKnighthood) == cTechStatusActive) &&
+       (kbTechGetStatus(cTechImpPeerage) == cTechStatusActive) &&
+       (kbTechGetStatus(cTechImpLargeScaleAgriculture) == cTechStatusActive) &&
+       (kbTechGetStatus(cTechImpDeforestation) == cTechStatusActive) &&
+       (kbTechGetStatus(cTechImpExcessiveTaxation) == cTechStatusActive) &&
+       (kbTechGetStatus(cTechImpImmigrants) == cTechStatusActive) &&
+       (kbTechGetStatus(cTechImpLegendaryNatives) == cTechStatusActive))
+   {
+      xsDisableSelf();
+      return;
+   }
+   // Get upgrades one at a time as they become available
+   if (kbTechGetStatus(cTechImpKnighthood) == cTechStatusObtainable)
+   {
+      upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechImpKnighthood);
+      if (upgradePlanID >= 0)
+         aiPlanDestroy(upgradePlanID);
+      createSimpleResearchPlan(cTechImpKnighthood, getUnit(cUnitTypeCapitol), cMilitaryEscrowID, 50);
+      return;
+   }
+   if (kbTechGetStatus(cTechImpPeerage) == cTechStatusObtainable)
+   {
+      upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechImpPeerage);
+      if (upgradePlanID >= 0)
+         aiPlanDestroy(upgradePlanID);
+      createSimpleResearchPlan(cTechImpPeerage, getUnit(cUnitTypeCapitol), cMilitaryEscrowID, 50);
+      return;
+   }
+   if (kbTechGetStatus(cTechImpLargeScaleAgriculture) == cTechStatusObtainable)
+   {
+      upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechImpLargeScaleAgriculture);
+      if (upgradePlanID >= 0)
+         aiPlanDestroy(upgradePlanID);
+      createSimpleResearchPlan(cTechImpLargeScaleAgriculture, getUnit(cUnitTypeCapitol), cEconomyEscrowID, 50);
+      return;
+   }
+   if (kbTechGetStatus(cTechImpDeforestation) == cTechStatusObtainable)
+   {
+      upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechImpDeforestation);
+      if (upgradePlanID >= 0)
+         aiPlanDestroy(upgradePlanID);
+      createSimpleResearchPlan(cTechImpDeforestation, getUnit(cUnitTypeCapitol), cEconomyEscrowID, 50);
+      return;
+   }
+   if (kbTechGetStatus(cTechImpExcessiveTaxation) == cTechStatusObtainable)
+   {
+      upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechImpExcessiveTaxation);
+      if (upgradePlanID >= 0)
+         aiPlanDestroy(upgradePlanID);
+      createSimpleResearchPlan(cTechImpExcessiveTaxation, getUnit(cUnitTypeCapitol), cEconomyEscrowID, 50);
+      return;
+   }
+   if (kbTechGetStatus(cTechImpImmigrants) == cTechStatusObtainable)
+   {
+      upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechImpImmigrants);
+      if (upgradePlanID >= 0)
+         aiPlanDestroy(upgradePlanID);
+      createSimpleResearchPlan(cTechImpImmigrants, getUnit(cUnitTypeCapitol), cEconomyEscrowID, 50);
+      return;
+   }
+   if (kbTechGetStatus(cTechImpLegendaryNatives) == cTechStatusObtainable)
+   {
+      upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechImpLegendaryNatives);
+      if (upgradePlanID >= 0)
+         aiPlanDestroy(upgradePlanID);
+      createSimpleResearchPlan(cTechImpLegendaryNatives, getUnit(cUnitTypeCapitol), cMilitaryEscrowID, 50);
+      return;
+   }
+}
+
+rule ImmigrantsMonitor
+inactive
+minInterval 30
+{
+	
+	
+   if (cMyCiv == cCivDEAmericans)
+   {
+      xsDisableSelf();
+      return;
+   }
+   
+   //If we can afford it, then get it.
+   float goldCost=kbTechCostPerResource(cTechImpImmigrants, cResourceGold);
+   float currentGold=kbResourceGet(cResourceGold);
+   if(goldCost>currentGold)
+      return;
+   //Get Omniscience
+   int spiesPID=aiPlanCreate("Get_Immigrants", cPlanProgression);
+   if (spiesPID != 0)
+   {
+      aiPlanSetVariableInt(spiesPID, cProgressionPlanGoalTechID, 0, cTechImpImmigrants);
+      aiPlanSetDesiredPriority(spiesPID, 70);
+      aiPlanSetEscrowID(spiesPID, cMilitaryEscrowID);
+      aiPlanSetActive(spiesPID);
+   }  
+   xsDisableSelf();
+}
+
+rule ImmigrantsAsianMonitor
+inactive
+minInterval 30
+{
+   //If we can afford it, then get it.
+   float goldCost=kbTechCostPerResource(cTechImpImmigrantsNative, cResourceGold);
+   float currentGold=kbResourceGet(cResourceGold);
+   if(goldCost>currentGold)
+      return;
+   //Get Omniscience
+   int spiesPID=aiPlanCreate("Get_Immigrants", cPlanProgression);
+   if (spiesPID != 0)
+   {
+      aiPlanSetVariableInt(spiesPID, cProgressionPlanGoalTechID, 0, cTechImpImmigrantsNative);
+      aiPlanSetDesiredPriority(spiesPID, 70);
+      aiPlanSetEscrowID(spiesPID, cMilitaryEscrowID);
+      aiPlanSetActive(spiesPID);
+   }  
+   xsDisableSelf();
+}
+
+rule ImmigrantsAmericanMonitor
+inactive
+minInterval 30
+{
+   //If we can afford it, then get it.
+   float goldCost=kbTechCostPerResource(cTechImpImmigrantsAmericans, cResourceGold);
+   float currentGold=kbResourceGet(cResourceGold);
+   if(goldCost>currentGold)
+      return;
+   //Get Omniscience
+   int spiesPID=aiPlanCreate("Get_Immigrants", cPlanProgression);
+   if (spiesPID != 0)
+   {
+      aiPlanSetVariableInt(spiesPID, cProgressionPlanGoalTechID, 0, cTechImpImmigrantsAmericans);
+      aiPlanSetDesiredPriority(spiesPID, 70);
+      aiPlanSetEscrowID(spiesPID, cMilitaryEscrowID);
+      aiPlanSetActive(spiesPID);
+   }  
+   xsDisableSelf();
+}
+
+rule ImmigrantsAfricanMonitor
+inactive
+minInterval 30
+{
+   //If we can afford it, then get it.
+   float goldCost=kbTechCostPerResource(cTechDEImpImmigrantsAfrican, cResourceGold);
+   float currentGold=kbResourceGet(cResourceGold);
+   if(goldCost>currentGold)
+      return;
+   //Get Omniscience
+   int spiesPID=aiPlanCreate("Get_Immigrants", cPlanProgression);
+   if (spiesPID != 0)
+   {
+      aiPlanSetVariableInt(spiesPID, cProgressionPlanGoalTechID, 0, cTechDEImpImmigrantsAfrican);
+      aiPlanSetDesiredPriority(spiesPID, 70);
+      aiPlanSetEscrowID(spiesPID, cMilitaryEscrowID);
+      aiPlanSetActive(spiesPID);
+   }  
+   xsDisableSelf();
 }
 
 rule spiesMonitor
@@ -3527,6 +3730,7 @@ minInterval 30
    }  
    xsDisableSelf();
 }
+
 rule spiesNativeMonitor
 inactive
 minInterval 30

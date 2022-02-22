@@ -2252,6 +2252,10 @@ void setUnitPickerPreference(int upID = -1)
 	    }
 	  }
 	 */
+	 if (CounterArtCount > 2)
+		 gCounterArtMode = true;
+	 else
+		 gCounterArtMode = false;
 	 int age1 = 5;
 	 int age2 = 5;
 	 int age3 = 5;
@@ -2535,7 +2539,7 @@ void setUnitPickerPreference(int upID = -1)
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeUhlan, heavyCavalryFactor);  
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeSkirmisher, lightInfantryFactor); 
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeWarWagon, lightCavalryFactor); 
-             kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeDopplesoldner, SamuraiFactor); 
+             //kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeDopplesoldner, SamuraiFactor); 
 			 }
              break;
            }
@@ -3005,6 +3009,7 @@ mininterval 60
 	  if (gDefenseReflexBaseID == kbBaseGetMainID(cMyID))
       homeBaseUnderAttack = true;
    static int mortarPlan = -1;    
+   static int culverinPlan = -1;    
    static int ypHandMortarPlan = -1;
    static int ypMorutaruPlan = -1;
    static int ypSiegeElephantPlan = -1;
@@ -3045,6 +3050,15 @@ mininterval 60
       else
       {  aiPlanSetVariableInt(gAbstractArtilleryUnitPlan3, cTrainPlanNumberToMaintain, 0, 5); }
     }
+	if ((gCounterArtMode == true) && (civIsEuropean() == true) && (kbGetAge() >= cAge4))
+	 {
+      if (culverinPlan < 0)
+      {  culverinPlan = createSimpleMaintainPlan(cUnitTypeCulverin, 2, true, kbBaseGetMainID(cMyID), 2);  }
+      else
+      {  aiPlanSetVariableInt(culverinPlan, cTrainPlanNumberToMaintain, 0, 2); }
+     }
+	 else
+	aiPlanDestroy(culverinPlan);
 	}
    if ((kbGetAge() > cAge3) && (homeBaseUnderAttack == false)) //&& (xsArrayGetFloat(gResourceNeeds, cResourceGold) < +800.0))
   {
@@ -3074,11 +3088,12 @@ mininterval 60
 	}
    if (civIsEuropean() == true)
     {
-      if (mortarPlan < 0)
+	 if (mortarPlan < 0)
       {  mortarPlan = createSimpleMaintainPlan(cUnitTypeMortar, 2, true, kbBaseGetMainID(cMyID), 2);  }
       else
       {  aiPlanSetVariableInt(mortarPlan, cTrainPlanNumberToMaintain, 0, 2); }
     }
+	else
 	if (civIsNative() == true)
     {
       if (mortarPlan < 0)

@@ -258,6 +258,8 @@ highFrequency
                 (techName == "DEHCBlueberries") ||
                 (techName == "DEHCBlackberries") ||
                 (techName == "DEHCSveaLifeguard") ||
+                (techName == "YPHCMercsRattanShield3") ||
+                (techName == "YPHCMercsRattanShield3") ||
                 (techName == "DEHCBeekeepers") ||
                 (techName == "DEHCFazogli") ||
                 (techName == "DEHCJesuitInfluence") ||
@@ -487,7 +489,7 @@ highFrequency
                  (techName == "HCCavalryCombatFrench") ||
                  (techName == "HCHandCavalryDamageFrenchTeam") ||
                  //(techName == "HCXPChinampa2") ||
-		 //(techName == "HCXPChinampa1") ||
+		 (techName == "DEHCLlamaLifestyle") ||
                  (techName == "HCXPKnightCombat") ||
                  (techName == "HCXPWarHutTraining") ||
                  (techName == "HCXPCavalryDamageIroquois") ||
@@ -1050,7 +1052,7 @@ highFrequency
 		       (techName == "HCSustainableAgriculture") ||
 		       (techName == "HCSustainableAgriculture") ||
 		       (techName == "HCSustainableAgriculture") ||
-		       (techName == "YPHCMercsRattanShield3") ||
+		       //(techName == "YPHCMercsRattanShield3") ||
 		       (techName == "YPHCAdvancedWonders") ||
 		       (techName == "HCXPZapotecAlliesRepeat") ||
 		       (techName == "HCXPCherokeeAlliesRepeat") ||
@@ -1072,12 +1074,12 @@ highFrequency
 		       (techName == "HCXPMayanAlliesRepeat") ||
 		       (techName == "DEHCCaribAlliesRepeat") ||
 		       (techName == "DEHCPoker") ||
-		       (techName == "YPHCMercsRattanShield3") ||
-               (techName == "DEHCSveaLifeguard") ||
+		       //(techName == "YPHCMercsRattanShield3") ||
+               //(techName == "DEHCSveaLifeguard") ||
 		       (techName == "HCXPEconomicTheory") ||
 		       (techName == "DEHCCoffeeConsumption") ||
 		       (techName == "HCXPExtensiveFortifications2") ||
-               (techName == "DEHCSveaLifeguard") ||
+               //(techName == "DEHCSveaLifeguard") ||
 		       (techName == "HCRefrigeration") ||
 		       (techName == "DEHCAltaCalifornia") ||
 		       //(techName == "DEHCHidalgoLand") ||
@@ -3469,6 +3471,10 @@ void shipGrantedHandler(int parm = -1) // Event handler
       debugHCCards("  Choosing card " + bestCard);
       aiHCDeckPlayCard(bestCard, bestCardIsExtended);
    }
+   if (aiHCDeckGetCardCount(deck, i) >= 0)
+            totalValue = 1 + (totalValue * 0.1);
+		else
+            totalValue = 1 + (totalValue * 10.0);
 }
 
 //==============================================================================

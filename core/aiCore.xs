@@ -688,7 +688,7 @@ minInterval 20
       }
       case cCivDEInca:
       {
-         danceTactics = xsArrayCreateInt(6, -1, "Dance tactics");
+         danceTactics = xsArrayCreateInt(7, -1, "Dance tactics");
          // Shared
          xsArraySetInt(danceTactics, 0, cTacticFertilityDance);
          xsArraySetInt(danceTactics, 1, cTacticGiftDance);
@@ -696,6 +696,7 @@ minInterval 20
          xsArraySetInt(danceTactics, 3, cTacticWarDance);
          xsArraySetInt(danceTactics, 4, cTacticdeWarChiefDanceInca);
          xsArraySetInt(danceTactics, 5, cTacticdeMoonDance);
+         xsArraySetInt(danceTactics, 6, cTacticdeHolyDanceInca);
          break;
       }
       }
@@ -789,15 +790,18 @@ minInterval 20
       {
       case cTacticFertilityDance: // Speed up unit production.
       {
-         if (kbUnitCount(cMyID, gEconUnit, cUnitStateAlive) > 60 && (aiGetAvailableMilitaryPop() >= 50) &&
+         if ((kbUnitCount(cMyID, gEconUnit, cUnitStateAlive) < 50) || (aiGetMilitaryPop() < 50) ||// (aiGetAvailableMilitaryPop() >= 50) ||
              ((kbGetPopCap() - kbGetPop()) >= 50))
             tacticPriority = 94;
+			else
+		if ((kbGetPopCap() - kbGetPop()) > 10)
+            tacticPriority = 9;
          break;
       }
       case cTacticGiftDance: // Generates XP.
       {
          // Defaults to gift dance.
-         tacticPriority = cMinDancePriorityVillager - 2;
+         tacticPriority = 5; //cMinDancePriorityVillager-2;
          break;
       }
       /*case cTacticAlarmDance: // Spawn warriors.
@@ -814,9 +818,13 @@ minInterval 20
                                (gDefenseReflexBaseID == mainBaseID && warriorLimitReached == true &&
                                 kbGetPopulationSlotsByUnitTypeID(cMyID, cUnitTypeLogicalTypeLandMilitary) >=
                                     (0.3 * aiGetMilitaryPop()))))*/
-		    if ((numPlazas > 0) && ((kbGetMaxPop()-kbGetPop()) <= 40))
+		    if ((numPlazas > 0) && /*(aiGetAvailableMilitaryPop() < 50) &&*/ (aiGetMilitaryPop() >= 50)
+				&& (aiTreatyActive() == false))// && (kbUnitCount(cMyID, gEconUnit, cUnitStateAlive) >= 50))
             tacticPriority = 98;
 		else
+		//	if ((xsGetTime() >= 40 * 60 * 1000) && (kbUnitCount(cMyID, gEconUnit, cUnitStateAlive) > 50)
+		//		&& (aiTreatyActive() == false) && (aiGetMilitaryPop() > 30))
+	    if ((aiGetMilitaryPop() >= 40)  && (kbGetAge() >= cAge3))
             tacticPriority = 10;
          break;
       }
@@ -849,15 +857,32 @@ minInterval 20
          if (kbUnitCount(cMyID, cUnitTypexpMedicineManAztec, cUnitStateAlive) <
              kbGetBuildLimit(cMyID, cUnitTypexpMedicineManAztec))
          {
-            if (totalBonusDancers > 1 || (xsArrayGetFloat(gResourceNeeds, cResourceFood) <= -1000.0 &&
+            /*if (totalBonusDancers > 1 || (xsArrayGetFloat(gResourceNeeds, cResourceFood) <= -1000.0 &&
                                           xsArrayGetFloat(gResourceNeeds, cResourceWood) <= -1000.0 &&
-                                          xsArrayGetFloat(gResourceNeeds, cResourceGold) <= -1000.0))
+                                          xsArrayGetFloat(gResourceNeeds, cResourceGold) <= -1000.0))*/
                // We spent at least 30 seconds into spawning this unit, avoid switching.
-               if (lastTactic == cTacticHolyDanceAztec && (time - lastTacticTime) >= 30000 &&
-                   (time - lastTacticTime) < 90000)
+               //if (lastTactic == cTacticHolyDanceAztec && (time - lastTacticTime) >= 30000 &&
+               //    (time - lastTacticTime) < 90000)
                   tacticPriority = 99;
-               else
-                  tacticPriority = 96;
+               //else
+               //   tacticPriority = 96;
+         }
+         break;
+      }
+	  case cTacticdeHolyDanceInca: // Spawn warrior priests.
+      {
+         if ((kbUnitCount(cMyID, cUnitTypedePriestess, cUnitStateAlive) <
+             10) && (kbGetAge() >= cAge2))
+         {
+            /*if (totalBonusDancers > 1 || (xsArrayGetFloat(gResourceNeeds, cResourceFood) <= -1000.0 &&
+                                          xsArrayGetFloat(gResourceNeeds, cResourceWood) <= -1000.0 &&
+                                          xsArrayGetFloat(gResourceNeeds, cResourceGold) <= -1000.0))*/
+               // We spent at least 30 seconds into spawning this unit, avoid switching.
+               //if (lastTactic == cTacticdeHolyDanceInca && (time - lastTacticTime) >= 30000 &&
+               //    (time - lastTacticTime) < 90000)
+                  tacticPriority = 99;
+               //else
+               //   tacticPriority = 96;
          }
          break;
       }/*
@@ -888,16 +913,16 @@ minInterval 20
                tacticPriority = 95;
          }
          break;
-      }
+      }*/
       case cTacticdeMoonDance: // Wood trickle.
       {
          // When we run out of wood.
          if ((gDisableWoods == true && time > 120000 && xsArrayGetInt(gResourceNeeds, cResourceWood) > 0.0) ||
              // Don't switch for at least 60 seconds.
              (lastTactic == cTacticdeMoonDance && (time - lastTacticTime) < 60000))
-            tacticPriority = 97;
+            tacticPriority = 90;
          break;
-      }*/
+      }
       }
       if (bestTacticPriority < tacticPriority)
       {
@@ -925,24 +950,30 @@ minInterval 20
    {
       numEconUnits = ((kbUnitCount(cMyID, gEconUnit, cUnitStateAlive) * 0.10) - totalBonusDancers);// 10;
 	  if (numEconUnits > 25)
-            numEconUnits = 25;
-         if (numEconUnits < 0)
-            numEconUnits = 0;
+          numEconUnits = 25;
+      if (numEconUnits < 0)
+          numEconUnits = 0;
       switch (bestTacticID)
       {
       case cTacticWarDance:
       {
          // Scale by military pop.
-         maxMilitaryPop = gMaxPop - aiGetEconomyPop();
-         if (maxMilitaryPop > 0)
-            militaryPercentage =
-                kbGetPopulationSlotsByUnitTypeID(cMyID, cUnitTypeLogicalTypeLandMilitary) / maxMilitaryPop;
-         numEconUnits = ((kbUnitCount(cMyID, gEconUnit, cUnitStateAlive) * 0.26) - totalBonusDancers);
+         //maxMilitaryPop = gMaxPop - aiGetEconomyPop();
+         //if (maxMilitaryPop > 0)
+            //militaryPercentage =
+                //kbGetPopulationSlotsByUnitTypeID(cMyID, cUnitTypeLogicalTypeLandMilitary) / maxMilitaryPop;
+				if (xsArrayGetFloat(gResourceNeeds, cResourceFood) <= 1 &&
+                    xsArrayGetFloat(gResourceNeeds, cResourceWood) <= 1 &&
+                    xsArrayGetFloat(gResourceNeeds, cResourceGold) <= 1 && bestTacticPriority > 90)
+          numEconUnits = ((kbUnitCount(cMyID, gEconUnit, cUnitStateAlive) * 0.26) - totalBonusDancers);
+		 else
+          numEconUnits = ((kbUnitCount(cMyID, gEconUnit, cUnitStateAlive) * 0.10) - totalBonusDancers);// 10;
          if (numEconUnits > 25)
             numEconUnits = 25;
          if (numEconUnits < 0)
             numEconUnits = 0;
-         aiPlanAddUnitType(gNativeDancePlan, gEconUnit, numEconUnits, numEconUnits * 2, numEconUnits * 2);
+         aiPlanAddUnitType(gNativeDancePlan, gEconUnit, numEconUnits, numEconUnits, numEconUnits);
+         //aiPlanAddUnitType(gNativeDancePlan, gEconUnit, numEconUnits, numEconUnits * 2, numEconUnits * 2);
          break;
       }
       case cTacticdeMoonDance:
@@ -953,7 +984,71 @@ minInterval 20
             numEconUnits = 25;
          if (numEconUnits < 0)
             numEconUnits = 0;
-         aiPlanAddUnitType(gNativeDancePlan, gEconUnit, numEconUnits, numEconUnits * 2, numEconUnits * 2);
+         aiPlanAddUnitType(gNativeDancePlan, gEconUnit, numEconUnits, numEconUnits, numEconUnits);
+         //aiPlanAddUnitType(gNativeDancePlan, gEconUnit, numEconUnits, numEconUnits * 2, numEconUnits * 2);
+         break;
+      }
+      case cTacticGiftDance:
+      {
+         // Need more dancers as we are out of wood.
+         numEconUnits = 1 - totalBonusDancers;
+         if (numEconUnits > 25)
+            numEconUnits = 25;
+         if (numEconUnits < 0)
+            numEconUnits = 0;
+         aiPlanAddUnitType(gNativeDancePlan, gEconUnit, numEconUnits, numEconUnits, numEconUnits);
+         //aiPlanAddUnitType(gNativeDancePlan, gEconUnit, numEconUnits, numEconUnits * 2, numEconUnits * 2);
+         break;
+      }
+      case cTacticFertilityDance:
+      {
+         // Need more dancers as we are out of wood.
+				if (xsArrayGetFloat(gResourceNeeds, cResourceFood) <= 1 &&
+                    xsArrayGetFloat(gResourceNeeds, cResourceWood) <= 1 &&
+                    xsArrayGetFloat(gResourceNeeds, cResourceGold) <= 1 && bestTacticPriority > 90)
+          numEconUnits = ((kbUnitCount(cMyID, gEconUnit, cUnitStateAlive) * 0.26) - totalBonusDancers);
+		 else
+          numEconUnits = ((kbUnitCount(cMyID, gEconUnit, cUnitStateAlive) * 0.10) - totalBonusDancers);// 10;
+         if (numEconUnits > 25)
+            numEconUnits = 25;
+         if (numEconUnits < 0)
+            numEconUnits = 0;
+         aiPlanAddUnitType(gNativeDancePlan, gEconUnit, numEconUnits, numEconUnits, numEconUnits);
+         //aiPlanAddUnitType(gNativeDancePlan, gEconUnit, numEconUnits, numEconUnits * 2, numEconUnits * 2);
+         break;
+      }
+      case cTacticHolyDanceAztec:
+      {
+         // Need more dancers as we are out of wood.
+				if (xsArrayGetFloat(gResourceNeeds, cResourceFood) <= 1 &&
+                    xsArrayGetFloat(gResourceNeeds, cResourceWood) <= 1 &&
+                    xsArrayGetFloat(gResourceNeeds, cResourceGold) <= 1 && bestTacticPriority > 90)
+          numEconUnits = ((kbUnitCount(cMyID, gEconUnit, cUnitStateAlive) * 0.26) - totalBonusDancers);
+		 else
+          numEconUnits = ((kbUnitCount(cMyID, gEconUnit, cUnitStateAlive) * 0.10) - totalBonusDancers);// 10;
+         if (numEconUnits > 25)
+            numEconUnits = 25;
+         if (numEconUnits < 0)
+            numEconUnits = 0;
+         aiPlanAddUnitType(gNativeDancePlan, gEconUnit, numEconUnits, numEconUnits, numEconUnits);
+         //aiPlanAddUnitType(gNativeDancePlan, gEconUnit, numEconUnits, numEconUnits * 2, numEconUnits * 2);
+         break;
+      }
+      case cTacticdeHolyDanceInca:
+      {
+         // Need more dancers as we are out of wood.
+				if (xsArrayGetFloat(gResourceNeeds, cResourceFood) <= 1 &&
+                    xsArrayGetFloat(gResourceNeeds, cResourceWood) <= 1 &&
+                    xsArrayGetFloat(gResourceNeeds, cResourceGold) <= 1 && bestTacticPriority > 90)
+          numEconUnits = ((kbUnitCount(cMyID, gEconUnit, cUnitStateAlive) * 0.26) - totalBonusDancers);
+		 else
+          numEconUnits = ((kbUnitCount(cMyID, gEconUnit, cUnitStateAlive) * 0.10) - totalBonusDancers);// 10;
+         if (numEconUnits > 25)
+            numEconUnits = 25;
+         if (numEconUnits < 0)
+            numEconUnits = 0;
+         aiPlanAddUnitType(gNativeDancePlan, gEconUnit, numEconUnits, numEconUnits, numEconUnits);
+         //aiPlanAddUnitType(gNativeDancePlan, gEconUnit, numEconUnits, numEconUnits * 2, numEconUnits * 2);
          break;
       }
       default:
@@ -965,7 +1060,8 @@ minInterval 20
             numEconUnits = 25;
          if (numEconUnits < 0)
             numEconUnits = 0;
-         aiPlanAddUnitType(gNativeDancePlan, gEconUnit, numEconUnits / 2, numEconUnits, numEconUnits * 2);
+         aiPlanAddUnitType(gNativeDancePlan, gEconUnit, numEconUnits, numEconUnits, numEconUnits);
+         //aiPlanAddUnitType(gNativeDancePlan, gEconUnit, numEconUnits, numEconUnits * 2, numEconUnits * 2);
          break;
       }
       }
@@ -2476,6 +2572,7 @@ minInterval 10
          if ((cvOkToBuildForts == true) || (cvOkToFortify == true)) 
          {
             xsEnableRule("strongholdConstructionMonitor");
+            xsEnableRule("LlamaMonitor");
          }
          xsEnableRule("strongholdUpgradeMonitor");
          if (cDifficultyCurrent >= cDifficultyEasy)
@@ -2633,7 +2730,7 @@ minInterval 10
 	  
 	     if (gSPC == false)
 		{
-      xsEnableRule("autoFeedLowestAlly");
+      //xsEnableRule("autoFeedLowestAlly");
 		}
       gAgeUpPriority = 0;
 
@@ -2801,87 +2898,7 @@ mininterval 10
       return;
    }
 }
-rule capitolUpgradeMonitor
-inactive
-minInterval 40
-{
-   int upgradePlanID = -1;
-   // Disable rule for native or Asian civs
-   if (civIsEuropean() == false)
-   {
-      xsDisableSelf();
-      return;
-   }
-   // Disable rule once all upgrades are available
-   if ((kbTechGetStatus(cTechImpKnighthood) == cTechStatusActive) &&
-       (kbTechGetStatus(cTechImpPeerage) == cTechStatusActive) &&
-       (kbTechGetStatus(cTechImpLargeScaleAgriculture) == cTechStatusActive) &&
-       (kbTechGetStatus(cTechImpDeforestation) == cTechStatusActive) &&
-       (kbTechGetStatus(cTechImpExcessiveTaxation) == cTechStatusActive) &&
-       (kbTechGetStatus(cTechImpImmigrants) == cTechStatusActive) &&
-       (kbTechGetStatus(cTechImpLegendaryNatives) == cTechStatusActive))
-   {
-      xsDisableSelf();
-      return;
-   }
-   // Get upgrades one at a time as they become available
-   if (kbTechGetStatus(cTechImpKnighthood) == cTechStatusObtainable)
-   {
-      upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechImpKnighthood);
-      if (upgradePlanID >= 0)
-         aiPlanDestroy(upgradePlanID);
-      createSimpleResearchPlan(cTechImpKnighthood, getUnit(cUnitTypeCapitol), cMilitaryEscrowID, 50);
-      return;
-   }
-   if (kbTechGetStatus(cTechImpPeerage) == cTechStatusObtainable)
-   {
-      upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechImpPeerage);
-      if (upgradePlanID >= 0)
-         aiPlanDestroy(upgradePlanID);
-      createSimpleResearchPlan(cTechImpPeerage, getUnit(cUnitTypeCapitol), cMilitaryEscrowID, 50);
-      return;
-   }
-   if (kbTechGetStatus(cTechImpLargeScaleAgriculture) == cTechStatusObtainable)
-   {
-      upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechImpLargeScaleAgriculture);
-      if (upgradePlanID >= 0)
-         aiPlanDestroy(upgradePlanID);
-      createSimpleResearchPlan(cTechImpLargeScaleAgriculture, getUnit(cUnitTypeCapitol), cEconomyEscrowID, 50);
-      return;
-   }
-   if (kbTechGetStatus(cTechImpDeforestation) == cTechStatusObtainable)
-   {
-      upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechImpDeforestation);
-      if (upgradePlanID >= 0)
-         aiPlanDestroy(upgradePlanID);
-      createSimpleResearchPlan(cTechImpDeforestation, getUnit(cUnitTypeCapitol), cEconomyEscrowID, 50);
-      return;
-   }
-   if (kbTechGetStatus(cTechImpExcessiveTaxation) == cTechStatusObtainable)
-   {
-      upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechImpExcessiveTaxation);
-      if (upgradePlanID >= 0)
-         aiPlanDestroy(upgradePlanID);
-      createSimpleResearchPlan(cTechImpExcessiveTaxation, getUnit(cUnitTypeCapitol), cEconomyEscrowID, 50);
-      return;
-   }
-   if (kbTechGetStatus(cTechImpImmigrants) == cTechStatusObtainable)
-   {
-      upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechImpImmigrants);
-      if (upgradePlanID >= 0)
-         aiPlanDestroy(upgradePlanID);
-      createSimpleResearchPlan(cTechImpImmigrants, getUnit(cUnitTypeCapitol), cEconomyEscrowID, 50);
-      return;
-   }
-   if (kbTechGetStatus(cTechImpLegendaryNatives) == cTechStatusObtainable)
-   {
-      upgradePlanID = aiPlanGetIDByTypeAndVariableType(cPlanResearch, cResearchPlanTechID, cTechImpLegendaryNatives);
-      if (upgradePlanID >= 0)
-         aiPlanDestroy(upgradePlanID);
-      createSimpleResearchPlan(cTechImpLegendaryNatives, getUnit(cUnitTypeCapitol), cMilitaryEscrowID, 50);
-      return;
-   }
-}
+
 rule autoFeedLowestAlly
 inactive
 mininterval 10
@@ -2956,6 +2973,35 @@ minInterval 15
       if (cowPlan < 0)
       {
          cowPlan = createSimpleMaintainPlan(cUnitTypeypGoat, numCows, true, kbBaseGetMainID(cMyID), 1);
+      }
+      else
+      {
+         aiPlanSetVariableInt(cowPlan, cTrainPlanNumberToMaintain, 0, numCows);
+      }
+   }
+}
+
+rule LlamaMonitor						   
+inactive
+minInterval 15
+{
+   static int cowPlan = -1;
+   int numHerdables = 0;
+   int numCows = 0;
+   // Quit if there is no sacred field around or we're in age1 without excess food
+   if (kbResourceGet(cResourceFood) < 4000)
+   {
+      return;
+   }
+   // Check number of captured herdables, add sacred cows as necessary to bring total number to 10
+   numHerdables = kbUnitCount(cMyID, cUnitTypeLlama, cUnitStateAlive);
+   numCows = (15 - numHerdables);
+   if (numCows > 0)
+   {
+      // Create/update maintain plan
+      if (cowPlan < 0)
+      {
+         cowPlan = createSimpleMaintainPlan(cUnitTypeLlama, numCows, true, kbBaseGetMainID(cMyID), 1);
       }
       else
       {

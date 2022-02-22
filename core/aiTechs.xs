@@ -45,7 +45,7 @@ int chooseEuropeanPolitician()
             politician = xsArrayGetInt(gAgeUpPoliticians, i);
 			if (politician == cTechDEPoliticianFederalPennsylvania)
 				{
-					xsArraySetInt(gPoliticianScores, i, xsArrayGetInt(gPoliticianScores, i) + 100);
+					xsArraySetInt(gPoliticianScores, i, xsArrayGetInt(gPoliticianScores, i) + 300);
 				}
             if (politician == cTechDEPoliticianInventor && (kbUnitCount(cMyID, cUnitTypeHomeCityWaterSpawnFlag) > 0))
             {
@@ -127,9 +127,9 @@ int chooseEuropeanPolitician()
                   xsArraySetInt(gPoliticianScores, i, xsArrayGetInt(gPoliticianScores, i) + 10);
                }
             }
-			if (politician == cTechDEPoliticianFederalNewHampshire)
+			if (politician == cTechDEPoliticianFederalTennessee)
 				{
-					xsArraySetInt(gPoliticianScores, i, xsArrayGetInt(gPoliticianScores, i) + 5);
+					xsArraySetInt(gPoliticianScores, i, xsArrayGetInt(gPoliticianScores, i) + 300);
 				}
             if (kbUnitCount(cMyID, cUnitTypeHomeCityWaterSpawnFlag) == 0)
             {
@@ -217,9 +217,9 @@ int chooseEuropeanPolitician()
                   xsArraySetInt(gPoliticianScores, i, xsArrayGetInt(gPoliticianScores, i) + 5);
                }               
             }
-            if (politician == cTechDEPoliticianFederalNewJersey || politician == cTechDEPoliticianFederalCalifornia)
+            if (politician == cTechDEPoliticianFederalOhio)
 				{
-					xsArraySetInt(gPoliticianScores, i, xsArrayGetInt(gPoliticianScores, i) + 10);
+					xsArraySetInt(gPoliticianScores, i, xsArrayGetInt(gPoliticianScores, i) + 300);
 				}
                if ((politician == cTechDEPoliticianLogisticianOttoman) || 
 			   (politician == cTechDEPoliticianLogisticianRussian) ||
@@ -278,9 +278,9 @@ int chooseEuropeanPolitician()
 					xsArraySetInt(gPoliticianScores, i, xsArrayGetInt(gPoliticianScores, i) + 20);
 				}
 		}
-            if (politician == cTechDEPoliticianFederalNewYork || politician == cTechDEPoliticianFederalFlorida || politician == cTechDEPoliticianFederalIllinois)
+            if (politician == cTechDEPoliticianFederalNewYork)
 				{
-					xsArraySetInt(gPoliticianScores, i, xsArrayGetInt(gPoliticianScores, i) + 5);
+					xsArraySetInt(gPoliticianScores, i, xsArrayGetInt(gPoliticianScores, i) + 0);
 				}
 		if (gSPC == false)
 		{
@@ -901,7 +901,7 @@ int chooseAmericanFederalState()
          federalState = aiGetPoliticianListByIndex(cAge2, i);
          if ((federalState != cTechDEPoliticianFederalMassachusetts) &&
              (federalState != cTechDEPoliticianFederalVirginia) &&
-             (federalState != cTechDEPoliticianFederalPennsylvania) &&
+             (federalState != cTechDEPoliticianFederalDelaware) &&
              (federalState != cTechDEPoliticianFederalRhodeIsland))
          {  // Basically we always age up with Delaware.
             xsArraySetInt(gAmericanFederalStates, numValidFederalStates, federalState);
@@ -916,7 +916,9 @@ int chooseAmericanFederalState()
       {
          federalState = aiGetPoliticianListByIndex(cAge3, i);
          if ((federalState != cTechDEPoliticianFederalIndiana) &&
-             (federalState != cTechDEPoliticianFederalMaryland))
+             (federalState != cTechDEPoliticianFederalMaryland) &&
+             (federalState != cTechDEPoliticianFederalNewHampshire) &&
+             (federalState != cTechDEPoliticianFederalKentucky))
          {
             xsArraySetInt(gAmericanFederalStates, numValidFederalStates, federalState);
             numValidFederalStates++;
@@ -930,6 +932,8 @@ int chooseAmericanFederalState()
       {
          federalState = aiGetPoliticianListByIndex(cAge4, i);
          if ((federalState != cTechDEPoliticianFederalVermont) &&
+             (federalState != cTechDEPoliticianFederalSouthCarolina) &&
+             (federalState != cTechDEPoliticianFederalNewJersey) &&
              (federalState != cTechDEPoliticianFederalCalifornia))
          {
             xsArraySetInt(gAmericanFederalStates, numValidFederalStates, federalState);
@@ -943,7 +947,10 @@ int chooseAmericanFederalState()
       for (i = 0; i < numFederalStateChoices; i++)
       {  
          federalState = aiGetPoliticianListByIndex(cAge5, i);
-         if (federalState != cTechDEPoliticianFederalNewYork)
+         if ((federalState != cTechDEPoliticianFederalFlorida) &&
+             (federalState != cTechDEPoliticianFederalConnecticut) &&
+             (federalState != cTechDEPoliticianFederalIllinois) &&
+             (federalState != cTechDEPoliticianFederalTexas))
          {
             xsArraySetInt(gAmericanFederalStates, numValidFederalStates, federalState);
             numValidFederalStates++;

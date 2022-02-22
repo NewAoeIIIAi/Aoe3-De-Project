@@ -651,131 +651,6 @@ void initArrays(void)
    gFirstAgeTime = xsArrayCreateInt(5, 60 * 60 * 1000, "Time age was reached");
    xsArraySetInt(gFirstAgeTime, cAge2, -10 * 60 * 1000); // So we always bump the priority for getting Commerce.
 
-   gAge2PoliticianList = xsArrayCreateInt(14, 0, "Age 2 Politician List");
-   xsArraySetInt(gAge2PoliticianList, 0, cTechPoliticianGovernor);
-   xsArraySetInt(gAge2PoliticianList, 1, cTechPoliticianQuartermaster);
-   xsArraySetInt(gAge2PoliticianList, 2, cTechPoliticianNaturalist);
-   xsArraySetInt(gAge2PoliticianList, 3, cTechPoliticianBishop);
-   xsArraySetInt(gAge2PoliticianList, 4, cTechPoliticianPhilosopherPrince);
-   // xsArraySetInt(gAge2PoliticianList, 5, cTechPoliticianBishopGerman);
-   xsArraySetInt(gAge2PoliticianList, 5, cTechDEPoliticianLogisticianColonialBritish);
-   xsArraySetInt(gAge2PoliticianList, 6, cTechDEPoliticianKnightColonial);
-   xsArraySetInt(gAge2PoliticianList, 7, cTechDEPoliticianLogisticianColonialDutch);
-   xsArraySetInt(gAge2PoliticianList, 8, cTechDEPoliticianLogisticianFrench);
-   xsArraySetInt(gAge2PoliticianList, 9, cTechDEPoliticianLogisticianGerman);
-   xsArraySetInt(gAge2PoliticianList, 10, cTechDEPoliticianLogisticianPortuguese);
-   xsArraySetInt(gAge2PoliticianList, 11, cTechDEPoliticianLogisticianColonialRussian);
-   xsArraySetInt(gAge2PoliticianList, 12, cTechDEPoliticianLogisticianSpanish);
-   xsArraySetInt(gAge2PoliticianList, 13, cTechDEPoliticianLogisticianSwedish);
-
-   gAge3PoliticianList = xsArrayCreateInt(24, 0, "Age 3 Politician List");
-   xsArraySetInt(gAge3PoliticianList, 0, cTechPoliticianSergeantSpanish);
-   xsArraySetInt(gAge3PoliticianList, 1, cTechPoliticianMohawk);
-   xsArraySetInt(gAge3PoliticianList, 2, cTechPoliticianPirate);
-   xsArraySetInt(gAge3PoliticianList, 3, cTechPoliticianAdventurerSpanish);
-   xsArraySetInt(gAge3PoliticianList, 4, cTechPoliticianAdmiral);
-   xsArraySetInt(gAge3PoliticianList, 5, cTechPoliticianExiledPrince);
-   xsArraySetInt(gAge3PoliticianList, 6, cTechPoliticianMarksman);
-   xsArraySetInt(gAge3PoliticianList, 7, cTechPoliticianAdmiralOttoman);
-   xsArraySetInt(gAge3PoliticianList, 8, cTechPoliticianAdventurerBritish);
-   xsArraySetInt(gAge3PoliticianList, 9, cTechPoliticianScout);
-   xsArraySetInt(gAge3PoliticianList, 10, cTechPoliticianScoutRussian);
-   xsArraySetInt(gAge3PoliticianList, 11, cTechPoliticianAdventurerRussian);
-   xsArraySetInt(gAge3PoliticianList, 12, cTechPoliticianSergeantGerman);
-   xsArraySetInt(gAge3PoliticianList, 13, cTechPoliticianMarksmanPortuguese);
-   xsArraySetInt(gAge3PoliticianList, 14, cTechPoliticianMarksmanOttoman);
-   xsArraySetInt(gAge3PoliticianList, 15, cTechPoliticianSergeantDutch);
-   xsArraySetInt(gAge3PoliticianList, 16, cTechPoliticianBishopFortress);
-   xsArraySetInt(gAge3PoliticianList, 17, cTechDEPoliticianInventorFortress);
-   xsArraySetInt(gAge3PoliticianList, 18, cTechDEPoliticianPapalGuardBritish);
-   xsArraySetInt(gAge3PoliticianList, 19, cTechDEPoliticianMercContractorFortressDutch);
-   xsArraySetInt(gAge3PoliticianList, 20, cTechDEPoliticianMercContractorFortressOttoman);
-   xsArraySetInt(gAge3PoliticianList, 21, cTechDEPoliticianMercContractorFortressPortuguese);
-   xsArraySetInt(gAge3PoliticianList, 22, cTechDEPoliticianMarksmanSwedish);
-   xsArraySetInt(gAge3PoliticianList, 23, cTechDEPoliticianInventorFortress);
-
-   gAge4PoliticianList = xsArrayCreateInt(33, 0, "Age 4 Politician List");
-   xsArraySetInt(gAge4PoliticianList, 0, cTechPoliticianEngineer);
-   xsArraySetInt(gAge4PoliticianList, 1, cTechPoliticianTycoon);
-   xsArraySetInt(gAge4PoliticianList, 2, cTechPoliticianMusketeerSpanish);
-   xsArraySetInt(gAge4PoliticianList, 3, cTechPoliticianCavalierSpanish);
-   xsArraySetInt(gAge4PoliticianList, 4, cTechPoliticianGrandVizier);
-   xsArraySetInt(gAge4PoliticianList, 5, cTechPoliticianWarMinisterSpanish);
-   xsArraySetInt(gAge4PoliticianList, 6, cTechPoliticianViceroyBritish);
-   xsArraySetInt(gAge4PoliticianList, 7, cTechPoliticianMusketeerBritish);
-   xsArraySetInt(gAge4PoliticianList, 8, cTechPoliticianCavalierFrench);
-   xsArraySetInt(gAge4PoliticianList, 9, cTechPoliticianMusketeerFrench);
-   xsArraySetInt(gAge4PoliticianList, 10, cTechPoliticianWarMinisterRussian);
-   xsArraySetInt(gAge4PoliticianList, 11, cTechPoliticianCavalierRussian);
-   xsArraySetInt(gAge4PoliticianList, 12, cTechPoliticianMusketeerRussian);
-   xsArraySetInt(gAge4PoliticianList, 13, cTechPoliticianCavalierGerman);
-   xsArraySetInt(gAge4PoliticianList, 14, cTechPoliticianViceroyGerman);
-   xsArraySetInt(gAge4PoliticianList, 15, cTechPoliticianEngineerPortuguese);
-   xsArraySetInt(gAge4PoliticianList, 16, cTechPoliticianViceroyPortuguese);
-   xsArraySetInt(gAge4PoliticianList, 17, cTechPoliticianMusketeerPortuguese);
-   xsArraySetInt(gAge4PoliticianList, 18, cTechPoliticianCavalierDutch);
-   xsArraySetInt(gAge4PoliticianList, 19, cTechPoliticianCavalierOttoman);
-   xsArraySetInt(gAge4PoliticianList, 20, cTechPoliticianMusketeerDutch);
-   xsArraySetInt(gAge4PoliticianList, 21, cTechPoliticianViceroyDutch);
-   xsArraySetInt(gAge4PoliticianList, 22, cTechPoliticianTycoonAct3);
-   xsArraySetInt(gAge4PoliticianList, 23, cTechPoliticianWarMinisterAct3);
-   xsArraySetInt(gAge4PoliticianList, 24, cTechDEPoliticianLogistician);
-   xsArraySetInt(gAge4PoliticianList, 25, cTechDEPoliticianPapalGuard);
-   xsArraySetInt(gAge4PoliticianList, 26, cTechDEPoliticianLogisticianOttoman);
-   xsArraySetInt(gAge4PoliticianList, 27, cTechDEPoliticianPapalGuardPortuguese);
-   xsArraySetInt(gAge4PoliticianList, 28, cTechDEPoliticianLogisticianRussian);
-   xsArraySetInt(gAge4PoliticianList, 29, cTechDEPoliticianPapalGuardSpanish);
-   xsArraySetInt(gAge4PoliticianList, 30, cTechDEPoliticianMusketeerSwedish);
-   xsArraySetInt(gAge4PoliticianList, 31, cTechDEPoliticianCavalierSwedish);
-   xsArraySetInt(gAge4PoliticianList, 32, cTechDEPoliticianPapalGuardSwedish);
-
-   gAge5PoliticianList = xsArrayCreateInt(13, 0, "Age 5 Politician List");
-   xsArraySetInt(gAge5PoliticianList, 0, cTechPoliticianPresidente);
-   xsArraySetInt(gAge5PoliticianList, 1, cTechPoliticianGeneral);
-   xsArraySetInt(gAge5PoliticianList, 2, cTechPoliticianGeneralBritish);
-   xsArraySetInt(gAge5PoliticianList, 3, cTechPoliticianGeneralOttoman);
-   xsArraySetInt(gAge5PoliticianList, 4, cTechPoliticianGeneralSkirmisher);
-   xsArraySetInt(gAge5PoliticianList, 5, cTechDEPoliticianMercContractor);
-   xsArraySetInt(gAge5PoliticianList, 6, cTechDEPoliticianInventor);
-   xsArraySetInt(gAge5PoliticianList, 7, cTechDEPoliticianKnight);
-   xsArraySetInt(gAge5PoliticianList, 8, cTechDEPoliticianFederalFlorida);
-   xsArraySetInt(gAge5PoliticianList, 9, cTechDEPoliticianFederalConnecticut);
-   xsArraySetInt(gAge5PoliticianList, 10, cTechDEPoliticianFederalIllinois);
-   xsArraySetInt(gAge5PoliticianList, 11, cTechDEPoliticianFederalNewYork);
-   xsArraySetInt(gAge5PoliticianList, 12, cTechDEPoliticianFederalTexas);
-   
-   gRevolutionList = xsArrayCreateInt(20, 0, "Revolution List");
-   xsArraySetInt(gRevolutionList, 0, cTechDERevolutionHaiti);
-   xsArraySetInt(gRevolutionList, 1, cTechDERevolutionEgypt);
-   xsArraySetInt(gRevolutionList, 2, cTechDERevolutionFinland);
-   xsArraySetInt(gRevolutionList, 3, cTechDERevolutionRomania);
-   xsArraySetInt(gRevolutionList, 4, cTechDERevolutionPeru);
-   xsArraySetInt(gRevolutionList, 5, cTechDERevolutionBrazil);
-   xsArraySetInt(gRevolutionList, 6, cTechDERevolutionArgentina);
-   xsArraySetInt(gRevolutionList, 7, cTechDERevolutionUSA);
-   xsArraySetInt(gRevolutionList, 8, cTechDERevolutionCanadaFrench);
-   xsArraySetInt(gRevolutionList, 9, cTechDERevolutionCanadaBritish);
-   xsArraySetInt(gRevolutionList, 10, cTechDERevolutionIndonesia);
-   xsArraySetInt(gRevolutionList, 11, cTechDERevolutionBarbaryStates);
-   xsArraySetInt(gRevolutionList, 12, cTechDERevolutionHungaryRussian);
-   xsArraySetInt(gRevolutionList, 13, cTechDERevolutionHungaryOttoman);
-   xsArraySetInt(gRevolutionList, 14, cTechDERevolutionHungaryGerman);
-   xsArraySetInt(gRevolutionList, 15, cTechDERevolutionMexico);
-   xsArraySetInt(gRevolutionList, 16, cTechDERevolutionColombia);
-   xsArraySetInt(gRevolutionList, 17, cTechDERevolutionColombiaPortuguese);
-   xsArraySetInt(gRevolutionList, 18, cTechDERevolutionChile);
-   xsArraySetInt(gRevolutionList, 19, cTechDERevolutionSouthAfrica);
-
-   gAgeUpPoliticians = xsArrayCreateInt(10, 0, "Ageup Politicians");
-   gPoliticianScores = xsArrayCreateInt(10, 0, "European Politicians");
-   gNatCouncilScores = xsArrayCreateInt(6, 0, "Native Council");
-   gAfricanAlliances = xsArrayCreateInt(8, 0, "African Alliances");
-   gAfricanAlliancesAgedUpWith = xsArrayCreateBool(5, false, "African Alliances Aged Up With");
-   // Default to true and set to false when we actually age-up with the Alliance.
-   gAfricanAlliancesUpgrades = xsArrayCreateBool(5, true, "African Alliances Upgrades");
-   gMexicanFederalStates = xsArrayCreateInt(5, 0, "Mexican Federal States");
-   gAmericanFederalStates = xsArrayCreateInt(5, 0, "United States Federal States");
-   
    gAsianWonders = xsArrayCreateInt(5, 0, "Wonder Age IDs");
    int wonderchoice = aiRandInt(4);
    if ((cMyCiv == cCivJapanese) || (cMyCiv == cCivSPCJapanese) || (cMyCiv == cCivSPCJapaneseEnemy))
@@ -917,6 +792,110 @@ void initArrays(void)
          }
       }
    }
+   gAge2PoliticianList = xsArrayCreateInt(19, 0, "Age 2 Politician List");
+   xsArraySetInt(gAge2PoliticianList, 0, cTechPoliticianGovernor);
+   xsArraySetInt(gAge2PoliticianList, 1, cTechPoliticianQuartermaster);
+   xsArraySetInt(gAge2PoliticianList, 2, cTechPoliticianNaturalist);
+   xsArraySetInt(gAge2PoliticianList, 3, cTechPoliticianBishop);
+   xsArraySetInt(gAge2PoliticianList, 4, cTechPoliticianPhilosopherPrince);
+   // xsArraySetInt(gAge2PoliticianList, 5, cTechPoliticianBishopGerman);
+   xsArraySetInt(gAge2PoliticianList, 5, cTechDEPoliticianLogisticianColonialBritish);
+   xsArraySetInt(gAge2PoliticianList, 6, cTechDEPoliticianKnightColonial);
+   xsArraySetInt(gAge2PoliticianList, 7, cTechDEPoliticianLogisticianColonialDutch);
+   xsArraySetInt(gAge2PoliticianList, 8, cTechDEPoliticianLogisticianFrench);
+   xsArraySetInt(gAge2PoliticianList, 9, cTechDEPoliticianLogisticianGerman);
+   xsArraySetInt(gAge2PoliticianList, 10, cTechDEPoliticianLogisticianPortuguese);
+   xsArraySetInt(gAge2PoliticianList, 11, cTechDEPoliticianLogisticianColonialRussian);
+   xsArraySetInt(gAge2PoliticianList, 12, cTechDEPoliticianLogisticianSpanish);
+   xsArraySetInt(gAge2PoliticianList, 13, cTechDEPoliticianLogisticianSwedish);
+   xsArraySetInt(gAge2PoliticianList, 14, cTechDEPoliticianFederalMassachusetts);
+   xsArraySetInt(gAge2PoliticianList, 15, cTechDEPoliticianFederalVirginia);
+   xsArraySetInt(gAge2PoliticianList, 16, cTechDEPoliticianFederalDelaware);
+   xsArraySetInt(gAge2PoliticianList, 17, cTechDEPoliticianFederalPennsylvania);
+   xsArraySetInt(gAge2PoliticianList, 18, cTechDEPoliticianFederalRhodeIsland);
+   gAge3PoliticianList = xsArrayCreateInt(29, 0, "Age 3 Politician List");
+   xsArraySetInt(gAge3PoliticianList, 0, cTechPoliticianSergeantSpanish);
+   xsArraySetInt(gAge3PoliticianList, 1, cTechPoliticianMohawk);
+   xsArraySetInt(gAge3PoliticianList, 2, cTechPoliticianPirate);
+   xsArraySetInt(gAge3PoliticianList, 3, cTechPoliticianAdventurerSpanish);
+   xsArraySetInt(gAge3PoliticianList, 4, cTechPoliticianAdmiral);
+   xsArraySetInt(gAge3PoliticianList, 5, cTechPoliticianExiledPrince);
+   xsArraySetInt(gAge3PoliticianList, 6, cTechPoliticianMarksman);
+   xsArraySetInt(gAge3PoliticianList, 7, cTechPoliticianAdmiralOttoman);
+   xsArraySetInt(gAge3PoliticianList, 8, cTechPoliticianAdventurerBritish);
+   xsArraySetInt(gAge3PoliticianList, 9, cTechPoliticianScout);
+   xsArraySetInt(gAge3PoliticianList, 10, cTechPoliticianScoutRussian);
+   xsArraySetInt(gAge3PoliticianList, 11, cTechPoliticianAdventurerRussian);
+   xsArraySetInt(gAge3PoliticianList, 12, cTechPoliticianSergeantGerman);
+   xsArraySetInt(gAge3PoliticianList, 13, cTechPoliticianMarksmanPortuguese);
+   xsArraySetInt(gAge3PoliticianList, 14, cTechPoliticianMarksmanOttoman);
+   xsArraySetInt(gAge3PoliticianList, 15, cTechPoliticianSergeantDutch);
+   xsArraySetInt(gAge3PoliticianList, 16, cTechPoliticianBishopFortress);
+   xsArraySetInt(gAge3PoliticianList, 17, cTechDEPoliticianInventorFortress);
+   xsArraySetInt(gAge3PoliticianList, 18, cTechDEPoliticianPapalGuardBritish);
+   xsArraySetInt(gAge3PoliticianList, 19, cTechDEPoliticianMercContractorFortressDutch);
+   xsArraySetInt(gAge3PoliticianList, 20, cTechDEPoliticianMercContractorFortressOttoman);
+   xsArraySetInt(gAge3PoliticianList, 21, cTechDEPoliticianMercContractorFortressPortuguese);
+   xsArraySetInt(gAge3PoliticianList, 22, cTechDEPoliticianMarksmanSwedish);
+   xsArraySetInt(gAge3PoliticianList, 23, cTechDEPoliticianInventorFortress);
+   xsArraySetInt(gAge3PoliticianList, 24, cTechDEPoliticianFederalIndiana);
+   xsArraySetInt(gAge3PoliticianList, 25, cTechDEPoliticianFederalMaryland);
+   xsArraySetInt(gAge3PoliticianList, 26, cTechDEPoliticianFederalNewHampshire);
+   xsArraySetInt(gAge3PoliticianList, 27, cTechDEPoliticianFederalTennessee);
+   xsArraySetInt(gAge3PoliticianList, 28, cTechDEPoliticianFederalKentucky);
+   gAge4PoliticianList = xsArrayCreateInt(38, 0, "Age 4 Politician List");
+   xsArraySetInt(gAge4PoliticianList, 0, cTechPoliticianEngineer);
+   xsArraySetInt(gAge4PoliticianList, 1, cTechPoliticianTycoon);
+   xsArraySetInt(gAge4PoliticianList, 2, cTechPoliticianMusketeerSpanish);
+   xsArraySetInt(gAge4PoliticianList, 3, cTechPoliticianCavalierSpanish);
+   xsArraySetInt(gAge4PoliticianList, 4, cTechPoliticianGrandVizier);
+   xsArraySetInt(gAge4PoliticianList, 5, cTechPoliticianWarMinisterSpanish);
+   xsArraySetInt(gAge4PoliticianList, 6, cTechPoliticianViceroyBritish);
+   xsArraySetInt(gAge4PoliticianList, 7, cTechPoliticianMusketeerBritish);
+   xsArraySetInt(gAge4PoliticianList, 8, cTechPoliticianCavalierFrench);
+   xsArraySetInt(gAge4PoliticianList, 9, cTechPoliticianMusketeerFrench);
+   xsArraySetInt(gAge4PoliticianList, 10, cTechPoliticianWarMinisterRussian);
+   xsArraySetInt(gAge4PoliticianList, 11, cTechPoliticianCavalierRussian);
+   xsArraySetInt(gAge4PoliticianList, 12, cTechPoliticianMusketeerRussian);
+   xsArraySetInt(gAge4PoliticianList, 13, cTechPoliticianCavalierGerman);
+   xsArraySetInt(gAge4PoliticianList, 14, cTechPoliticianViceroyGerman);
+   xsArraySetInt(gAge4PoliticianList, 15, cTechPoliticianEngineerPortuguese);
+   xsArraySetInt(gAge4PoliticianList, 16, cTechPoliticianViceroyPortuguese);
+   xsArraySetInt(gAge4PoliticianList, 17, cTechPoliticianMusketeerPortuguese);
+   xsArraySetInt(gAge4PoliticianList, 18, cTechPoliticianCavalierDutch);
+   xsArraySetInt(gAge4PoliticianList, 19, cTechPoliticianCavalierOttoman);
+   xsArraySetInt(gAge4PoliticianList, 20, cTechPoliticianMusketeerDutch);
+   xsArraySetInt(gAge4PoliticianList, 21, cTechPoliticianViceroyDutch);
+   xsArraySetInt(gAge4PoliticianList, 22, cTechPoliticianTycoonAct3);
+   xsArraySetInt(gAge4PoliticianList, 23, cTechPoliticianWarMinisterAct3);
+   xsArraySetInt(gAge4PoliticianList, 24, cTechDEPoliticianLogistician);
+   xsArraySetInt(gAge4PoliticianList, 25, cTechDEPoliticianPapalGuard);
+   xsArraySetInt(gAge4PoliticianList, 26, cTechDEPoliticianLogisticianOttoman);
+   xsArraySetInt(gAge4PoliticianList, 27, cTechDEPoliticianPapalGuardPortuguese);
+   xsArraySetInt(gAge4PoliticianList, 28, cTechDEPoliticianLogisticianRussian);
+   xsArraySetInt(gAge4PoliticianList, 29, cTechDEPoliticianPapalGuardSpanish);
+   xsArraySetInt(gAge4PoliticianList, 30, cTechDEPoliticianMusketeerSwedish);
+   xsArraySetInt(gAge4PoliticianList, 31, cTechDEPoliticianCavalierSwedish);
+   xsArraySetInt(gAge4PoliticianList, 32, cTechDEPoliticianPapalGuardSwedish);
+   xsArraySetInt(gAge4PoliticianList, 33, cTechDEPoliticianFederalCalifornia);
+   xsArraySetInt(gAge4PoliticianList, 34, cTechDEPoliticianFederalVermont);
+   xsArraySetInt(gAge4PoliticianList, 35, cTechDEPoliticianFederalSouthCarolina);
+   xsArraySetInt(gAge4PoliticianList, 36, cTechDEPoliticianFederalNewJersey);
+   xsArraySetInt(gAge4PoliticianList, 37, cTechDEPoliticianFederalOhio);
+   gAge5PoliticianList = xsArrayCreateInt(13, 0, "Age 5 Politician List");
+   xsArraySetInt(gAge5PoliticianList, 0, cTechPoliticianPresidente);
+   xsArraySetInt(gAge5PoliticianList, 1, cTechPoliticianGeneral);
+   xsArraySetInt(gAge5PoliticianList, 2, cTechPoliticianGeneralBritish);
+   xsArraySetInt(gAge5PoliticianList, 3, cTechPoliticianGeneralOttoman);
+   xsArraySetInt(gAge5PoliticianList, 4, cTechPoliticianGeneralSkirmisher);
+   xsArraySetInt(gAge5PoliticianList, 5, cTechDEPoliticianMercContractor);
+   xsArraySetInt(gAge5PoliticianList, 6, cTechDEPoliticianInventor);
+   xsArraySetInt(gAge5PoliticianList, 7, cTechDEPoliticianKnight);
+   xsArraySetInt(gAge5PoliticianList, 8, cTechDEPoliticianFederalFlorida);
+   xsArraySetInt(gAge5PoliticianList, 9, cTechDEPoliticianFederalConnecticut);
+   xsArraySetInt(gAge5PoliticianList, 10, cTechDEPoliticianFederalIllinois);
+   xsArraySetInt(gAge5PoliticianList, 11, cTechDEPoliticianFederalNewYork);
+   xsArraySetInt(gAge5PoliticianList, 12, cTechDEPoliticianFederalTexas);
    gAge2WonderList = xsArrayCreateInt(15, 0, "Age 2 Wonder List");
    xsArraySetInt(gAge2WonderList, 0, cUnitTypeypWCConfucianAcademy2);
    xsArraySetInt(gAge2WonderList, 1, cUnitTypeypWCPorcelainTower2);
@@ -1045,6 +1024,37 @@ void initArrays(void)
    xsArraySetInt(gAge5WonderTechList, 12, cTechYPWonderJapaneseShogunate5);
    xsArraySetInt(gAge5WonderTechList, 13, cTechYPWonderJapaneseToriiGates5);
    xsArraySetInt(gAge5WonderTechList, 14, cTechYPWonderJapaneseToshoguShrine5);
+   gRevolutionList = xsArrayCreateInt(20, 0, "Revolution List");
+   xsArraySetInt(gRevolutionList, 0, cTechDERevolutionHaiti);
+   xsArraySetInt(gRevolutionList, 1, cTechDERevolutionEgypt);
+   xsArraySetInt(gRevolutionList, 2, cTechDERevolutionFinland);
+   xsArraySetInt(gRevolutionList, 3, cTechDERevolutionRomania);
+   xsArraySetInt(gRevolutionList, 4, cTechDERevolutionPeru);
+   xsArraySetInt(gRevolutionList, 5, cTechDERevolutionBrazil);
+   xsArraySetInt(gRevolutionList, 6, cTechDERevolutionArgentina);
+   xsArraySetInt(gRevolutionList, 7, cTechDERevolutionUSA);
+   xsArraySetInt(gRevolutionList, 8, cTechDERevolutionCanadaFrench);
+   xsArraySetInt(gRevolutionList, 9, cTechDERevolutionCanadaBritish);
+   xsArraySetInt(gRevolutionList, 10, cTechDERevolutionIndonesia);
+   xsArraySetInt(gRevolutionList, 11, cTechDERevolutionBarbaryStates);
+   xsArraySetInt(gRevolutionList, 12, cTechDERevolutionHungaryRussian);
+   xsArraySetInt(gRevolutionList, 13, cTechDERevolutionHungaryOttoman);
+   xsArraySetInt(gRevolutionList, 14, cTechDERevolutionHungaryGerman);
+   xsArraySetInt(gRevolutionList, 15, cTechDERevolutionMexico);
+   xsArraySetInt(gRevolutionList, 16, cTechDERevolutionColombia);
+   xsArraySetInt(gRevolutionList, 17, cTechDERevolutionColombiaPortuguese);
+   xsArraySetInt(gRevolutionList, 18, cTechDERevolutionChile);
+   xsArraySetInt(gRevolutionList, 19, cTechDERevolutionSouthAfrica);
+   gAgeUpPoliticians = xsArrayCreateInt(10, 0, "Ageup Politicians");
+   gPoliticianScores = xsArrayCreateInt(10, 0, "European Politicians");
+   gNatCouncilScores = xsArrayCreateInt(6, 0, "Native Council");
+   gAsianWonderScores = xsArrayCreateInt(6, 0, "Asian Wonders");
+   gAfricanAlliances = xsArrayCreateInt(8, 0, "African Alliances");
+   gAfricanAlliancesAgedUpWith = xsArrayCreateBool(5, false, "African Alliances Aged Up With");
+   gAfricanAlliancesUpgrades = xsArrayCreateBool(
+       5, true, "African Alliances Upgrades"); // Default to true and set to false when we actually age-up with the Alliance.
+   gMexicanFederalStates = xsArrayCreateInt(5, 0, "Mexican Federal States");
+   gAmericanFederalStates = xsArrayCreateInt(5, 0, "United States Federal States");
 
    //==============================================================================
    // Economy.
@@ -1068,6 +1078,13 @@ void initArrays(void)
    }
 
    gArmyUnitMaintainPlans = xsArrayCreateInt(gNumArmyUnitTypes, -1, "Army Unit Maintain Plans");
+   
+   gAbstractCounterArtilleryUnit = xsArrayCreateInt(5, 0, "gAbstractCounterArtilleryUnit");
+   xsArraySetInt(gAbstractCounterArtilleryUnit, 0, cUnitTypeCulverin);
+   xsArraySetInt(gAbstractCounterArtilleryUnit, 1, cUnitTypeypHandMortar);
+   xsArraySetInt(gAbstractCounterArtilleryUnit, 2, cUnitTypeAbstractSiegeElephant);
+   xsArraySetInt(gAbstractCounterArtilleryUnit, 3, cUnitTypeypMorutaru);
+   xsArraySetInt(gAbstractCounterArtilleryUnit, 4, cUnitTypeMortar);
 
    //==============================================================================
    // Chats.
@@ -2606,7 +2623,7 @@ void initMil(void)
       //gLandSecondaryArmyUnit = cUnitTypexpCoyoteMan;//  + cUnitTypexpCoyoteMan + cUnitTypexpMacehualtin;
       //gLandTertiaryArmyUnit = cUnitTypexpMacehualtin;//  + cUnitTypexpCoyoteMan + cUnitTypexpMacehualtin;
       gAbstractArtilleryUnit = cUnitTypexpArrowKnight;
-	  gAbstractCounterArtilleryUnit = cUnitTypexpArrowKnight;
+	  //gAbstractCounterArtilleryUnit = cUnitTypexpArrowKnight;
       gSiegeWeaponUnit = -1;
       gBarracksUnit = cUnitTypeWarHut;
       gTowerUnit = cUnitTypeWarHut;
@@ -2641,7 +2658,7 @@ void initMil(void)
       //gLandSecondaryArmyUnit = cUnitTypexpBowRider;//  + cUnitTypexpBowRider + cUnitTypexpRifleRider;
       //gLandTertiaryArmyUnit = cUnitTypexpRifleRider;//  + cUnitTypexpBowRider + cUnitTypexpRifleRider;
       gAbstractArtilleryUnit = -1;
-	  gAbstractCounterArtilleryUnit = -1;
+	  //gAbstractCounterArtilleryUnit = -1;
       gSiegeWeaponUnit = -1;
       //gTowerUnit = cUnitTypeTeepee;
       gStableUnit = cUnitTypeCorral;
@@ -2676,7 +2693,7 @@ void initMil(void)
       //gLandSecondaryArmyUnit = cUnitTypexpMantlet;//  + cUnitTypexpAenna + cUnitTypexpWarRifle + cUnitTypexpMantlet;
       //gLandTertiaryArmyUnit = cUnitTypexpMusketWarrior;//  + cUnitTypexpAenna + cUnitTypexpWarRifle + cUnitTypexpMantlet; 
       gAbstractArtilleryUnit = cUnitTypexpLightCannon;
-	  gAbstractCounterArtilleryUnit = cUnitTypexpLightCannon;
+	  //gAbstractCounterArtilleryUnit = cUnitTypexpLightCannon;
       //gSiegeWeaponUnit = cUnitTypexpLightCannon;
       gStableUnit = cUnitTypeCorral;
       gBarracksUnit = cUnitTypeWarHut;    
@@ -2704,7 +2721,7 @@ void initMil(void)
       gTowerUnit = cUnitTypeypCastle;
       gTowerWagonUnit = cUnitTypeYPCastleWagon;  
       gExplorerUnit = cUnitTypeAbstractChineseMonk; 
-	  gAbstractCounterArtilleryUnit = cUnitTypeypHandMortar;
+	  //gAbstractCounterArtilleryUnit = cUnitTypeypHandMortar;
       //gSiegeWeaponUnit = cUnitTypeypHandMortar;
       gCaravelUnit = cUnitTypeypFireship;
       gGalleonUnit = cUnitTypeypFuchuan;
@@ -2735,7 +2752,7 @@ void initMil(void)
       //gLandSecondaryArmyUnit = cUnitTypeypNaginataRider;//  + cUnitTypeypKensei + cUnitTypeypYumi;
       //gLandTertiaryArmyUnit = cUnitTypeypYumi;//  + cUnitTypeypKensei + cUnitTypeypYumi; 
       gAbstractArtilleryUnit = cUnitTypeypFlamingArrow;
-	  gAbstractCounterArtilleryUnit = cUnitTypeypFlamingArrow;
+	  //gAbstractCounterArtilleryUnit = cUnitTypeypFlamingArrow;
       gBarracksUnit = cUnitTypeypBarracksJapanese;
       gStableUnit = cUnitTypeypStableJapanese;
       gTowerUnit = cUnitTypeypCastle;
@@ -2780,7 +2797,7 @@ void initMil(void)
       gTowerUnit = cUnitTypeypCastle;
       gTowerWagonUnit = cUnitTypeYPCastleWagon;
       gExplorerUnit = cUnitTypeAbstractIndianMonk;
-	  gAbstractCounterArtilleryUnit = cUnitTypeypSiegeElephant;
+	  //gAbstractCounterArtilleryUnit = cUnitTypeypSiegeElephant;
       //gSiegeWeaponUnit = cUnitTypeypSiegeElephant;     
 	  gAbstractAssassinUnit = -1; 
    }
@@ -2808,7 +2825,7 @@ void initMil(void)
       gLandPrimaryArmyUnit = cUnitTypedeJungleBowman;
       gLandSecondaryArmyUnit = cUnitTypedeJungleBowman;
       gLandTertiaryArmyUnit = cUnitTypedeIncaRunner;
-	  gAbstractCounterArtilleryUnit = cUnitTypedeSlinger;
+	  //gAbstractCounterArtilleryUnit = cUnitTypedeSlinger;
 	  //gSiegeWeaponUnit = cUnitTypedeSlinger;
 	  gSiegeWeaponUnit = -1;
 	  gAbstractArtilleryUnit = -1;
