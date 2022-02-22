@@ -134,14 +134,14 @@ highFrequency
             if (((flags & cHCCardFlagResourceCrate) == cHCCardFlagResourceCrate) ||
                 (kbProtoUnitIsType(cMyID, unit, cUnitTypeAbstractResourceCrate) == true))
             {
-               if ((cMyCiv == cCivPortuguese) && (tech == cTechHCShipFoodCrates3) || (tech == cTechHCShipWoodCrates3) ||
+               if ((cMyCiv == cCivPortuguese) && /*(tech == cTechHCShipFoodCrates3) ||*/ (tech == cTechHCShipWoodCrates3) ||
                    (tech == cTechHCShipCoinCrates3))
-                  xsArraySetInt(gCardPriorities, i, 7); // Resource crates, 7 for 700 res shipments for portuguese
+                  xsArraySetInt(gCardPriorities, i, 6); // Resource crates, 7 for 700 res shipments for portuguese
                else if (aiHCCardsGetCardAgePrereq(i) == cAge1)
                   xsArraySetInt(gCardPriorities, i,
                                 4); // Only pick age1 resources crates when there isn't anything else better
                else
-                  xsArraySetInt(gCardPriorities, i, 6); // Resource crates, 6 otherwise
+                  xsArraySetInt(gCardPriorities, i, 5); // Resource crates, 6 otherwise
                if ((aiHCCardsGetCardAgePrereq(i) >= cAge3) && (aiHCCardsGetCardCount(i) >= 1))
                { // Demote finite age 3+ resource crate shipments to prio 5-6
                   cardPriority = xsArrayGetInt(gCardPriorities, i);
@@ -433,13 +433,13 @@ highFrequency
 				(techName == "HCDragoonCombatPortuguese") ||
 				(techName == "HCXPGenitours") ||
                 (techName == "HCRoyalDecreeDutch") ||
-                (techName == "HCDutchEastIndiaCompany") ||
+                //(techName == "HCDutchEastIndiaCompany") ||
 				(techName == "HCInfantryDamageDutch") ||
 				(techName == "HCInfantryCombatDutch") ||
 				(techName == "HCCavalryCombatDutch") ||	 
 				(techName == "HCBetterBanks") ||
                 (techName == "HCStreletsCombatRussian") ||
-				//(techName == "HCRansack") ||
+				(techName == "HCRansack") ||
 				(techName == "HCCavalryCombatRussian") ||
 				(techName == "HCUniqueCombatRussian") ||
                 (techName == "HCXPIndustrialRevolution") ||
@@ -563,7 +563,7 @@ highFrequency
 		 (techName == "HCXPGenitours") ||
                  ((gNavyMap == true) && (techName == "HCNavigationSchool")) ||
                  (techName == "HCRoyalDecreeDutch") ||
-                 (techName == "HCDutchEastIndiaCompany") ||
+                 //(techName == "HCDutchEastIndiaCompany") ||
 		 (techName == "HCInfantryDamageDutch") ||
 		 (techName == "HCInfantryCombatDutch") ||
 		 (techName == "HCCavalryCombatDutch") ||
@@ -853,16 +853,16 @@ highFrequency
 		       //(techName == "HCShipStrelets1") ||
 		       //(techName == "HCShipUhlans1") ||
 		 //((techName == "HCShipSpahis3") ||
-		 ((techName == "HCXPShipMixedCrates2") ||
-		 (techName == "YPHCShipWoodCrates2Indians") ||
-                 (techName == "HCXPCapitalism") ||
-				(techName == "HCXPShipLightCannon2") ||
-                   (techName == "HCShipWoodCrates3") ||
-                   (techName == "ypHCShipWoodCrates2") ||
-                   (techName == "ypHCShipWoodCrates4") ||
-                (techName == "YPHCShipUrumiTeam") ||
-                (techName == "HCShipWoodCrates3") ||
-                (techName == "HCShipWoodCrates3German") ||
+		 //((techName == "HCXPShipMixedCrates2") ||
+		 //((techName == "YPHCShipWoodCrates2Indians") ||
+                 ((techName == "HCXPCapitalism") ||
+				//(techName == "HCXPShipLightCannon2") ||
+                   //(techName == "HCShipWoodCrates3") ||
+                   //(techName == "ypHCShipWoodCrates2") ||
+                   //(techName == "ypHCShipWoodCrates4") ||
+                //(techName == "YPHCShipUrumiTeam") ||
+                //(techName == "HCShipWoodCrates3") ||
+                //(techName == "HCShipWoodCrates3German") ||
                 //(techName == "HCShipCoinCrates3") ||
                 //(techName == "HCShipCoinCrates3German") ||
                 //(techName == "HCShipCoinCrates4") ||
@@ -878,8 +878,8 @@ highFrequency
 		       (techName == "DEHCShipVillagers2") ||
 		       (techName == "DEHCShipVillagers4") ||
 		       (techName == "HCXPShipVillagers2") ||
-		       (techName == "HCShipCossacks4") ||
-		       (techName == "HCShipStrelets1") ||
+		       //(techName == "HCShipCossacks4") ||
+		       //(techName == "HCShipStrelets1") ||
                 (techName == "HCXPShipVillagers4") ||
                 (techName == "HCXPShipVillagers4") ||
 		       (techName == "HCXPShipVillagers4"))
@@ -889,6 +889,53 @@ highFrequency
 		       cardPriority = 7;
 		    if (cardPriority > 7)
 		       cardPriority = 7;
+		    xsArraySetInt(gCardPriorities, i, cardPriority);
+		 }
+			 }
+			 
+			 if (aiTreatyActive() == true)
+			 {
+			 if ((techName == "YPHCShipQiangPikeman2") ||
+			   (techName == "HCXPShipTomahawk1") ||
+		       (techName == "HCXPShipAennas2") ||
+		       (techName == "HCXPShipAennas5") ||
+		       (techName == "HCShipCrossbowmen3German") ||
+               (techName == "HCXPShipMacehualtins1") ||
+               (techName == "HCXPShipMacehualtins3") ||
+			   (techName == "DEHCShipLeatherCannons1") ||
+		       //(techName == "HCExtensiveFortifications") ||
+		       //(techName == "HCXPExtensiveFortifications2") ||
+		       (techName == "YPHCShipChuKoNu1") ||
+		       (techName == "YPHCShipMandarinDuckSquad") ||
+		       (techName == "HCShipCrossbowmen1") ||
+		       (techName == "HCShipPikemen1") ||
+		       (techName == "YPHCShipSepoy1") ||
+               //(techName == "DEHCSveaLifeguard") ||
+               //(techName == "DEHCShipSudaneseAllies1") ||
+               //(techName == "DEHCShipSudaneseAllies2") ||
+               //(techName == "DEHCShipSebastopolMortarTeam") ||
+               //(techName == "DEHCShipSebastopolMortar1") ||
+               //(techName == "DEHCShipSebastopolMortar2") ||
+               //(techName == "DEHCMercsSennarHorsemen") ||
+               //(techName == "DEHCMercsDahomeyAmazons") ||
+               //(techName == "DEHCMercsCannoneers") ||
+               (techName == "YPHCShipYumi1") ||
+		       (techName == "YPHCShipAshigaru2") ||
+		       (techName == "HCShipCossacks4") ||
+			   (techName == "HCShipFalconets3") ||
+                (techName == "HCShipCoinCrates3") ||
+                (techName == "HCShipCoinCrates3German") ||
+                (techName == "HCShipCoinCrates4") ||
+                (techName == "HCShipCoinCrates4German") ||
+		       (techName == "HCShipStrelets1") ||
+		       (techName == "HCShipUhlans1") ||
+		       (techName == "HCShipSpahis3"))
+		 {
+		    cardPriority = xsArrayGetInt(gCardPriorities, i);
+		    //if (cardPriority < 4)
+		    //   cardPriority = 4;
+		    if (cardPriority > 4)
+		       cardPriority = 4;
 		    xsArraySetInt(gCardPriorities, i, cardPriority);
 		 }
 			 }
@@ -1103,6 +1150,9 @@ highFrequency
 	           (techName == "HCXPShipJaguarsTeam") ||
 	           (techName == "HCXPShipWolves") ||
 	           (techName == "HCXPWarChiefIroquois2") ||
+	           (techName == "HCXPCoinCratesAztec1") ||
+	           (techName == "HCXPCoinCratesAztec2") ||
+	           (techName == "HCXPCoinCratesAztec3") ||
 	           (techName == "HCXPCoinCratesAztec4") ||
 	           (techName == "HCXPCoinCratesAztec5") ||
 	           (techName == "HCXPShipMixedCrates4") ||
@@ -1416,7 +1466,7 @@ highFrequency
               ((tech == cTechHCRobberBarons) || (tech == cTechHCRobberBaronsGerman) ||
                (tech == cTechHCXPIndustrialRevolution) || (tech == cTechHCXPIndustrialRevolutionGerman) ||
                (tech == cTechHCUnlockFactory) || (tech == cTechHCUnlockFactoryGerman) || //(tech == cTechHCXPBankWagon) ||
-               (tech == cTechHCBanks1) || (tech == cTechHCBanks2) || //(tech == cTechHCBetterBanks) ||
+               (tech == cTechHCBanks1) || (tech == cTechHCBanks2) || (tech == cTechHCBetterBanks) ||
                (tech == cTechDEHCChichaBrewing) || ((flags & cHCCardFlagTrickleGold) == cHCCardFlagTrickleGold) ||
                ((flags & cHCCardFlagTrickleWood) == cHCCardFlagTrickleWood) ||
                ((flags & cHCCardFlagTrickleFood) == cHCCardFlagTrickleFood) ||

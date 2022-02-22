@@ -665,10 +665,10 @@ minInterval 15
    int planID = -1;
    int difficulty = aiGetWorldDifficulty();
    
-   if (isDefendingOrAttacking() == true)
-   {
-      return;
-   }
+   //if (isDefendingOrAttacking() == true)
+   //{
+   //   return;
+   //}
    
    if (baseQuery < 0)
    {
@@ -684,10 +684,10 @@ minInterval 15
 
    if (gIsMonopolyRunning == true)
    {
-      if (gMonopolyTeam == kbGetPlayerTeam(cMyID))
-         defendingMonopoly = true; // We're defending, let's not go launching any attacks
-      else
-         attackingMonopoly = true; // We're attacking, focus on trade posts
+      //if (gMonopolyTeam == kbGetPlayerTeam(cMyID))
+      //   defendingMonopoly = true; // We're defending, let's not go launching any attacks
+      //else
+      //   attackingMonopoly = true; // We're attacking, focus on trade posts
    }
 
    if (gIsKOTHRunning == true || aiIsKOTHAllowed() == true)
@@ -2651,12 +2651,12 @@ void setUnitPickerPreference(int upID = -1)
              kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeAbstractOutlaw, 0.1);  
              if (kbGetAge() < cAge3)
 			 {      
-             kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypedeInsurgente, lightCavalryFactor);  
+             //kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypedeInsurgente, lightCavalryFactor);  
 			 }
 			 else
 			 {
-			 kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypedeInsurgente, lightCavalryFactor*0);  
-             kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeDragoon, lightCavalryFactor); 
+			 //kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypedeInsurgente, lightCavalryFactor*0);  
+             //kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypeDragoon, lightCavalryFactor); 
 			 }
              //kbUnitPickSetPreferenceFactor(gLandUnitPicker, cUnitTypedeUSCavalry, lightCavalryFactor);  
              break;
